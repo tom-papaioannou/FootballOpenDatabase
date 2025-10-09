@@ -7,6 +7,6 @@
         public string? Surname { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string? PlaceOfBirth { get; set; }
-        public Guid? TeamID { get; set; }
+        public Guid? ContractID { get; set; }
     }
 }

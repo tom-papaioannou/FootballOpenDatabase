@@ -8,6 +8,7 @@ namespace FootballOpenDatabase.Models.Teams
 
         public string? Name { get; set; }
 
-        public ICollection<Tournament> Tournaments { get; set; }
+        public ICollection<Tournament>? Tournaments { get; set; }
+        public ICollection<Contract>? Contracts { get; set; }
     }
 }
