@@ -8,6 +8,8 @@ public class FootballDbContext : DbContext
     public DbSet<TournamentParent> TournamentParents { get; set; }
     public DbSet<Team> Teams { get; set; }
 
+    public DbSet<Contract> Contracts { get; set; }
+
     public FootballDbContext(DbContextOptions<FootballDbContext> options)
         : base(options) { }
 }
