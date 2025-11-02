@@ -1,6 +1,4 @@
-﻿using Azure.Core.Pipeline;
-
-namespace FootballOpenDatabase.Models.Teams
+﻿namespace FootballOpenDatabase.Models.Contracts
 {
     public class Contract
     {
@@ -12,5 +10,6 @@ namespace FootballOpenDatabase.Models.Teams
 
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public Role Role { get; set; }
     }
 }

@@ -8,5 +8,6 @@
         public DateTime? DateOfBirth { get; set; }
         public string? PlaceOfBirth { get; set; }
         public Guid? ContractID { get; set; }
+        public virtual Player? Player { get; set; }
     }
 }

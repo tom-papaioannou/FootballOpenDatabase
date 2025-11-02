@@ -1,4 +1,5 @@
-﻿using FootballOpenDatabase.Models.Tournaments;
+﻿using FootballOpenDatabase.Models.Contracts;
+using FootballOpenDatabase.Models.Tournaments;
 
 namespace FootballOpenDatabase.Models.Teams
 {

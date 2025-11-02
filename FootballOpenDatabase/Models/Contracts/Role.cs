@@ -1,4 +1,4 @@
-﻿namespace FootballOpenDatabase.Models.People
+﻿namespace FootballOpenDatabase.Models.Contracts
 {
     public enum Role
     {
