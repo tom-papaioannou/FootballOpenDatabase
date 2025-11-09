@@ -6,5 +6,7 @@
         public Guid PlayerID { get; set; }
         public PlayerPosition PlayerPosition { get; set; }
         public PlayerRole PlayerRole { get; set; }
+
+        public int PlayerTrainedRoleAdaptaption { get; set; }
     }
 }
