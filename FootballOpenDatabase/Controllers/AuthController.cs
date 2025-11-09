@@ -23,6 +23,12 @@ namespace FootballOpenDatabase.Controllers
                 var token = GenerateJwtToken(login.Username, role);
                 return Ok(new { token, role });
             }
+            else if (login.Username == "host" && login.Password == "password")
+            {
+                string role = "Host";
+                var token = GenerateJwtToken(login.Username, role);
+                return Ok(new { token, role });
+            }
             else if (login.Username == "tom" && login.Password == "password")
             {
                 string role = "User";
