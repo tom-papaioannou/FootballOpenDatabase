@@ -1,6 +1,6 @@
-﻿namespace FootballOpenDatabase.Models.Tournaments
+﻿namespace FootballOpenDatabase.Models.Competitions
 {
-    public enum TournamentParentType
+    public enum CompetitionParentType
     {
         None = 0,
         Global = 1,

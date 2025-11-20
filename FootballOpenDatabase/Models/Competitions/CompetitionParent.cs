@@ -1,12 +1,12 @@
-﻿namespace FootballOpenDatabase.Models.Tournaments
+﻿namespace FootballOpenDatabase.Models.Competitions
 {
-    public class TournamentParent
+    public class CompetitionParent
     {
-        public Guid TournamentParentID { get; set; }
+        public Guid CompetitionParentID { get; set; }
 
         public string? Name { get; set; }
 
-        public TournamentParentType TournamentParentType { get; set; }
+        public CompetitionParentType CompetitionParentType { get; set; }
 
         public int NumberOfLeagues { get; set; }
 

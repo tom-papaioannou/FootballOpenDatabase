@@ -1,7 +1,7 @@
+using FootballOpenDatabase.Models.Competitions;
 using FootballOpenDatabase.Models.Contracts;
 using FootballOpenDatabase.Models.People;
 using FootballOpenDatabase.Models.Teams;
-using FootballOpenDatabase.Models.Tournaments;
 using Microsoft.EntityFrameworkCore;
 
 public class FootballDbContext : DbContext
@@ -14,8 +14,8 @@ public class FootballDbContext : DbContext
     public DbSet<PlayerTactic> PlayerTactics { get; set; }
     public DbSet<PlayerTrainedPosition> PlayerTrainedPositions { get; set; }
     public DbSet<PlayerTrainedRole> PlayerTrainedRoles { get; set; }
-    public DbSet<Tournament> Tournaments { get; set; }
-    public DbSet<TournamentParent> TournamentParents { get; set; }
+    public DbSet<Competition> Competitions { get; set; }
+    public DbSet<CompetitionParent> CompetitionParents { get; set; }
 
     public FootballDbContext(DbContextOptions<FootballDbContext> options)
         : base(options) { }

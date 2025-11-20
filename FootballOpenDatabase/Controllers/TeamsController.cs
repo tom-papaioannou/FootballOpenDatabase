@@ -19,7 +19,7 @@ namespace FootballOpenDatabase.Controllers
         public async Task<ActionResult<Team>> GetTeam(Guid teamID)
         {
             var team = await _context.Teams
-                .Include(t => t.Tournaments)
+                .Include(t => t.Competitions)
                 .FirstOrDefaultAsync(t => t.TeamID == teamID);
 
             if (team == null)
