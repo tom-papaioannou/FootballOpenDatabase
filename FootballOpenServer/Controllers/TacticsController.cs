@@ -25,6 +25,30 @@ namespace FootballOpenServer.Controllers
             return Ok(teamTactics);
         }
 
+        [HttpPost("createTeamTactic")]
+        public async Task<IActionResult> CreateTeamTactic([FromBody] Tactic newTactic)
+        {
+            var teamExists = await _context.Teams.AnyAsync(t => t.TeamID == newTactic.TeamID);
+
+            if (!teamExists)
+            {
+                return NotFound("Team not found.");
+            }
+
+            _context.Tactics.Add(newTactic);
+
+            try
+            { 
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+            }
+
+            return Ok(newTactic);
+        }
+
         [HttpGet("getPlayerTactics/{tacticID}")]
         public async Task<IActionResult> GetPlayerTactics(Guid tacticID)
         {
@@ -38,7 +62,7 @@ namespace FootballOpenServer.Controllers
         [HttpPost("addPlayerTactic")]
         public async Task<IActionResult> AddPlayerTactic([FromBody] PlayerTactic newPlayerTactic)
         {
-            PlayerTactic alreadySamePlayerTactic = await _context.PlayerTactics
+            PlayerTactic? alreadySamePlayerTactic = await _context.PlayerTactics
                 .Where(pt => pt.TacticID == newPlayerTactic.TacticID && pt.PlayerPosition == newPlayerTactic.PlayerPosition)
                 .FirstOrDefaultAsync();
 

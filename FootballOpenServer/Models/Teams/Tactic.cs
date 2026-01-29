@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FootballOpenServer.Models.Teams
 {
@@ -10,6 +11,10 @@ namespace FootballOpenServer.Models.Teams
         [ForeignKey("TeamID")]
         public virtual Team? Team { get; set; }
 
+        [StringLength(100, MinimumLength = 1)]
+        public string Name {  get; set; } = string.Empty;
+
         public bool isMain {  get; set; }
+
     }
 }
