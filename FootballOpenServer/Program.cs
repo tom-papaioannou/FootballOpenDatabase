@@ -1,6 +1,10 @@
+using FootballOpenServer.Models.Users;
+using FootballOpenServer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Security.Claims;
 using System.Text;
 
 
@@ -37,6 +41,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -52,5 +58,40 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<FootballDbContext>();
+    var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasherService>();
+    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+    // optional: ensure DB exists / migrations applied
+    // await db.Database.MigrateAsync();
+
+    var adminUsername = config["SeedAdmin:Username"] ?? "admin";
+    var adminPassword = config["SeedAdmin:Password"] ?? "ChangeMe123!";
+
+    var adminExists = await db.AppUsers.AnyAsync(u => u.Username == adminUsername);
+
+    if (!adminExists)
+    {
+        hasher.CreateHash(adminPassword, out var hash, out var salt);
+
+        var admin = new AppUser
+        {
+            Username = adminUsername,
+            PasswordHash = hash,
+            PasswordSalt = salt,
+            Claims = new List<AppUserClaim>
+            {
+                new AppUserClaim { Type = ClaimTypes.Role, Value = "Admin" },
+                new AppUserClaim { Type = ClaimTypes.NameIdentifier, Value = adminUsername }
+            }
+        };
+
+        db.AppUsers.Add(admin);
+        await db.SaveChangesAsync();
+    }
+}
 
 app.Run();
