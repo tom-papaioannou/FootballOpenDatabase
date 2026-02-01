@@ -1,4 +1,5 @@
-﻿using FootballOpenServer.Models.Users;
+﻿using FootballOpenServer.Models.People;
+using FootballOpenServer.Models.Users;
 using FootballOpenServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -93,6 +94,19 @@ namespace FootballOpenServer.Controllers
                     new AppUserClaim { Type = ClaimTypes.NameIdentifier, Value = username }
                 }
             };
+
+            if(dto.Role == "User")
+            {
+                Person person = new Person
+                {
+                    Name = "John",
+                    Surname = "Doe",
+                    DateOfBirth = new DateTime(1970, 1, 1),
+                    PlaceOfBirth = "Athens"
+                };
+
+                user.Person = person;
+            }
 
             _db.AppUsers.Add(user);
 

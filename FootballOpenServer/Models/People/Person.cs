@@ -1,4 +1,6 @@
-﻿namespace FootballOpenServer.Models.People
+﻿using FootballOpenServer.Models.Users;
+
+namespace FootballOpenServer.Models.People
 {
     public class Person
     {
@@ -9,5 +11,6 @@
         public string? PlaceOfBirth { get; set; }
         public Guid? ContractID { get; set; }
         public virtual Player? Player { get; set; }
+        public AppUser? AppUser { get; set; }
     }
 }

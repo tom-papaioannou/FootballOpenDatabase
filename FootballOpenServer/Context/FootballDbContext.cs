@@ -53,5 +53,11 @@ public class FootballDbContext : DbContext
             .WithMany()
             .HasForeignKey(rt => rt.AppUserID)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AppUser>()
+            .HasOne(u => u.Person)
+            .WithOne(p => p.AppUser)
+            .HasForeignKey<AppUser>(u => u.PersonID)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
