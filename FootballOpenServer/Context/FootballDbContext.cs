@@ -19,6 +19,7 @@ public class FootballDbContext : DbContext
     public DbSet<CompetitionParent> CompetitionParents { get; set; }
     public DbSet<AppUser> AppUsers { get; set; }
     public DbSet<AppUserClaim> AppUserClaims { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
 
     public FootballDbContext(DbContextOptions<FootballDbContext> options)
         : base(options) { }
@@ -46,5 +47,11 @@ public class FootballDbContext : DbContext
             .Property(c => c.Value)
             .HasMaxLength(200)
             .IsRequired();
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasOne(rt => rt.AppUser)
+            .WithMany()
+            .HasForeignKey(rt => rt.AppUserID)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

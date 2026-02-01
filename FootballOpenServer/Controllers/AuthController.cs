@@ -1,10 +1,12 @@
 ﻿using FootballOpenServer.Models.Users;
 using FootballOpenServer.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace FootballOpenServer.Controllers
@@ -45,10 +47,24 @@ namespace FootballOpenServer.Controllers
             if (!_passwordHasher.Verify(dto.Password, user.PasswordHash, user.PasswordSalt))
                 return Unauthorized("Invalid credentials.");
 
-            var token = GenerateJwtToken(user.Username, user.Claims);
             var role = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "User";
 
-            return Ok(new { token, role });
+            var refreshToken = CreateRefreshToken();
+            var refreshExpires = DateTime.UtcNow.AddDays(14);
+
+            _db.RefreshTokens.Add(new RefreshToken
+            {
+                AppUserID = user.Id,
+                TokenHash = Sha256(refreshToken),
+                ExpiresUtc = refreshExpires
+            });
+
+            await _db.SaveChangesAsync();
+
+            SetRefreshCookie(refreshToken, refreshExpires);
+
+            var accessToken = GenerateJwtToken(user.Username, user.Claims);
+            return Ok(new { token = accessToken, role });
         }
 
         [HttpPost("register")]
@@ -122,6 +138,99 @@ namespace FootballOpenServer.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        private void SetRefreshCookie(string refreshToken, DateTime expiresUtc)
+        {
+            Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,          // true in https
+                SameSite = SameSiteMode.None, // needed for Angular on different origin
+                Expires = expiresUtc
+            });
+        }
+
+        private static string CreateRefreshToken()
+        {
+            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        }
+
+        private static string Sha256(string input)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
+            return Convert.ToBase64String(bytes);
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                return Unauthorized("Missing refresh token.");
+
+            var tokenHash = Sha256(refreshToken);
+
+            var stored = await _db.RefreshTokens
+                .Include(rt => rt.AppUser)
+                .SingleOrDefaultAsync(rt => rt.TokenHash == tokenHash);
+
+            if (stored == null || !stored.IsActive)
+                return Unauthorized("Invalid refresh token.");
+
+            var user = await _db.AppUsers
+                .Include(u => u.Claims)
+                .SingleAsync(u => u.Id == stored.AppUserID);
+
+            var newRefresh = CreateRefreshToken();
+            var newRefreshHash = Sha256(newRefresh);
+            var newExpires = DateTime.UtcNow.AddDays(14);
+
+            stored.RevokedUtc = DateTime.UtcNow;
+            stored.ReplacedByTokenHash = newRefreshHash;
+
+            _db.RefreshTokens.Add(new RefreshToken
+            {
+                AppUserID = user.Id,
+                TokenHash = newRefreshHash,
+                ExpiresUtc = newExpires
+            });
+
+            await _db.SaveChangesAsync();
+
+            SetRefreshCookie(newRefresh, newExpires);
+
+            var accessToken = GenerateJwtToken(user.Username, user.Claims);
+            var role = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "User";
+
+            return Ok(new { token = accessToken, role });
+        }
+
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (!string.IsNullOrWhiteSpace(refreshToken))
+            {
+                var tokenHash = Sha256(refreshToken);
+                var stored = await _db.RefreshTokens.SingleOrDefaultAsync(rt => rt.TokenHash == tokenHash);
+                if (stored != null && stored.IsActive)
+                {
+                    stored.RevokedUtc = DateTime.UtcNow;
+                    await _db.SaveChangesAsync();
+                }
+            }
+
+            Response.Cookies.Delete("refreshToken", new CookieOptions
+            {
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                HttpOnly = true
+            });
+
+            return Ok();
+        }
+
     }
 
     public record LoginDto(string Username, string Password);
