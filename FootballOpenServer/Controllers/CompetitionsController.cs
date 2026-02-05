@@ -36,7 +36,7 @@ namespace FootballOpenServer.Controllers
             // Validate that the CompetitionParent exists
             var competitionParent = await _context.CompetitionParents.FindAsync(request.ParentID);
             if (competitionParent == null)
-                return BadRequest("CompetitionParent not found");
+                return BadRequest($"CompetitionParent with ID {request.ParentID} not found");
 
             var competition = new Competition
             {

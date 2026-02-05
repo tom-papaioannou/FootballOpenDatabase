@@ -28,8 +28,20 @@ namespace FootballOpenServer.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CompetitionParent>> PostCompetitionParent([FromBody] CompetitionParent competitionParent)
+        public async Task<ActionResult<CompetitionParent>> PostCompetitionParent([FromBody] CreateCompetitionParentRequest request)
         {
+            var competitionParent = new CompetitionParent
+            {
+                CompetitionParentID = Guid.NewGuid(),
+                Name = request.Name,
+                CompetitionParentType = request.CompetitionParentType,
+                NumberOfLeagues = request.NumberOfLeagues,
+                NumberOfCups = request.NumberOfCups,
+                NumberOfNationalLeagues = request.NumberOfNationalLeagues,
+                NumberOfNationalCups = request.NumberOfNationalCups,
+                NationalTeamID = request.NationalTeamID
+            };
+
             _context.CompetitionParents.Add(competitionParent);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetCompetitionParent), new { competitionParentID = competitionParent.CompetitionParentID }, competitionParent);
@@ -39,7 +51,7 @@ namespace FootballOpenServer.Controllers
         public async Task<IActionResult> UpdateCompetitionParent(Guid competitionParentID, [FromBody] CompetitionParent updatedCompetitionParent)
         {
             if (competitionParentID != updatedCompetitionParent.CompetitionParentID)
-                return BadRequest();
+                return BadRequest("The ID in the URL does not match the ID in the request body");
 
             var competitionParent = await _context.CompetitionParents.FindAsync(competitionParentID);
             if (competitionParent == null)
