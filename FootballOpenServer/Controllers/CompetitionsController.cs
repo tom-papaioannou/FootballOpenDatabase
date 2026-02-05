@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FootballOpenServer.Models.Competitions;
+using FootballOpenServer.Models.Teams;
 using Microsoft.EntityFrameworkCore;
 
 namespace FootballOpenServer.Controllers
@@ -30,8 +31,24 @@ namespace FootballOpenServer.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Competition>> PostCompetition([FromBody] Competition competition)
+        public async Task<ActionResult<Competition>> PostCompetition([FromBody] CreateCompetitionRequest request)
         {
+            // Validate that the CompetitionParent exists
+            var competitionParent = await _context.CompetitionParents.FindAsync(request.ParentID);
+            if (competitionParent == null)
+                return BadRequest("CompetitionParent not found");
+
+            var competition = new Competition
+            {
+                CompetitionID = Guid.NewGuid(),
+                CompetitionName = request.CompetitionName,
+                ParentID = request.ParentID,
+                CompetitionTeamsType = request.CompetitionTeamsType,
+                Priority = request.Priority,
+                CompetitionType = request.CompetitionType,
+                Teams = new List<Team>()
+            };
+
             _context.Competitions.Add(competition);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetCompetition), new { competitionID = competition.CompetitionID }, competition);
