@@ -10,7 +10,7 @@ namespace FootballOpenServer.Controllers
     {
         private FootballDbContext _context;
 
-        TacticsController(FootballDbContext context)
+        public TacticsController(FootballDbContext context)
         {
             _context = context;
         }
@@ -47,6 +47,29 @@ namespace FootballOpenServer.Controllers
             }
 
             return Ok(newTactic);
+        }
+
+        [HttpDelete("deleteTeamTactic/{tacticID}")]
+        public async Task<IActionResult> DeleteTeamTactic(Guid tacticID)
+        {
+            Tactic? tactic = await _context.Tactics.FindAsync(tacticID);
+
+            if (tactic == null)
+            {
+                return NotFound("Tactic not found.");
+            }
+
+            _context.Tactics.Remove(tactic);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+            }
+
+            return Ok();
         }
 
         [HttpGet("getPlayerTactics/{tacticID}")]
