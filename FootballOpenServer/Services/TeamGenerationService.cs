@@ -24,13 +24,12 @@ namespace FootballOpenServer.Services
             "Celtic", "Rangers", "Hearts", "Hibernian", "Aberdeen",
             "Galatasaray", "Fenerbahce", "Besiktas", "Trabzonspor", "Basaksehir",
             "Anderlecht", "Club Brugge", "Standard Liege", "Genk", "Antwerp",
-            "Shakhtar Donetsk", "Dynamo Kyiv", "Sporting Lisbon", "Fiorentina", "Lazio"
+            "Shakhtar Donetsk", "Dynamo Kyiv", "Fiorentina", "Lazio", "Atalanta"
         };
 
         public List<Team> GenerateTeamsForCompetition(int numberOfTeams = 20)
         {
             var teams = new List<Team>();
-            var usedNames = new HashSet<string>();
             var random = new Random();
 
             // Create a shuffled copy of team names to avoid duplicates
