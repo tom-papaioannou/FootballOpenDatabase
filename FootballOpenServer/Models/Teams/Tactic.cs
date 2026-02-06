@@ -16,5 +16,7 @@ namespace FootballOpenServer.Models.Teams
 
         public bool isMain {  get; set; }
 
+        [Required]
+        public Formation? Formation { get; set; }
     }
 }
