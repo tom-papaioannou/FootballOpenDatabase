@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FootballOpenServer.Models.Competitions;
 using FootballOpenServer.Models.Teams;
+using FootballOpenServer.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FootballOpenServer.Controllers
@@ -10,10 +11,12 @@ namespace FootballOpenServer.Controllers
     public class CompetitionsController : ControllerBase
     {
         private readonly FootballDbContext _context;
+        private readonly ITeamGenerationService _teamGenerationService;
 
-        public CompetitionsController(FootballDbContext context)
+        public CompetitionsController(FootballDbContext context, ITeamGenerationService teamGenerationService)
         {
             _context = context;
+            _teamGenerationService = teamGenerationService;
         }
 
         [HttpGet("{competitionID}")]
@@ -53,6 +56,9 @@ namespace FootballOpenServer.Controllers
             if (competitionParent == null)
                 return BadRequest($"CompetitionParent with ID {request.ParentID} not found");
 
+            // Generate 20 teams for the new competition
+            var generatedTeams = _teamGenerationService.GenerateTeamsForCompetition(20);
+
             var competition = new Competition
             {
                 CompetitionID = Guid.NewGuid(),
@@ -61,7 +67,7 @@ namespace FootballOpenServer.Controllers
                 CompetitionTeamsType = request.CompetitionTeamsType,
                 Priority = request.Priority,
                 CompetitionType = request.CompetitionType,
-                Teams = new List<Team>()
+                Teams = generatedTeams
             };
 
             _context.Competitions.Add(competition);
