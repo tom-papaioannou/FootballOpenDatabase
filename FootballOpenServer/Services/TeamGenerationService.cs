@@ -11,20 +11,17 @@ namespace FootballOpenServer.Services
     {
         private static readonly string[] TeamNames = new[]
         {
-            "Arsenal", "Liverpool", "Manchester United", "Chelsea", "Tottenham",
-            "Manchester City", "Leicester City", "Everton", "West Ham", "Newcastle",
-            "Aston Villa", "Southampton", "Crystal Palace", "Brighton", "Wolves",
-            "Burnley", "Leeds United", "Nottingham Forest", "Fulham", "Brentford",
-            "Barcelona", "Real Madrid", "Atletico Madrid", "Sevilla", "Valencia",
-            "Bayern Munich", "Borussia Dortmund", "RB Leipzig", "Bayer Leverkusen", "Eintracht Frankfurt",
-            "Juventus", "AC Milan", "Inter Milan", "Napoli", "Roma",
-            "Paris Saint-Germain", "Marseille", "Lyon", "Monaco", "Lille",
-            "Ajax", "PSV Eindhoven", "Feyenoord", "AZ Alkmaar", "FC Twente",
-            "Benfica", "Porto", "Sporting CP", "Braga", "Vitoria Guimaraes",
-            "Celtic", "Rangers", "Hearts", "Hibernian", "Aberdeen",
-            "Galatasaray", "Fenerbahce", "Besiktas", "Trabzonspor", "Basaksehir",
-            "Anderlecht", "Club Brugge", "Standard Liege", "Genk", "Antwerp",
-            "Shakhtar Donetsk", "Dynamo Kyiv", "Fiorentina", "Lazio", "Atalanta"
+            "CanonRed FC", "Limani City", "Peter United", "Sea FC", "Ham Ham SC",
+            "Metropolitan City", "Lester Country", "Levadia", "Notos FC", "Newcera",
+            "Karpe DIEM Villa", "Southeastamptonica", "Crystal City", "Bright Future SC", "Likoi FC",
+            "Burn-Burn FC", "Leeds United", "Notham Town", "Fulleriom", "Brenta",
+            "Catalonica", "Real Athens", "Atletico Posidwnos", "Cella", "Vale King",
+            "Sillogos Munich", "Dort Port", "Leipzia Team Soccer", "Eintracht Karpenisiou",
+            "AC Lamias", "Inter Kavalas", "Romaioi United",
+            "Paris-France Team", "Mona Basel", "Aias Salaminas",
+            "Thermaikos", "Portogalia SC", "Sport Limaniou SC",
+            "Celt Heroes", "Strong Heart FC", "Milky Way United", "Andromeda Team",
+            "Stars Beyond", "Galaxias Elliniki Omada", "Fioreba Team"
         };
 
         public List<Team> GenerateTeamsForCompetition(int numberOfTeams = 20)
