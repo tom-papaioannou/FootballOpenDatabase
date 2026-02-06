@@ -15,6 +15,17 @@ namespace FootballOpenServer.Controllers
             _context = context;
         }
 
+        [HttpGet("getAllCompetitionParents")]
+        public async Task<ActionResult<CompetitionParent>> GetAllCompetitionParents()
+        {
+            var competitionParent = await _context.CompetitionParents.ToListAsync();
+
+            if (competitionParent == null)
+                return NotFound();
+
+            return Ok(competitionParent);
+        }
+
         [HttpGet("{competitionParentID}")]
         public async Task<ActionResult<CompetitionParent>> GetCompetitionParent(Guid competitionParentID)
         {
@@ -66,6 +77,19 @@ namespace FootballOpenServer.Controllers
             competitionParent.NationalTeamID = updatedCompetitionParent.NationalTeamID;
 
             _context.Entry(competitionParent).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{competitionParentID}")]
+        public async Task<IActionResult> UpdateCompetitionParent(Guid competitionParentID)
+        {
+            var competitionParent = await _context.CompetitionParents.FindAsync(competitionParentID);
+            if (competitionParent == null)
+                return NotFound();
+
+            _context.Entry(competitionParent).State = EntityState.Deleted;
             await _context.SaveChangesAsync();
 
             return NoContent();

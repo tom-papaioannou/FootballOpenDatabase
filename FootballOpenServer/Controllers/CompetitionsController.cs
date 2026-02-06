@@ -30,6 +30,21 @@ namespace FootballOpenServer.Controllers
             return Ok(competition);
         }
 
+        [HttpGet("getAllCompetitions/{competitionParentID}")]
+        public async Task<ActionResult<Competition>> GetAllCompetitions(Guid competitionParentID)
+        {
+            var competition = await _context.Competitions
+                .Where(c => c.ParentID == competitionParentID)
+                .Include(c => c.Teams)
+                .Include(c => c.CompetitionParent)
+                .ToListAsync();
+
+            if (competition == null)
+                return NotFound();
+
+            return Ok(competition);
+        }
+
         [HttpPost]
         public async Task<ActionResult<Competition>> PostCompetition([FromBody] CreateCompetitionRequest request)
         {
