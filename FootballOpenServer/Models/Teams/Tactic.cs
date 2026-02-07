@@ -11,7 +11,7 @@ namespace FootballOpenServer.Models.Teams
         [ForeignKey("TeamID")]
         public virtual Team? Team { get; set; }
 
-        [StringLength(100, MinimumLength = 1)]
+        [StringLength(30, MinimumLength = 1)]
         public string Name {  get; set; } = string.Empty;
 
         public bool isMain {  get; set; }
