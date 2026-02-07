@@ -35,6 +35,25 @@ namespace FootballOpenServer.Controllers
                 return NotFound("Team not found.");
             }
 
+            // Get all existing tactics for this team
+            var existingTactics = await _context.Tactics
+                .Where(t => t.TeamID == newTactic.TeamID)
+                .ToListAsync();
+
+            // If this is the first tactic for the team, always set it as main
+            if (!existingTactics.Any())
+            {
+                newTactic.isMain = true;
+            }
+            // If the new tactic is marked as main, set all other tactics to not main
+            else if (newTactic.isMain)
+            {
+                foreach (var tactic in existingTactics)
+                {
+                    tactic.isMain = false;
+                }
+            }
+
             _context.Tactics.Add(newTactic);
 
             try
