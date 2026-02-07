@@ -88,6 +88,7 @@ namespace FootballOpenServer.Controllers
                 {
                     var newMainTactic = await _context.Tactics
                         .Where(t => t.TeamID == tactic.TeamID && t.TacticID != tacticID)
+                        .OrderBy(t => t.TacticID)
                         .FirstOrDefaultAsync();
 
                     if (newMainTactic != null)
