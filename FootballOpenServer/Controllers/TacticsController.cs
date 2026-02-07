@@ -80,17 +80,33 @@ namespace FootballOpenServer.Controllers
                 return NotFound("Tactic not found.");
             }
 
-            _context.Tactics.Remove(tactic);
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                // If the deleted tactic is main, promote another tactic to main
+                if (tactic.isMain)
+                {
+                    var newMainTactic = await _context.Tactics
+                        .Where(t => t.TeamID == tactic.TeamID && t.TacticID != tacticID)
+                        .FirstOrDefaultAsync();
+
+                    if (newMainTactic != null)
+                    {
+                        newMainTactic.isMain = true;
+                    }
+                }
+
+                _context.Tactics.Remove(tactic);
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok();
             }
             catch (DbUpdateException ex)
             {
+                await transaction.RollbackAsync();
                 return BadRequest(ex.InnerException?.Message ?? ex.Message);
             }
-
-            return Ok();
         }
 
         [HttpGet("getPlayerTactics/{tacticID}")]
