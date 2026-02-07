@@ -83,6 +83,16 @@ namespace FootballOpenServer.Controllers
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                // Check if there are other tactics for this team
+                var otherTacticsCount = await _context.Tactics
+                    .CountAsync(t => t.TeamID == tactic.TeamID && t.TacticID != tacticID);
+
+                if (otherTacticsCount == 0)
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest("Cannot delete the last tactic of a team. A team must have at least one tactic.");
+                }
+
                 // If the deleted tactic is main, promote another tactic to main
                 if (tactic.isMain)
                 {

@@ -78,6 +78,17 @@ namespace FootballOpenServer.Services
                     Contracts = new List<Models.Contracts.Contract>()
                 };
 
+                // Generate primary tactic for the team
+                var primaryTactic = new Tactic
+                {
+                    TacticID = Guid.NewGuid(),
+                    TeamID = team.TeamID,
+                    Name = "Primary Tactic",
+                    Formation = Formation.Four_Four_Two,
+                    isMain = true
+                };
+                _context.Tactics.Add(primaryTactic);
+
                 // Generate 30 people for each team
                 for (int j = 0; j < 30; j++)
                 {
