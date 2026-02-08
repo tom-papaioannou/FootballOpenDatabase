@@ -130,6 +130,23 @@ namespace FootballOpenServer.Controllers
             return Ok(playerTactics);
         }
 
+        [HttpGet("getPlayerTacticsByTeamID/{teamID}")]
+        public async Task<IActionResult> GetPlayerTacticsByTeamID(Guid teamID)
+        {
+            // Get all tactics for the team
+            var tacticIDs = await _context.Tactics
+                .Where(t => t.TeamID == teamID)
+                .Select(t => t.TacticID)
+                .ToListAsync();
+
+            // Get all player tactics for those tactics
+            List<PlayerTactic> playerTactics = await _context.PlayerTactics
+                .Where(pt => tacticIDs.Contains(pt.TacticID))
+                .ToListAsync();
+
+            return Ok(playerTactics);
+        }
+
         [HttpPost("addPlayerTactic")]
         public async Task<IActionResult> AddPlayerTactic([FromBody] PlayerTactic newPlayerTactic)
         {
