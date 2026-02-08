@@ -15,6 +15,19 @@ namespace FootballOpenServer.Controllers
             _context = context;
         }
 
+        [HttpGet("getTeamTactic/{tacticID}")]
+        public async Task<IActionResult> GetTeamTactic(Guid tacticID)
+        {
+            Tactic? teamTactic = await _context.Tactics.FirstOrDefaultAsync(tactic => tactic.TacticID == tacticID);
+
+            if(teamTactic == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(teamTactic);
+        }
+
         [HttpGet("getTeamTactics/{teamID}")]
         public async Task<IActionResult> GetTeamTactics(Guid teamID)
         {
