@@ -89,6 +89,9 @@ namespace FootballOpenServer.Services
                 };
                 _context.Tactics.Add(primaryTactic);
 
+                // Store player IDs for later position assignment
+                var teamPlayerIDs = new List<Guid>();
+
                 // Generate 30 people for each team
                 for (int j = 0; j < 30; j++)
                 {
@@ -143,7 +146,13 @@ namespace FootballOpenServer.Services
                     _context.Players.Add(player);
                     _context.PlayerTrainedPositions.AddRange(trainedPositions);
                     _context.PlayerTrainedRoles.AddRange(trainedRoles);
+
+                    // Store player ID for position assignment
+                    teamPlayerIDs.Add(playerID);
                 }
+
+                // Auto-assign players to positions in the primary tactic
+                AssignPlayersToFormation(primaryTactic.TacticID, teamPlayerIDs, primaryTactic.Formation, random);
 
                 teams.Add(team);
             }
@@ -233,6 +242,109 @@ namespace FootballOpenServer.Services
             }
 
             return trainedRoles;
+        }
+
+        private void AssignPlayersToFormation(Guid tacticID, List<Guid> teamPlayerIDs, Formation? formation, Random random)
+        {
+            if (formation == Formation.Four_Four_Two)
+            {
+                AssignPlayersToFourFourTwo(tacticID, teamPlayerIDs, random);
+            }
+            // Add more formations here as needed
+        }
+
+        private void AssignPlayersToFourFourTwo(Guid tacticID, List<Guid> teamPlayerIDs, Random random)
+        {
+            var assignedPlayerIDs = new HashSet<Guid>();
+
+            // 1. Assign Goalkeeper
+            var goalkeeper = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.Goalkeeper, random);
+            CreatePlayerTactic(tacticID, goalkeeper, PlayerPosition.Goalkeeper, PlayerRole.Goalkeeper);
+            assignedPlayerIDs.Add(goalkeeper);
+
+            // 2. Assign Defenders (1 Left, 2 Center, 1 Right)
+            var leftBack = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.LeftBack, random);
+            CreatePlayerTactic(tacticID, leftBack, PlayerPosition.LeftBack, PlayerRole.FullBack);
+            assignedPlayerIDs.Add(leftBack);
+
+            var centerBack1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CenterBack, random);
+            CreatePlayerTactic(tacticID, centerBack1, PlayerPosition.CenterBack, PlayerRole.CenterBack);
+            assignedPlayerIDs.Add(centerBack1);
+
+            var centerBack2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CenterBack, random);
+            CreatePlayerTactic(tacticID, centerBack2, PlayerPosition.CenterBack, PlayerRole.CenterBack);
+            assignedPlayerIDs.Add(centerBack2);
+
+            var rightBack = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.RightBack, random);
+            CreatePlayerTactic(tacticID, rightBack, PlayerPosition.RightBack, PlayerRole.FullBack);
+            assignedPlayerIDs.Add(rightBack);
+
+            // 3. Assign Midfielders (1 Left, 2 Center, 1 Right)
+            var leftMidfielder = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.LeftMidfielder, random);
+            CreatePlayerTactic(tacticID, leftMidfielder, PlayerPosition.LeftMidfielder, PlayerRole.WideMidfielder);
+            assignedPlayerIDs.Add(leftMidfielder);
+
+            var centralMidfielder1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CentralMidfielder, random);
+            CreatePlayerTactic(tacticID, centralMidfielder1, PlayerPosition.CentralMidfielder, PlayerRole.CentralMidfielder);
+            assignedPlayerIDs.Add(centralMidfielder1);
+
+            var centralMidfielder2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CentralMidfielder, random);
+            CreatePlayerTactic(tacticID, centralMidfielder2, PlayerPosition.CentralMidfielder, PlayerRole.CentralMidfielder);
+            assignedPlayerIDs.Add(centralMidfielder2);
+
+            var rightMidfielder = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.RightMidfielder, random);
+            CreatePlayerTactic(tacticID, rightMidfielder, PlayerPosition.RightMidfielder, PlayerRole.WideMidfielder);
+            assignedPlayerIDs.Add(rightMidfielder);
+
+            // 4. Assign Forwards (2 Strikers)
+            var striker1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.Striker, random);
+            CreatePlayerTactic(tacticID, striker1, PlayerPosition.Striker, PlayerRole.AdvancedForward);
+            assignedPlayerIDs.Add(striker1);
+
+            var striker2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.Striker, random);
+            CreatePlayerTactic(tacticID, striker2, PlayerPosition.Striker, PlayerRole.AdvancedForward);
+            assignedPlayerIDs.Add(striker2);
+        }
+
+        private Guid FindBestPlayerForPosition(List<Guid> teamPlayerIDs, HashSet<Guid> assignedPlayerIDs, PlayerPosition desiredPosition, Random random)
+        {
+            // Get all unassigned players from the team
+            var availablePlayers = teamPlayerIDs.Where(id => !assignedPlayerIDs.Contains(id)).ToList();
+
+            if (!availablePlayers.Any())
+            {
+                // This shouldn't happen with 30 players and 11 positions, but return random if it does
+                return teamPlayerIDs[random.Next(teamPlayerIDs.Count)];
+            }
+
+            // Find players trained for this position by querying PlayerTrainedRoles
+            var playersWithTrainedRoles = _context.PlayerTrainedRoles
+                .Where(ptr => availablePlayers.Contains(ptr.PlayerID) && ptr.PlayerPosition == desiredPosition)
+                .OrderByDescending(ptr => ptr.PlayerTrainedRoleAdaptaption)
+                .ToList();
+
+            if (playersWithTrainedRoles.Any())
+            {
+                // Return the player with the highest adaptation for this position
+                return playersWithTrainedRoles.First().PlayerID;
+            }
+
+            // If no player is trained for this position, return a random available player
+            return availablePlayers[random.Next(availablePlayers.Count)];
+        }
+
+        private void CreatePlayerTactic(Guid tacticID, Guid playerID, PlayerPosition position, PlayerRole role)
+        {
+            var playerTactic = new PlayerTactic
+            {
+                PlayerTacticID = Guid.NewGuid(),
+                TacticID = tacticID,
+                PlayerID = playerID,
+                PlayerPosition = position,
+                PlayerRole = role
+            };
+
+            _context.PlayerTactics.Add(playerTactic);
         }
     }
 }

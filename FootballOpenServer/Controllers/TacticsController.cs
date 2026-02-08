@@ -15,6 +15,19 @@ namespace FootballOpenServer.Controllers
             _context = context;
         }
 
+        [HttpGet("getTeamTactic/{tacticID}")]
+        public async Task<IActionResult> GetTeamTactic(Guid tacticID)
+        {
+            Tactic? teamTactic = await _context.Tactics.FirstOrDefaultAsync(tactic => tactic.TacticID == tacticID);
+
+            if(teamTactic == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(teamTactic);
+        }
+
         [HttpGet("getTeamTactics/{teamID}")]
         public async Task<IActionResult> GetTeamTactics(Guid teamID)
         {
@@ -125,6 +138,21 @@ namespace FootballOpenServer.Controllers
         {
             List<PlayerTactic> playerTactics = await _context.PlayerTactics
                 .Where(pt => pt.TacticID == tacticID)
+                .Include(pt => pt.Player).ThenInclude(p => p.Person)
+                .ToListAsync();
+
+            return Ok(playerTactics);
+        }
+
+        [HttpGet("getPlayerTacticsByTeamID/{teamID}")]
+        public async Task<IActionResult> GetPlayerTacticsByTeamID(Guid teamID)
+        {
+            // Use a join to get all player tactics for the team's tactics in a single query
+            List<PlayerTactic> playerTactics = await _context.PlayerTactics
+                .Where(pt => _context.Tactics
+                    .Where(t => t.TeamID == teamID)
+                    .Select(t => t.TacticID)
+                    .Contains(pt.TacticID))
                 .ToListAsync();
 
             return Ok(playerTactics);
