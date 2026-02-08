@@ -138,6 +138,7 @@ namespace FootballOpenServer.Controllers
         {
             List<PlayerTactic> playerTactics = await _context.PlayerTactics
                 .Where(pt => pt.TacticID == tacticID)
+                .Include(pt => pt.Player).ThenInclude(p => p.Person)
                 .ToListAsync();
 
             return Ok(playerTactics);
