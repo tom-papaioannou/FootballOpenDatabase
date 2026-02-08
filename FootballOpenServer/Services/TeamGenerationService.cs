@@ -258,55 +258,55 @@ namespace FootballOpenServer.Services
             var assignedPlayerIDs = new HashSet<Guid>();
 
             // 1. Assign Goalkeeper
-            var goalkeeper = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.Goalkeeper);
+            var goalkeeper = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.Goalkeeper, random);
             CreatePlayerTactic(tacticID, goalkeeper, PlayerPosition.Goalkeeper, PlayerRole.Goalkeeper);
             assignedPlayerIDs.Add(goalkeeper);
 
             // 2. Assign Defenders (1 Left, 2 Center, 1 Right)
-            var leftBack = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.LeftBack);
+            var leftBack = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.LeftBack, random);
             CreatePlayerTactic(tacticID, leftBack, PlayerPosition.LeftBack, PlayerRole.FullBack);
             assignedPlayerIDs.Add(leftBack);
 
-            var centerBack1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CenterBack);
+            var centerBack1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CenterBack, random);
             CreatePlayerTactic(tacticID, centerBack1, PlayerPosition.CenterBack, PlayerRole.CenterBack);
             assignedPlayerIDs.Add(centerBack1);
 
-            var centerBack2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CenterBack);
+            var centerBack2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CenterBack, random);
             CreatePlayerTactic(tacticID, centerBack2, PlayerPosition.CenterBack, PlayerRole.CenterBack);
             assignedPlayerIDs.Add(centerBack2);
 
-            var rightBack = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.RightBack);
+            var rightBack = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.RightBack, random);
             CreatePlayerTactic(tacticID, rightBack, PlayerPosition.RightBack, PlayerRole.FullBack);
             assignedPlayerIDs.Add(rightBack);
 
             // 3. Assign Midfielders (1 Left, 2 Center, 1 Right)
-            var leftMidfielder = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.LeftMidfielder);
+            var leftMidfielder = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.LeftMidfielder, random);
             CreatePlayerTactic(tacticID, leftMidfielder, PlayerPosition.LeftMidfielder, PlayerRole.WideMidfielder);
             assignedPlayerIDs.Add(leftMidfielder);
 
-            var centralMidfielder1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CentralMidfielder);
+            var centralMidfielder1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CentralMidfielder, random);
             CreatePlayerTactic(tacticID, centralMidfielder1, PlayerPosition.CentralMidfielder, PlayerRole.CentralMidfielder);
             assignedPlayerIDs.Add(centralMidfielder1);
 
-            var centralMidfielder2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CentralMidfielder);
+            var centralMidfielder2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CentralMidfielder, random);
             CreatePlayerTactic(tacticID, centralMidfielder2, PlayerPosition.CentralMidfielder, PlayerRole.CentralMidfielder);
             assignedPlayerIDs.Add(centralMidfielder2);
 
-            var rightMidfielder = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.RightMidfielder);
+            var rightMidfielder = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.RightMidfielder, random);
             CreatePlayerTactic(tacticID, rightMidfielder, PlayerPosition.RightMidfielder, PlayerRole.WideMidfielder);
             assignedPlayerIDs.Add(rightMidfielder);
 
-            // 4. Assign Forwards (1 Left, 1 Right)
-            var leftStriker = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.Striker);
-            CreatePlayerTactic(tacticID, leftStriker, PlayerPosition.Striker, PlayerRole.AdvancedForward);
-            assignedPlayerIDs.Add(leftStriker);
+            // 4. Assign Forwards (2 Strikers)
+            var striker1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.Striker, random);
+            CreatePlayerTactic(tacticID, striker1, PlayerPosition.Striker, PlayerRole.AdvancedForward);
+            assignedPlayerIDs.Add(striker1);
 
-            var rightStriker = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.Striker);
-            CreatePlayerTactic(tacticID, rightStriker, PlayerPosition.Striker, PlayerRole.AdvancedForward);
-            assignedPlayerIDs.Add(rightStriker);
+            var striker2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.Striker, random);
+            CreatePlayerTactic(tacticID, striker2, PlayerPosition.Striker, PlayerRole.AdvancedForward);
+            assignedPlayerIDs.Add(striker2);
         }
 
-        private Guid FindBestPlayerForPosition(List<Guid> teamPlayerIDs, HashSet<Guid> assignedPlayerIDs, PlayerPosition desiredPosition)
+        private Guid FindBestPlayerForPosition(List<Guid> teamPlayerIDs, HashSet<Guid> assignedPlayerIDs, PlayerPosition desiredPosition, Random random)
         {
             // Get all unassigned players from the team
             var availablePlayers = teamPlayerIDs.Where(id => !assignedPlayerIDs.Contains(id)).ToList();
@@ -314,7 +314,7 @@ namespace FootballOpenServer.Services
             if (!availablePlayers.Any())
             {
                 // This shouldn't happen with 30 players and 11 positions, but return random if it does
-                return teamPlayerIDs[new Random().Next(teamPlayerIDs.Count)];
+                return teamPlayerIDs[random.Next(teamPlayerIDs.Count)];
             }
 
             // Find players trained for this position by querying PlayerTrainedRoles
@@ -330,7 +330,7 @@ namespace FootballOpenServer.Services
             }
 
             // If no player is trained for this position, return a random available player
-            return availablePlayers[new Random().Next(availablePlayers.Count)];
+            return availablePlayers[random.Next(availablePlayers.Count)];
         }
 
         private void CreatePlayerTactic(Guid tacticID, Guid playerID, PlayerPosition position, PlayerRole role)
