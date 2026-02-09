@@ -13,6 +13,8 @@ namespace FootballOpenServer.Models.People
         public Guid? ContractID { get; set; }
         [JsonIgnore]
         public virtual Player? Player { get; set; }
+        [JsonIgnore]
+        public virtual Staff? Staff { get; set; }
         public AppUser? AppUser { get; set; }
     }
 }
