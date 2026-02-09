@@ -1,4 +1,5 @@
-﻿using FootballOpenServer.Models.People;
+﻿using FootballOpenServer.Models.Contracts;
+using FootballOpenServer.Models.People;
 using FootballOpenServer.Models.Users;
 using FootballOpenServer.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -64,7 +65,7 @@ namespace FootballOpenServer.Controllers
 
             SetRefreshCookie(refreshToken, refreshExpires);
 
-            var accessToken = GenerateJwtToken(user.Username, user.Claims);
+            var accessToken = GenerateJwtToken(user.Id.ToString(), user.Claims);
             return Ok(new { token = accessToken, role });
         }
 
@@ -83,15 +84,18 @@ namespace FootballOpenServer.Controllers
 
             _passwordHasher.CreateHash(dto.Password, out var hash, out var salt);
 
+            Guid newId = Guid.NewGuid();
+
             var user = new AppUser
             {
+                Id = newId,
                 Username = username,
                 PasswordHash = hash,
                 PasswordSalt = salt,
                 Claims = new List<AppUserClaim>
                 {
                     new AppUserClaim { Type = ClaimTypes.Role, Value = dto.Role },
-                    new AppUserClaim { Type = ClaimTypes.NameIdentifier, Value = username }
+                    new AppUserClaim { Type = ClaimTypes.NameIdentifier, Value = newId.ToString() }
                 }
             };
 
@@ -106,26 +110,46 @@ namespace FootballOpenServer.Controllers
                 };
 
                 user.Person = person;
+                var now = DateTime.UtcNow;
 
-                // Get all teams that don't have a manager using a single query
                 var availableTeams = await _db.Teams
-                    .Where(t => !_db.Staffs.Any(s => s.TeamID == t.TeamID && s.StaffRole == StaffRole.Manager))
+                    .Where(t => !_db.Staffs.Any(s =>
+                        s.StaffRole == StaffRole.Manager
+                        && s.Person != null
+                        && s.Person.Contracts.Any(c =>
+                            c.TeamID == t.TeamID
+                            && (c.EndDate == null || c.EndDate > now)
+                        )
+                    ))
                     .ToListAsync();
+
 
                 // If there's at least one available team, assign a random one
                 if (availableTeams.Any())
                 {
                     var randomTeam = availableTeams[Random.Shared.Next(availableTeams.Count)];
 
+                    var contract = new Contract
+                    {
+                        Person = person,
+                        Team = randomTeam,
+                        StartDate = DateTime.UtcNow,
+                        EndDate = DateTime.UtcNow.AddYears(1)
+                    };
+
+                    _db.Contracts.Add(contract);
+
                     var staff = new Staff
                     {
                         Person = person,
-                        StaffRole = StaffRole.Manager,
-                        TeamID = randomTeam.TeamID
+                        StaffRole = StaffRole.Manager
                     };
 
                     _db.Staffs.Add(staff);
                 }
+
+
+                
             }
 
             _db.AppUsers.Add(user);
@@ -139,14 +163,14 @@ namespace FootballOpenServer.Controllers
                 return BadRequest("Could not register user.");
             }
 
-            var token = GenerateJwtToken(user.Username, user.Claims);
+            var token = GenerateJwtToken(user.Id.ToString(), user.Claims);
             var role = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "User";
 
             return Ok(new { token, role });
             //return CreatedAtAction(nameof(Me), new { }, new { token, role });
         }
 
-        private string GenerateJwtToken(string username, IEnumerable<AppUserClaim> dbClaims)
+        private string GenerateJwtToken(string Id, IEnumerable<AppUserClaim> dbClaims)
         {
             var keyString = _config["Jwt:Key"] ?? throw new InvalidOperationException("JWT signing key (Jwt:Key) is missing.");
 
@@ -156,7 +180,7 @@ namespace FootballOpenServer.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(JwtRegisteredClaimNames.Sub, Id),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 

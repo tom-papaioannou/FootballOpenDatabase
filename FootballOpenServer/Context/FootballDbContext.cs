@@ -65,5 +65,15 @@ public class FootballDbContext : DbContext
             .HasOne(pt => pt.Player)
             .WithMany(p => p.PlayerTactics)
             .HasForeignKey(pt => pt.PlayerID);
+
+        modelBuilder.Entity<Contract>()
+            .HasOne(c => c.Person)
+            .WithMany(p => p.Contracts)
+            .HasForeignKey(c => c.PersonID);
+
+        modelBuilder.Entity<Contract>()
+            .HasOne(c => c.Team)
+            .WithMany(t => t.Contracts)
+            .HasForeignKey(c => c.TeamID);
     }
 }

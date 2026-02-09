@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FootballOpenServer.Models.People;
 using FootballOpenServer.Models.Teams;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace FootballOpenServer.Controllers
 {
@@ -13,6 +15,34 @@ namespace FootballOpenServer.Controllers
         public TeamsController(FootballDbContext context)
         {
             _context = context;
+        }
+
+        [HttpGet("getCurrentTeam")]
+        public async Task<ActionResult<Team>> GetCurrentTeam()
+        {
+            var userID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.Id.ToString() == userID);
+
+            if(user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            Person person = await _context.People.FirstOrDefaultAsync(u => u.AppUser.Id.ToString() == userID);
+
+            if (person == null)
+            {
+                return NotFound("Manager not found for this user.");
+            }
+
+            var contract = await _context.Contracts
+                .Include(c => c.Team)
+                .FirstOrDefaultAsync(c => c.EndDate > DateTime.Now && c.PersonID == person.PersonID);
+
+            if (contract == null || contract.Team == null)
+                return NotFound("Active contract not found.");
+
+            return Ok(contract.Team);
         }
 
         [HttpGet("{teamID}")]

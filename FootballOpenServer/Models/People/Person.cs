@@ -1,4 +1,5 @@
-﻿using FootballOpenServer.Models.Users;
+﻿using FootballOpenServer.Models.Contracts;
+using FootballOpenServer.Models.Users;
 using System.Text.Json.Serialization;
 
 namespace FootballOpenServer.Models.People
@@ -10,7 +11,7 @@ namespace FootballOpenServer.Models.People
         public string? Surname { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string? PlaceOfBirth { get; set; }
-        public Guid? ContractID { get; set; }
+        public ICollection<Contract> Contracts { get; set; } = new List<Contract>();
         [JsonIgnore]
         public virtual Player? Player { get; set; }
         [JsonIgnore]
