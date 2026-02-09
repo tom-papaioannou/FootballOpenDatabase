@@ -106,6 +106,32 @@ namespace FootballOpenServer.Controllers
                 };
 
                 user.Person = person;
+
+                // Get all teams that don't have a manager
+                var teamsWithManagers = await _db.Staffs
+                    .Where(s => s.StaffRole == StaffRole.Manager)
+                    .Select(s => s.TeamID)
+                    .ToListAsync();
+
+                var availableTeams = await _db.Teams
+                    .Where(t => !teamsWithManagers.Contains(t.TeamID))
+                    .ToListAsync();
+
+                // If there's at least one available team, assign a random one
+                if (availableTeams.Any())
+                {
+                    var random = new Random();
+                    var randomTeam = availableTeams[random.Next(availableTeams.Count)];
+
+                    var staff = new Staff
+                    {
+                        Person = person,
+                        StaffRole = StaffRole.Manager,
+                        TeamID = randomTeam.TeamID
+                    };
+
+                    _db.Staffs.Add(staff);
+                }
             }
 
             _db.AppUsers.Add(user);
