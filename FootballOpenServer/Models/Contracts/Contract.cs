@@ -1,4 +1,8 @@
-﻿namespace FootballOpenServer.Models.Contracts
+﻿using FootballOpenServer.Models.People;
+using FootballOpenServer.Models.Teams;
+using System.Text.Json.Serialization;
+
+namespace FootballOpenServer.Models.Contracts
 {
     public class Contract
     {
@@ -6,7 +10,13 @@
 
         public Guid PersonID { get; set; }
 
+        [JsonIgnore]
+        public Person Person { get; set; } = null!;
+
         public Guid TeamID { get; set; }
+
+        [JsonIgnore]
+        public virtual Team Team { get; set; } = null!;
 
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }

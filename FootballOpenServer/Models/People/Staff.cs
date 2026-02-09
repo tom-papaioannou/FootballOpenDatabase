@@ -8,7 +8,5 @@ namespace FootballOpenServer.Models.People
         public Guid PersonID { get; set; }
         public virtual Person? Person { get; set; }
         public StaffRole StaffRole { get; set; }
-        public Guid? TeamID { get; set; }
-        public virtual Team? Team { get; set; }
     }
 }
