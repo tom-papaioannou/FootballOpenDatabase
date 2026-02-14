@@ -129,6 +129,30 @@ namespace FootballOpenServer.Services
                         PlayerTrainedRoles = new List<PlayerTrainedRole>()
                     };
 
+                    // Create PlayerStats with random values between 1 and 100
+                    var playerStats = new PlayerStats
+                    {
+                        PlayerStatsID = Guid.NewGuid(),
+                        PlayerID = playerID,
+                        Shooting = (byte)random.Next(1, 101),
+                        Passing = (byte)random.Next(1, 101),
+                        Crossing = (byte)random.Next(1, 101),
+                        Tackling = (byte)random.Next(1, 101),
+                        Dribbling = (byte)random.Next(1, 101),
+                        Control = (byte)random.Next(1, 101),
+                        Kicking = (byte)random.Next(1, 101),
+                        Goalkeeping = (byte)random.Next(1, 101),
+                        Teamwork = (byte)random.Next(1, 101),
+                        Creativity = (byte)random.Next(1, 101),
+                        Decisions = (byte)random.Next(1, 101),
+                        Positioning = (byte)random.Next(1, 101),
+                        Speed = (byte)random.Next(1, 101),
+                        Acceleration = (byte)random.Next(1, 101),
+                        Strength = (byte)random.Next(1, 101),
+                        Jumping = (byte)random.Next(1, 101),
+                        Stamina = (byte)random.Next(1, 101)
+                    };
+
                     // Generate PlayerTrainedPositions
                     var trainedPositions = GeneratePlayerTrainedPositions(random, playerID);
                     
@@ -144,6 +168,7 @@ namespace FootballOpenServer.Services
                     _context.People.Add(person);
                     _context.Contracts.Add(contract);
                     _context.Players.Add(player);
+                    _context.PlayerStats.Add(playerStats);
                     _context.PlayerTrainedPositions.AddRange(trainedPositions);
                     _context.PlayerTrainedRoles.AddRange(trainedRoles);
 
