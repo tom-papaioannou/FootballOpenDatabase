@@ -1,4 +1,6 @@
-﻿namespace FootballOpenServer.Models.People
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FootballOpenServer.Models.People
 {
     public class PlayerTrainedRole
     {
@@ -7,6 +9,7 @@
         public PlayerPosition PlayerPosition { get; set; }
         public PlayerRole PlayerRole { get; set; }
 
-        public int PlayerTrainedRoleAdaptaption { get; set; }
+        [Range(1, 100)]
+        public byte PlayerTrainedRoleAdaptation { get; set; }
     }
 }

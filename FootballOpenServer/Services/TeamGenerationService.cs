@@ -177,7 +177,7 @@ namespace FootballOpenServer.Services
                 PlayerTrainedPositionID = Guid.NewGuid(),
                 PlayerID = playerID,
                 PlayerPosition = firstPosition,
-                PlayerTrainedPositionAdaptaption = random.Next(80, 101) // 80-100 inclusive
+                PlayerTrainedPositionAdaptation = (byte)random.Next(80, 101) // 80-100 inclusive
             });
 
             // 15% chance for second trained position (50-80 adaptaption)
@@ -193,7 +193,7 @@ namespace FootballOpenServer.Services
                         PlayerTrainedPositionID = Guid.NewGuid(),
                         PlayerID = playerID,
                         PlayerPosition = secondPosition,
-                        PlayerTrainedPositionAdaptaption = random.Next(50, 81) // 50-80 inclusive
+                        PlayerTrainedPositionAdaptation = (byte)random.Next(50, 81) // 50-80 inclusive
                     });
                 }
             }
@@ -219,7 +219,7 @@ namespace FootballOpenServer.Services
                 PlayerID = playerID,
                 PlayerPosition = position,
                 PlayerRole = firstRole,
-                PlayerTrainedRoleAdaptaption = random.Next(80, 101) // 80-100 inclusive
+                PlayerTrainedRoleAdaptation = (byte)random.Next(80, 101) // 80-100 inclusive
             });
 
             // 15% chance for second trained role (50-80 adaptaption)
@@ -236,7 +236,7 @@ namespace FootballOpenServer.Services
                         PlayerID = playerID,
                         PlayerPosition = position,
                         PlayerRole = secondRole,
-                        PlayerTrainedRoleAdaptaption = random.Next(50, 81) // 50-80 inclusive
+                        PlayerTrainedRoleAdaptation = (byte)random.Next(50, 81) // 50-80 inclusive
                     });
                 }
             }
@@ -320,7 +320,7 @@ namespace FootballOpenServer.Services
             // Find players trained for this position by querying PlayerTrainedRoles
             var playersWithTrainedRoles = _context.PlayerTrainedRoles
                 .Where(ptr => availablePlayers.Contains(ptr.PlayerID) && ptr.PlayerPosition == desiredPosition)
-                .OrderByDescending(ptr => ptr.PlayerTrainedRoleAdaptaption)
+                .OrderByDescending(ptr => ptr.PlayerTrainedRoleAdaptation)
                 .ToList();
 
             if (playersWithTrainedRoles.Any())

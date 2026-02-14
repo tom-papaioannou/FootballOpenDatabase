@@ -75,5 +75,9 @@ public class FootballDbContext : DbContext
             .HasOne(c => c.Team)
             .WithMany(t => t.Contracts)
             .HasForeignKey(c => c.TeamID);
+
+        modelBuilder.Entity<PlayerStats>()
+            .HasIndex(ps => ps.PlayerID)
+            .IsUnique();
     }
 }
