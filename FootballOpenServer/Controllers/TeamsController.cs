@@ -1,7 +1,9 @@
-﻿using FootballOpenServer.Models.People;
+﻿using FootballOpenServer.Models.Contracts;
+using FootballOpenServer.Models.People;
 using FootballOpenServer.Models.Teams;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace FootballOpenServer.Controllers
@@ -23,7 +25,7 @@ namespace FootballOpenServer.Controllers
             var userID = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.Id.ToString() == userID);
 
-            if(user == null)
+            if (user == null)
             {
                 return NotFound("User not found");
             }
@@ -82,6 +84,43 @@ namespace FootballOpenServer.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpGet("getTeamSquad/{teamID}")]
+        public async Task<IActionResult> GetTeamSquad(Guid teamID)
+        {
+            var team = await _context.Teams.FirstOrDefaultAsync(t => t.TeamID == teamID);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            var squad = await _context.Players
+                .Where(pl => _context.Contracts.Any(c =>
+                    c.PersonID == pl.PersonID &&
+                    c.TeamID == teamID &&
+                    c.EndDate > DateTime.Now &&
+                    c.Role == Role.Player))
+                .Include(pl => pl.Person)
+                .Include(pl => pl.PlayerTrainedPositions)
+                .Select(pl => new
+                {
+                    pl.PlayerID,
+                    Person = new
+                    {
+                        pl.Person!.Name,
+                        pl.Person!.Surname,
+                        pl.Person!.DateOfBirth,
+                    },
+                    PlayerTrainedPositions = pl.PlayerTrainedPositions!.Select(ptp => new
+                    {
+                        ptp.PlayerPosition,
+                        ptp.PlayerTrainedPositionAdaptation
+                    })
+                })
+                .ToListAsync();
+
+            return Ok(squad);
         }
     }
 }
