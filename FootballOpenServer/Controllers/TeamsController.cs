@@ -122,5 +122,35 @@ namespace FootballOpenServer.Controllers
 
             return Ok(squad);
         }
+
+        [HttpGet("getPlayerDetails/{playerID}")]
+        public async Task<IActionResult> GetPlayerDetails(Guid playerID)
+        {
+            var player = await _context.Players
+                .Where(pl => pl.PlayerID == playerID)
+                .Select(pl => new {
+                    Person = new
+                    {
+                        pl.Person!.Name,
+                        pl.Person!.Surname,
+                        pl.Person!.DateOfBirth,
+                        pl.Person!.PlaceOfBirth,
+                        Contracts = pl.Person.Contracts
+                            .OrderByDescending(c => c.EndDate)
+                            .Select(c => new {
+                                c.StartDate,
+                                c.EndDate,
+                                Team = new { c.Team.Name }
+                            })
+                    },
+                    pl.PlayerStats,
+                    pl.PlayerTrainedPositions,
+                    pl.PlayerTrainedRoles
+                })
+                .FirstOrDefaultAsync();
+
+
+            return Ok(player);
+        }
     }
 }

@@ -21,6 +21,7 @@ public class FootballDbContext : DbContext
     public DbSet<AppUserClaim> AppUserClaims { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
     public DbSet<Staff> Staffs { get; set; }
+    public DbSet<PlayerStats> PlayerStats { get; set; }
 
     public FootballDbContext(DbContextOptions<FootballDbContext> options)
         : base(options) { }
