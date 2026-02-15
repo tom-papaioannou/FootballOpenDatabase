@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Tom Papaioannou. All rights reserved.
+// Licensed under the MIT License
+
 using FootballOpenServer.Models.Competitions;
 using FootballOpenServer.Models.Contracts;
 using FootballOpenServer.Models.People;
