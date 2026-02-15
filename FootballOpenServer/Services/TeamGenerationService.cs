@@ -46,6 +46,23 @@ namespace FootballOpenServer.Services
             "Green", "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell"
         };
 
+        private static readonly string[] Cities = new[]
+        {
+            "London", "Paris", "Berlin", "Madrid", "Rome", "Athens", "Amsterdam", "Vienna",
+            "Brussels", "Copenhagen", "Dublin", "Helsinki", "Lisbon", "Oslo", "Prague",
+            "Stockholm", "Warsaw", "Budapest", "Bucharest", "Sofia", "Zagreb", "Belgrade",
+            "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego",
+            "Dallas", "San Jose", "Austin", "Jacksonville", "San Francisco", "Seattle", "Denver", "Washington",
+            "Boston", "Nashville", "Detroit", "Portland", "Las Vegas", "Miami", "Atlanta", "Minneapolis",
+            "Tokyo", "Beijing", "Shanghai", "Delhi", "Mumbai", "Seoul", "Jakarta", "Manila",
+            "Bangkok", "Ho Chi Minh City", "Hong Kong", "Singapore", "Kuala Lumpur", "Taipei", "Osaka", "Karachi",
+            "Sydney", "Melbourne", "Brisbane", "Perth", "Auckland", "Wellington", "Adelaide", "Canberra",
+            "Sao Paulo", "Rio de Janeiro", "Buenos Aires", "Lima", "Bogota", "Santiago", "Caracas", "Mexico City",
+            "Toronto", "Montreal", "Vancouver", "Calgary", "Ottawa", "Edmonton", "Winnipeg", "Quebec City",
+            "Cairo", "Lagos", "Nairobi", "Johannesburg", "Cape Town", "Casablanca", "Algiers", "Tunis",
+            "Istanbul", "Dubai", "Tel Aviv", "Riyadh", "Doha", "Abu Dhabi"
+        };
+
         private readonly FootballDbContext _context;
 
         public TeamGenerationService(FootballDbContext context)
@@ -104,7 +121,8 @@ namespace FootballOpenServer.Services
                         PersonID = personID,
                         Name = FirstNames[random.Next(FirstNames.Length)],
                         Surname = LastNames[random.Next(LastNames.Length)],
-                        DateOfBirth = DateTime.Now.AddYears(-random.Next(18, 35)).AddDays(-random.Next(0, 365))
+                        DateOfBirth = DateTime.Now.AddYears(-random.Next(18, 35)).AddDays(-random.Next(0, 365)),
+                        PlaceOfBirth = Cities[random.Next(Cities.Length)]
                     };
 
                     // Create Contract with random end date (June 30, random year 2026-2030)
