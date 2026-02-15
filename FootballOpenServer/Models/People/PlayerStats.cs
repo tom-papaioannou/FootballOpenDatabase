@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Tom Papaioannou. All rights reserved.
+// Licensed under the MIT License
+
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
