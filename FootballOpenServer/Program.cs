@@ -103,7 +103,7 @@ using (var scope = app.Services.CreateScope())
     var europe = await db.Continents.FirstOrDefaultAsync(c => c.Name == "Europe");
     if (europe == null)
     {
-        europe = new Continent { ContinentID = Guid.NewGuid(), Name = "Europe" };
+        europe = new Continent { ContinentID = Guid.NewGuid(), Name = "Europe", Code = "EUR" };
         db.Continents.Add(europe);
         await db.SaveChangesAsync();
     }
