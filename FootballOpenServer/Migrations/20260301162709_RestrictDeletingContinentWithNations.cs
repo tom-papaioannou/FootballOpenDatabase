@@ -1,0 +1,42 @@
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace FootballOpenServer.Migrations
+{
+    /// <inheritdoc />
+    public partial class RestrictDeletingContinentWithNations : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Nations_Continents_ContinentID",
+                table: "Nations");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Nations_Continents_ContinentID",
+                table: "Nations",
+                column: "ContinentID",
+                principalTable: "Continents",
+                principalColumn: "ContinentID",
+                onDelete: ReferentialAction.Restrict);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Nations_Continents_ContinentID",
+                table: "Nations");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Nations_Continents_ContinentID",
+                table: "Nations",
+                column: "ContinentID",
+                principalTable: "Continents",
+                principalColumn: "ContinentID",
+                onDelete: ReferentialAction.Cascade);
+        }
+    }
+}
