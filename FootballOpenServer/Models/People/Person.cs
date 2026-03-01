@@ -3,6 +3,7 @@
 
 ﻿using FootballOpenServer.Models.Contracts;
 using FootballOpenServer.Models.Users;
+using FootballOpenServer.Models.World;
 using System.Text.Json.Serialization;
 
 namespace FootballOpenServer.Models.People
@@ -20,5 +21,8 @@ namespace FootballOpenServer.Models.People
         [JsonIgnore]
         public virtual Staff? Staff { get; set; }
         public AppUser? AppUser { get; set; }
+        public Guid? NationID { get; set; }
+        [JsonIgnore]
+        public Nation? Nation { get; set; }
     }
 }

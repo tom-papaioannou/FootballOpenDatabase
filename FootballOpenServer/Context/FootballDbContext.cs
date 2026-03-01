@@ -6,6 +6,7 @@ using FootballOpenServer.Models.Contracts;
 using FootballOpenServer.Models.People;
 using FootballOpenServer.Models.Teams;
 using FootballOpenServer.Models.Users;
+using FootballOpenServer.Models.World;
 using Microsoft.EntityFrameworkCore;
 
 public class FootballDbContext : DbContext
@@ -19,12 +20,14 @@ public class FootballDbContext : DbContext
     public DbSet<PlayerTrainedPosition> PlayerTrainedPositions { get; set; }
     public DbSet<PlayerTrainedRole> PlayerTrainedRoles { get; set; }
     public DbSet<Competition> Competitions { get; set; }
-    public DbSet<CompetitionParent> CompetitionParents { get; set; }
     public DbSet<AppUser> AppUsers { get; set; }
     public DbSet<AppUserClaim> AppUserClaims { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
     public DbSet<Staff> Staffs { get; set; }
     public DbSet<PlayerStats> PlayerStats { get; set; }
+
+    public DbSet<Nation> Nations { get; set; }
+    public DbSet<Continent> Continents { get; set; }
 
     public FootballDbContext(DbContextOptions<FootballDbContext> options)
         : base(options) { }
@@ -83,5 +86,11 @@ public class FootballDbContext : DbContext
         modelBuilder.Entity<PlayerStats>()
             .HasIndex(ps => ps.PlayerID)
             .IsUnique();
+
+        modelBuilder.Entity<Person>()
+            .HasOne(p => p.Nation)
+            .WithMany()
+            .HasForeignKey(p => p.NationID)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

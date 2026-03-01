@@ -27,7 +27,8 @@ namespace FootballOpenServer.Controllers
         {
             var competition = await _context.Competitions
                 .Include(c => c.Teams)
-                .Include(c => c.CompetitionParent)
+                .Include(c => c.Nation)
+                .Include(c => c.Continent)
                 .FirstOrDefaultAsync(c => c.CompetitionID == competitionID);
 
             if (competition == null)
@@ -40,9 +41,10 @@ namespace FootballOpenServer.Controllers
         public async Task<ActionResult<Competition>> GetAllCompetitions(Guid competitionParentID)
         {
             var competition = await _context.Competitions
-                .Where(c => c.ParentID == competitionParentID)
+                .Where(c => c.NationID == competitionParentID || c.ContinentID == competitionParentID)
                 .Include(c => c.Teams)
-                .Include(c => c.CompetitionParent)
+                .Include(c => c.Nation)
+                .Include(c => c.Continent)
                 .ToListAsync();
 
             if (competition == null)
@@ -54,28 +56,43 @@ namespace FootballOpenServer.Controllers
         [HttpPost]
         public async Task<ActionResult<Competition>> PostCompetition([FromBody] CreateCompetitionRequest request)
         {
-            // Validate that the CompetitionParent exists
-            var competitionParent = await _context.CompetitionParents.FindAsync(request.ParentID);
-            if (competitionParent == null)
-                return BadRequest($"CompetitionParent with ID {request.ParentID} not found");
-
-            // Generate 20 teams for the new competition
-            var generatedTeams = _teamGenerationService.GenerateTeamsForCompetition(20);
-
-            var competition = new Competition
+            if(request.NationID != null)
             {
-                CompetitionID = Guid.NewGuid(),
-                CompetitionName = request.CompetitionName,
-                ParentID = request.ParentID,
-                CompetitionTeamsType = request.CompetitionTeamsType,
-                Priority = request.Priority,
-                CompetitionType = request.CompetitionType,
-                Teams = generatedTeams
-            };
+                var nation = await _context.Nations.FindAsync(request.NationID);
+                if (nation == null)
+                    return BadRequest($"Nation with ID {request.NationID} not found");
 
-            _context.Competitions.Add(competition);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetCompetition), new { competitionID = competition.CompetitionID }, competition);
+                // Generate 20 teams for the new competition
+                var generatedTeams = _teamGenerationService.GenerateTeamsForCompetition(20);
+
+                var competition = new Competition
+                {
+                    CompetitionID = Guid.NewGuid(),
+                    CompetitionName = request.CompetitionName,
+                    NationID = request.NationID,
+                    CompetitionTeamsType = request.CompetitionTeamsType,
+                    Priority = request.Priority,
+                    CompetitionType = request.CompetitionType,
+                    Teams = generatedTeams
+                };
+
+                _context.Competitions.Add(competition);
+                await _context.SaveChangesAsync();
+                return CreatedAtAction(nameof(GetCompetition), new { competitionID = competition.CompetitionID }, competition);
+            }
+            else if(request.ContinentID != null)
+            {
+                var continent = await _context.Continents.FindAsync(request.ContinentID);
+                if (continent == null)
+                    return BadRequest($"Continent with ID {request.ContinentID} not found");
+
+                return BadRequest($"Not Implemented yet.");
+            }
+            else
+            {
+                // Competition Parent is the World
+                return BadRequest($"Not Implemented yet.");
+            }
         }
 
         [HttpPut("{competitionID}")]
@@ -89,7 +106,8 @@ namespace FootballOpenServer.Controllers
                 return NotFound();
 
             competition.CompetitionName = updatedCompetition.CompetitionName;
-            competition.ParentID = updatedCompetition.ParentID;
+            competition.NationID = updatedCompetition.NationID;
+            competition.ContinentID = updatedCompetition.ContinentID;
             competition.CompetitionTeamsType = updatedCompetition.CompetitionTeamsType;
             competition.Priority = updatedCompetition.Priority;
             competition.CompetitionType = updatedCompetition.CompetitionType;
