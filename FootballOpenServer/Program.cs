@@ -2,6 +2,7 @@
 // Licensed under the MIT License
 
 using FootballOpenServer.Models.Users;
+using FootballOpenServer.Models.World;
 using FootballOpenServer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -97,6 +98,45 @@ using (var scope = app.Services.CreateScope())
         db.AppUsers.Add(admin);
         await db.SaveChangesAsync();
     }
+
+    // Seed Europe continent
+    var europe = await db.Continents.FirstOrDefaultAsync(c => c.Name == "Europe");
+    if (europe == null)
+    {
+        europe = new Continent { ContinentID = Guid.NewGuid(), Name = "Europe" };
+        db.Continents.Add(europe);
+        await db.SaveChangesAsync();
+    }
+
+    // Seed nations for Europe
+    var nationSeeds = new Dictionary<string, string>
+    {
+        { "Greece",  "GR" },
+        { "England", "GB" },
+        { "Italy",   "IT" },
+        { "France",  "FR" },
+        { "Germany", "DE" }
+    };
+
+    var existingNationNames = await db.Nations
+        .Where(n => nationSeeds.Keys.Contains(n.Name))
+        .Select(n => n.Name)
+        .ToListAsync();
+
+    foreach (var (name, iso2) in nationSeeds)
+    {
+        if (!existingNationNames.Contains(name))
+        {
+            db.Nations.Add(new Nation
+            {
+                NationID = Guid.NewGuid(),
+                Name = name,
+                ISO2 = iso2,
+                ContinentID = europe.ContinentID
+            });
+        }
+    }
+    await db.SaveChangesAsync();
 }
 
 app.Run();
