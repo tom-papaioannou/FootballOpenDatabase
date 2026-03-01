@@ -92,5 +92,11 @@ public class FootballDbContext : DbContext
             .WithMany()
             .HasForeignKey(p => p.NationID)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Continent>()
+            .HasMany(c => c.Nations)
+            .WithOne(n => n.Continent)
+            .HasForeignKey(n => n.ContinentID)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
