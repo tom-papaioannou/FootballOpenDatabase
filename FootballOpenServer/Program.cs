@@ -109,21 +109,21 @@ using (var scope = app.Services.CreateScope())
     }
 
     // Seed nations for Europe
-    var nationSeeds = new Dictionary<string, string>
+    var nationSeeds = new (string Name, string ISO2, string ISO3)[]
     {
-        { "Greece",  "GR" },
-        { "England", "GB" },
-        { "Italy",   "IT" },
-        { "France",  "FR" },
-        { "Germany", "DE" }
+        ("Greece",  "GR", "GRE"),
+        ("England", "GB", "ENG"),
+        ("Italy",   "IT", "ITA"),
+        ("France",  "FR", "FRA"),
+        ("Germany", "DE", "DEU")
     };
 
     var existingNationNames = await db.Nations
-        .Where(n => nationSeeds.Keys.Contains(n.Name))
+        .Where(n => nationSeeds.Select(s => s.Name).Contains(n.Name))
         .Select(n => n.Name)
         .ToListAsync();
 
-    foreach (var (name, iso2) in nationSeeds)
+    foreach (var (name, iso2, iso3) in nationSeeds)
     {
         if (!existingNationNames.Contains(name))
         {
@@ -132,6 +132,7 @@ using (var scope = app.Services.CreateScope())
                 NationID = Guid.NewGuid(),
                 Name = name,
                 ISO2 = iso2,
+                ISO3 = iso3,
                 ContinentID = europe.ContinentID
             });
         }
