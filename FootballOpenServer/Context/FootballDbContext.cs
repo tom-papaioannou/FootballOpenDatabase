@@ -4,6 +4,7 @@
 using FootballOpenServer.Models.Competitions;
 using FootballOpenServer.Models.Contracts;
 using FootballOpenServer.Models.People;
+using FootballOpenServer.Models.Servers;
 using FootballOpenServer.Models.Teams;
 using FootballOpenServer.Models.Users;
 using FootballOpenServer.Models.World;
@@ -25,9 +26,9 @@ public class FootballDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
     public DbSet<Staff> Staffs { get; set; }
     public DbSet<PlayerStats> PlayerStats { get; set; }
-
     public DbSet<Nation> Nations { get; set; }
     public DbSet<Continent> Continents { get; set; }
+    public DbSet<Server> Servers { get; set; }
 
     public FootballDbContext(DbContextOptions<FootballDbContext> options)
         : base(options) { }
@@ -98,5 +99,17 @@ public class FootballDbContext : DbContext
             .WithOne(n => n.Continent)
             .HasForeignKey(n => n.ContinentID)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Server>()
+            .HasMany(s => s.Persons)
+            .WithOne(p => p.Server)
+            .HasForeignKey(s => s.ServerID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Server>()
+            .HasMany(s => s.Competitions)
+            .WithOne(p => p.Server)
+            .HasForeignKey(s => s.ServerID)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

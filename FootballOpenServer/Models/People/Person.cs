@@ -2,6 +2,7 @@
 // Licensed under the MIT License
 
 ﻿using FootballOpenServer.Models.Contracts;
+using FootballOpenServer.Models.Servers;
 using FootballOpenServer.Models.Users;
 using FootballOpenServer.Models.World;
 using System.Text.Json.Serialization;
@@ -24,5 +25,8 @@ namespace FootballOpenServer.Models.People
         public Guid? NationID { get; set; }
         [JsonIgnore]
         public Nation? Nation { get; set; }
+        public Guid ServerID { get; set; }
+        [JsonIgnore]
+        public virtual Server? Server { get; set; }
     }
 }
