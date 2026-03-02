@@ -99,8 +99,8 @@ using (var scope = app.Services.CreateScope())
         await db.SaveChangesAsync();
     }
 
-    // Seed Europe continent
-    var europe = await db.Continents.FirstOrDefaultAsync(c => c.Name == "Europe");
+    // Create Europe
+    Continent? europe = await db.Continents.FirstOrDefaultAsync(c => c.Name == "Europe");
     if (europe == null)
     {
         europe = new Continent { ContinentID = Guid.NewGuid(), Name = "Europe", Code = "EUR" };
@@ -108,8 +108,7 @@ using (var scope = app.Services.CreateScope())
         await db.SaveChangesAsync();
     }
 
-    // Seed nations for Europe
-    var nationSeeds = new (string Name, string ISO2, string ISO3)[]
+    var europeanNations = new (string Name, string ISO2, string ISO3)[]
     {
         ("Greece",  "GR", "GRE"),
         ("England", "GB", "ENG"),
@@ -119,11 +118,11 @@ using (var scope = app.Services.CreateScope())
     };
 
     var existingNationNames = await db.Nations
-        .Where(n => nationSeeds.Select(s => s.Name).Contains(n.Name))
+        .Where(n => europeanNations.Select(s => s.Name).Contains(n.Name))
         .Select(n => n.Name)
         .ToListAsync();
 
-    foreach (var (name, iso2, iso3) in nationSeeds)
+    foreach (var (name, iso2, iso3) in europeanNations)
     {
         if (!existingNationNames.Contains(name))
         {
@@ -137,6 +136,42 @@ using (var scope = app.Services.CreateScope())
             });
         }
     }
+
+    // Create South America
+    Continent? southAmerica = await db.Continents.FirstOrDefaultAsync(c => c.Name == "South America");
+    if (southAmerica == null)
+    {
+        southAmerica = new Continent { ContinentID = Guid.NewGuid(), Name = "South America", Code = "SAM" };
+        db.Continents.Add(southAmerica);
+        await db.SaveChangesAsync();
+    }
+
+    var nationSeedsSouthAmerica = new (string Name, string ISO2, string ISO3)[]
+    {
+        ("Argentina", "AR", "ARG"),
+        ("Brazil", "BR", "BRA")
+    };
+
+    var existingNationNamesSouthAmerica = await db.Nations
+        .Where(n => nationSeedsSouthAmerica.Select(s => s.Name).Contains(n.Name))
+        .Select(n => n.Name)
+        .ToListAsync();
+
+    foreach (var (name, iso2, iso3) in nationSeedsSouthAmerica)
+    {
+        if (!existingNationNamesSouthAmerica.Contains(name))
+        {
+            db.Nations.Add(new Nation
+            {
+                NationID = Guid.NewGuid(),
+                Name = name,
+                ISO2 = iso2,
+                ISO3 = iso3,
+                ContinentID = southAmerica.ContinentID
+            });
+        }
+    }
+
     await db.SaveChangesAsync();
 }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2026 Tom Papaioannou. All rights reserved.
+﻿// Copyright (c) 2026 Tom Papaioannou. All rights reserved.
 // Licensed under the MIT License
 
 using FootballOpenServer.Models.Competitions;
@@ -11,19 +11,21 @@ namespace FootballOpenServer.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CompetitionParentController : ControllerBase
+    public class ContinentsController : ControllerBase
     {
         private readonly FootballDbContext _context;
 
-        public CompetitionParentController(FootballDbContext context)
+        public ContinentsController(FootballDbContext context)
         {
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetContinents()
+        [HttpGet("getAllContinents")]
+        public async Task<IActionResult> GetAllContinents()
         {
-            var continents = await _context.Continents.ToListAsync();
+            var continents = await _context.Continents
+                .Include(c => c.Nations)
+                .ToListAsync();
 
             if (continents == null)
                 return NotFound();

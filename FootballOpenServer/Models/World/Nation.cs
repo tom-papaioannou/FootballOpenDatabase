@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2026 Tom Papaioannou. All rights reserved.
 // Licensed under the MIT License
 
+using System.Text.Json.Serialization;
+
 namespace FootballOpenServer.Models.World
 {
     public class Nation
@@ -11,6 +13,7 @@ namespace FootballOpenServer.Models.World
         public string? ISO3 { get; set; } 
         public string? FlagUrl { get; set; }
         public Guid ContinentID { get; set; }
+        [JsonIgnore]
         public Continent Continent { get; set; } = null!;
     }
 }
