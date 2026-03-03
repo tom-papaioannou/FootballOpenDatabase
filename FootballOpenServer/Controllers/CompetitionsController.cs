@@ -73,7 +73,8 @@ namespace FootballOpenServer.Controllers
                     CompetitionTeamsType = request.CompetitionTeamsType,
                     Priority = request.Priority,
                     CompetitionType = request.CompetitionType,
-                    Teams = generatedTeams
+                    Teams = generatedTeams,
+                    ServerID = request.ServerID
                 };
 
                 _context.Competitions.Add(competition);

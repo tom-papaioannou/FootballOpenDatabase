@@ -102,14 +102,27 @@ namespace FootballOpenServer.Controllers
                 }
             };
 
-            if(dto.Role == "User")
+            if(dto.Role == "Host")
             {
                 Person person = new Person
                 {
                     Name = "John",
                     Surname = "Doe",
                     DateOfBirth = new DateTime(1970, 1, 1),
-                    PlaceOfBirth = "Athens"
+                    PlaceOfBirth = "Athens",
+                    ServerID = dto.ServerID
+                };
+                user.Person = person;
+            }
+            else if (dto.Role == "User")
+            {
+                Person person = new Person
+                {
+                    Name = "John",
+                    Surname = "Doe",
+                    DateOfBirth = new DateTime(1970, 1, 1),
+                    PlaceOfBirth = "Athens",
+                    ServerID = dto.ServerID
                 };
 
                 user.Person = person;
@@ -296,5 +309,5 @@ namespace FootballOpenServer.Controllers
 
     public record LoginDto(string Username, string Password);
 
-    public record RegisterDto(string Username, string Password, string Role);
+    public record RegisterDto(string Username, string Password, string Role, Guid ServerID);
 }

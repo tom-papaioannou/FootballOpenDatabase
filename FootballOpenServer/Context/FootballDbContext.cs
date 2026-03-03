@@ -111,5 +111,17 @@ public class FootballDbContext : DbContext
             .WithOne(p => p.Server)
             .HasForeignKey(s => s.ServerID)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Person>()
+            .HasOne(p => p.Server)
+            .WithMany(s => s.Persons)
+            .HasForeignKey(p => p.ServerID)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Competition>()
+            .HasOne(c => c.Server)
+            .WithMany(s => s.Competitions)
+            .HasForeignKey(c => c.ServerID)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
