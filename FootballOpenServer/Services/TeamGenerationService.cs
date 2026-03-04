@@ -9,7 +9,7 @@ namespace FootballOpenServer.Services
 {
     public interface ITeamGenerationService
     {
-        List<Team> GenerateTeamsForCompetition(int numberOfTeams = 20);
+        List<Team> GenerateTeamsForCompetition(Guid? serverID, int numberOfTeams = 20);
     }
 
     public class TeamGenerationService : ITeamGenerationService
@@ -73,7 +73,7 @@ namespace FootballOpenServer.Services
             _context = context;
         }
 
-        public List<Team> GenerateTeamsForCompetition(int numberOfTeams = 20)
+        public List<Team> GenerateTeamsForCompetition(Guid? serverID,int numberOfTeams = 20)
         {
             var teams = new List<Team>();
             var random = new Random();
@@ -125,7 +125,8 @@ namespace FootballOpenServer.Services
                         Name = FirstNames[random.Next(FirstNames.Length)],
                         Surname = LastNames[random.Next(LastNames.Length)],
                         DateOfBirth = DateTime.Now.AddYears(-random.Next(18, 35)).AddDays(-random.Next(0, 365)),
-                        PlaceOfBirth = Cities[random.Next(Cities.Length)]
+                        PlaceOfBirth = Cities[random.Next(Cities.Length)],
+                        ServerID = serverID
                     };
 
                     // Create Contract with random end date (June 30, random year 2026-2030)

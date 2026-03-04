@@ -51,8 +51,10 @@ namespace FootballOpenServer.Controllers
         public async Task<IActionResult> GetServerInformation(Guid serverID)
         {
             Server server = await _db.Servers
+                .AsNoTracking()
                 .Include(s => s.Persons)
-                .Include(s => s.Competitions)
+                .Include(s => s.Competitions).ThenInclude(c => c.Nation).AsSplitQuery()
+                .Include(s => s.Competitions).ThenInclude(c => c.Continent).AsSplitQuery()
                 .FirstOrDefaultAsync(s => s.ServerID == serverID);
 
             return Ok(server);
