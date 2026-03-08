@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Tom Papaioannou. All rights reserved.
 // Licensed under the MIT License
 
+using FootballOpenServer.Models.Servers;
 using FootballOpenServer.Models.Users;
 using FootballOpenServer.Models.World;
 using FootballOpenServer.Services;
@@ -173,6 +174,14 @@ using (var scope = app.Services.CreateScope())
     }
 
     await db.SaveChangesAsync();
+
+    // Create default server if none exist
+    var serverExists = await db.Servers.AnyAsync();
+    if (!serverExists)
+    {
+        db.Servers.Add(new Server { ServerID = Guid.NewGuid(), Name = "Main" });
+        await db.SaveChangesAsync();
+    }
 }
 
 app.Run();

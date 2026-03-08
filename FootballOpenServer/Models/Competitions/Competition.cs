@@ -23,8 +23,9 @@ namespace FootballOpenServer.Models.Competitions
         public int Priority { get; set; } // Lower number means higher League/Cup in the hierarchy
         public CompetitionType CompetitionType { get; set; }
         public ICollection<Team>? Teams { get; set; }
-        public Guid ServerID { get; set; }
+        public Guid? ServerID { get; set; }
         [JsonIgnore]
+        [ForeignKey("ServerID")]
         public virtual Server? Server { get; set; }
     }
 }

@@ -7,7 +7,7 @@ namespace FootballOpenServer.Models.Servers
     {
         public Guid ServerID { get; set; }
         public string Name { get; set; }
-        public List<Person> Persons { get; set; }
-        public List<Competition> Competitions { get; set; }
+        public List<Person> Persons { get; set; } = new();
+        public List<Competition> Competitions { get; set; } = new();
     }
 }

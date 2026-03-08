@@ -11,5 +11,6 @@ namespace FootballOpenServer.Models.Competitions
         public CompetitionTeamsType CompetitionTeamsType { get; set; }
         public int Priority { get; set; }
         public CompetitionType CompetitionType { get; set; }
+        public Guid? ServerID { get; set; }
     }
 }

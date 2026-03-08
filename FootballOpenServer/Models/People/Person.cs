@@ -5,6 +5,7 @@
 using FootballOpenServer.Models.Servers;
 using FootballOpenServer.Models.Users;
 using FootballOpenServer.Models.World;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace FootballOpenServer.Models.People
@@ -25,8 +26,9 @@ namespace FootballOpenServer.Models.People
         public Guid? NationID { get; set; }
         [JsonIgnore]
         public Nation? Nation { get; set; }
-        public Guid ServerID { get; set; }
+        public Guid? ServerID { get; set; }
         [JsonIgnore]
+        [ForeignKey("ServerID")]
         public virtual Server? Server { get; set; }
     }
 }
