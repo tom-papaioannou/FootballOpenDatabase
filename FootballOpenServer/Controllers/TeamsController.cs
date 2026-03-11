@@ -4,9 +4,9 @@
 ﻿using FootballOpenServer.Models.Contracts;
 using FootballOpenServer.Models.People;
 using FootballOpenServer.Models.Teams;
+using FootballOpenServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace FootballOpenServer.Controllers
@@ -15,45 +15,32 @@ namespace FootballOpenServer.Controllers
     [Route("api/[controller]")]
     public class TeamsController : ControllerBase
     {
-        private readonly FootballDbContext _context;
+        private readonly FootballDbContext _db;
+        private readonly ITeamAccessService _teamAccessService;
 
-        public TeamsController(FootballDbContext context)
+        public TeamsController(FootballDbContext db, ITeamAccessService teamAccessService)
         {
-            _context = context;
+            _db = db;
+            _teamAccessService = teamAccessService;
         }
 
         [HttpGet("getCurrentTeam")]
         public async Task<ActionResult<Team>> GetCurrentTeam()
         {
-            var userID = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.Id.ToString() == userID);
+            var team = await _teamAccessService.GetOwnedTeamAsync(User);
 
-            if (user == null)
+            if (team == null)
             {
-                return NotFound("User not found");
+                return NotFound();
             }
 
-            Person person = await _context.People.FirstOrDefaultAsync(u => u.AppUser.Id.ToString() == userID);
-
-            if (person == null)
-            {
-                return NotFound("Manager not found for this user.");
-            }
-
-            var contract = await _context.Contracts
-                .Include(c => c.Team)
-                .FirstOrDefaultAsync(c => c.EndDate > DateTime.Now && c.PersonID == person.PersonID);
-
-            if (contract == null || contract.Team == null)
-                return NotFound("Active contract not found.");
-
-            return Ok(contract.Team);
+            return Ok(team);
         }
 
         [HttpGet("{teamID}")]
         public async Task<ActionResult<Team>> GetTeam(Guid teamID)
         {
-            var team = await _context.Teams
+            var team = await _db.Teams
                 .Include(t => t.Competitions)
                 .FirstOrDefaultAsync(t => t.TeamID == teamID);
 
@@ -66,8 +53,8 @@ namespace FootballOpenServer.Controllers
         [HttpPost]
         public async Task<ActionResult<Team>> PostTeam([FromBody] Team team)
         {
-            _context.Teams.Add(team);
-            await _context.SaveChangesAsync();
+            _db.Teams.Add(team);
+            await _db.SaveChangesAsync();
             return CreatedAtAction(nameof(GetTeam), new { teamID = team.TeamID }, team);
         }
 
@@ -77,14 +64,14 @@ namespace FootballOpenServer.Controllers
             if (teamID != updatedTeam.TeamID)
                 return BadRequest();
 
-            var team = await _context.Teams.FindAsync(teamID);
+            var team = await _db.Teams.FindAsync(teamID);
             if (team == null)
                 return NotFound();
 
             team.Name = updatedTeam.Name;
 
-            _context.Entry(team).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _db.Entry(team).State = EntityState.Modified;
+            await _db.SaveChangesAsync();
 
             return NoContent();
         }
@@ -92,14 +79,14 @@ namespace FootballOpenServer.Controllers
         [HttpGet("getTeamSquad/{teamID}")]
         public async Task<IActionResult> GetTeamSquad(Guid teamID)
         {
-            var team = await _context.Teams.FirstOrDefaultAsync(t => t.TeamID == teamID);
+            var team = await _db.Teams.FirstOrDefaultAsync(t => t.TeamID == teamID);
             if (team == null)
             {
                 return NotFound();
             }
 
-            var squad = await _context.Players
-                .Where(pl => _context.Contracts.Any(c =>
+            var squad = await _db.Players
+                .Where(pl => _db.Contracts.Any(c =>
                     c.PersonID == pl.PersonID &&
                     c.TeamID == teamID &&
                     c.EndDate > DateTime.Now &&
@@ -129,7 +116,7 @@ namespace FootballOpenServer.Controllers
         [HttpGet("getPlayerDetails/{playerID}")]
         public async Task<IActionResult> GetPlayerDetails(Guid playerID)
         {
-            var player = await _context.Players
+            var player = await _db.Players
                 .Where(pl => pl.PlayerID == playerID)
                 .Select(pl => new {
                     Person = new

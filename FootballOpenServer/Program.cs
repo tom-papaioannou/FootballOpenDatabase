@@ -49,6 +49,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
 builder.Services.AddScoped<ITeamGenerationService, TeamGenerationService>();
+builder.Services.AddScoped<ITeamAccessService, TeamAccessService>();
 
 var app = builder.Build();
 

@@ -3,6 +3,7 @@
 
 ﻿using FootballOpenServer.Models.Competitions;
 using FootballOpenServer.Models.Contracts;
+using FootballOpenServer.Models.Users;
 using System.Text.Json.Serialization;
 
 namespace FootballOpenServer.Models.Teams
@@ -12,6 +13,11 @@ namespace FootballOpenServer.Models.Teams
         public Guid TeamID { get; set; }
 
         public string? Name { get; set; }
+
+        public Guid? AppUserID { get; set; }
+
+        [JsonIgnore]
+        public virtual AppUser? AppUser { get; set; }
 
         [JsonIgnore]
         public ICollection<Competition>? Competitions { get; set; }

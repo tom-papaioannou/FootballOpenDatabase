@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FootballOpenServer.Migrations
 {
     [DbContext(typeof(FootballDbContext))]
-    partial class FootballDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260311183956_AddUserOwnerToTeams")]
+    partial class AddUserOwnerToTeams
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,6 +105,156 @@ namespace FootballOpenServer.Migrations
                     b.HasIndex("TeamID");
 
                     b.ToTable("Contracts");
+                });
+
+            modelBuilder.Entity("FootballOpenServer.Models.Matches.Match", b =>
+                {
+                    b.Property<Guid>("MatchID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte?>("AwayGoals")
+                        .HasColumnType("tinyint");
+
+                    b.Property<Guid>("AwayTeamID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CompetitionID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("FinishedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte?>("HomeGoals")
+                        .HasColumnType("tinyint");
+
+                    b.Property<Guid>("HomeTeamID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("StartingTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WeatherCondition")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("WinnerTeamID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("MatchID");
+
+                    b.HasIndex("AwayTeamID");
+
+                    b.HasIndex("HomeTeamID");
+
+                    b.ToTable("Matches");
+                });
+
+            modelBuilder.Entity("FootballOpenServer.Models.Matches.MatchEvent", b =>
+                {
+                    b.Property<Guid>("MatchEventID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte>("AddedMinute")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("MatchID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<short>("Minute")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Period")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("PlayerID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RelatedPlayerID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TeamID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("MatchEventID");
+
+                    b.HasIndex("MatchID", "TeamID");
+
+                    b.HasIndex("MatchID", "Period", "Minute", "AddedMinute", "SortOrder");
+
+                    b.ToTable("MatchesEvents");
+                });
+
+            modelBuilder.Entity("FootballOpenServer.Models.Matches.MatchStats", b =>
+                {
+                    b.Property<Guid>("MatchStatsID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte>("AwayCorners")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("AwayFouls")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("AwayPossession")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("AwayRedCards")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("AwayShots")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("AwayShotsOnTarget")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("AwayYellowCards")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("HomeCorners")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("HomeFouls")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("HomePossession")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("HomeRedCards")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("HomeShots")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("HomeShotsOnTarget")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("HomeYellowCards")
+                        .HasColumnType("tinyint");
+
+                    b.Property<Guid>("MatchID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("MatchStatsID");
+
+                    b.HasIndex("MatchID")
+                        .IsUnique();
+
+                    b.ToTable("MatchesStats");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.People.Person", b =>
@@ -575,6 +728,47 @@ namespace FootballOpenServer.Migrations
                     b.Navigation("Person");
 
                     b.Navigation("Team");
+                });
+
+            modelBuilder.Entity("FootballOpenServer.Models.Matches.Match", b =>
+                {
+                    b.HasOne("FootballOpenServer.Models.Teams.Team", "AwayTeam")
+                        .WithMany()
+                        .HasForeignKey("AwayTeamID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FootballOpenServer.Models.Teams.Team", "HomeTeam")
+                        .WithMany()
+                        .HasForeignKey("HomeTeamID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AwayTeam");
+
+                    b.Navigation("HomeTeam");
+                });
+
+            modelBuilder.Entity("FootballOpenServer.Models.Matches.MatchEvent", b =>
+                {
+                    b.HasOne("FootballOpenServer.Models.Matches.Match", "Match")
+                        .WithMany()
+                        .HasForeignKey("MatchID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Match");
+                });
+
+            modelBuilder.Entity("FootballOpenServer.Models.Matches.MatchStats", b =>
+                {
+                    b.HasOne("FootballOpenServer.Models.Matches.Match", "Match")
+                        .WithOne()
+                        .HasForeignKey("FootballOpenServer.Models.Matches.MatchStats", "MatchID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Match");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.People.Person", b =>

@@ -123,5 +123,16 @@ public class FootballDbContext : DbContext
             .WithMany(s => s.Competitions)
             .HasForeignKey(c => c.ServerID)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Team>()
+            .HasOne(t => t.AppUser)
+            .WithMany()
+            .HasForeignKey(t => t.AppUserID)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Team>()
+            .HasIndex(t => t.AppUserID)
+            .IsUnique()
+            .HasFilter("[AppUserID] IS NOT NULL");
     }
 }

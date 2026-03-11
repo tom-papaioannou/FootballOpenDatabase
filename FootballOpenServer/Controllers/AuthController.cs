@@ -162,10 +162,10 @@ namespace FootballOpenServer.Controllers
                     };
 
                     _db.Staffs.Add(staff);
+
+                    randomTeam.AppUserID = user.Id;
+                    _db.Teams.Update(randomTeam);
                 }
-
-
-                
             }
 
             _db.AppUsers.Add(user);

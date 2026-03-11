@@ -2,6 +2,7 @@
 // Licensed under the MIT License
 
 ﻿using FootballOpenServer.Models.Teams;
+using FootballOpenServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,31 +12,47 @@ namespace FootballOpenServer.Controllers
     [Route("api/[controller]")]
     public class TacticsController : ControllerBase
     {
-        private FootballDbContext _context;
+        private FootballDbContext _db;
+        private readonly ITeamAccessService _teamAccessService;
 
-        public TacticsController(FootballDbContext context)
+        public TacticsController(FootballDbContext db, ITeamAccessService teamAccessService)
         {
-            _context = context;
+            _db = db;
+            _teamAccessService = teamAccessService;
         }
 
         [HttpGet("getTeamTactic/{tacticID}")]
         public async Task<IActionResult> GetTeamTactic(Guid tacticID)
         {
-            Tactic? teamTactic = await _context.Tactics.FirstOrDefaultAsync(tactic => tactic.TacticID == tacticID);
+            Tactic? teamTactic = await _db.Tactics.FirstOrDefaultAsync(tactic => tactic.TacticID == tacticID);
 
             if(teamTactic == null)
             {
-                return NotFound();
+                return NotFound("Tactic not found.");
+            }
+
+            var team = await _teamAccessService.GetOwnedTeamAsync(User);
+
+            if (team == null || team.TeamID != teamTactic.TeamID)
+            {
+                return NotFound("Team not found or user does not have access to this tactic.");
             }
 
             return Ok(teamTactic);
         }
 
-        [HttpGet("getTeamTactics/{teamID}")]
-        public async Task<IActionResult> GetTeamTactics(Guid teamID)
+        [HttpGet("getTeamTactics")]
+        public async Task<IActionResult> GetTeamTactics()
         {
-            List<Tactic> teamTactics = await _context.Tactics
-                .Where(tactic => tactic.TeamID == teamID)
+            var team = await _teamAccessService.GetOwnedTeamAsync(User);
+
+            if (team == null)
+            {
+                return NotFound("Team not found.");
+            }
+
+            List<Tactic> teamTactics = await _db.Tactics
+                .Where(tactic => tactic.TeamID == team.TeamID)
                 .ToListAsync();
 
             return Ok(teamTactics);
@@ -44,18 +61,18 @@ namespace FootballOpenServer.Controllers
         [HttpPost("createTeamTactic")]
         public async Task<IActionResult> CreateTeamTactic([FromBody] Tactic newTactic)
         {
-            var teamExists = await _context.Teams.AnyAsync(t => t.TeamID == newTactic.TeamID);
+            var teamExists = await _db.Teams.AnyAsync(t => t.TeamID == newTactic.TeamID);
 
             if (!teamExists)
             {
                 return NotFound("Team not found.");
             }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
                 // Get all existing tactics for this team
-                var existingTactics = await _context.Tactics
+                var existingTactics = await _db.Tactics
                     .Where(t => t.TeamID == newTactic.TeamID)
                     .ToListAsync();
 
@@ -73,8 +90,8 @@ namespace FootballOpenServer.Controllers
                     }
                 }
 
-                _context.Tactics.Add(newTactic);
-                await _context.SaveChangesAsync();
+                _db.Tactics.Add(newTactic);
+                await _db.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 return Ok(newTactic);
@@ -89,18 +106,18 @@ namespace FootballOpenServer.Controllers
         [HttpDelete("deleteTeamTactic/{tacticID}")]
         public async Task<IActionResult> DeleteTeamTactic(Guid tacticID)
         {
-            Tactic? tactic = await _context.Tactics.FindAsync(tacticID);
+            Tactic? tactic = await _db.Tactics.FindAsync(tacticID);
 
             if (tactic == null)
             {
                 return NotFound("Tactic not found.");
             }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
                 // Check if there are other tactics for this team
-                var otherTacticsCount = await _context.Tactics
+                var otherTacticsCount = await _db.Tactics
                     .CountAsync(t => t.TeamID == tactic.TeamID && t.TacticID != tacticID);
 
                 if (otherTacticsCount == 0)
@@ -112,7 +129,7 @@ namespace FootballOpenServer.Controllers
                 // If the deleted tactic is main, promote another tactic to main
                 if (tactic.isMain)
                 {
-                    var newMainTactic = await _context.Tactics
+                    var newMainTactic = await _db.Tactics
                         .Where(t => t.TeamID == tactic.TeamID && t.TacticID != tacticID)
                         .OrderBy(t => t.TacticID)
                         .FirstOrDefaultAsync();
@@ -123,8 +140,8 @@ namespace FootballOpenServer.Controllers
                     }
                 }
 
-                _context.Tactics.Remove(tactic);
-                await _context.SaveChangesAsync();
+                _db.Tactics.Remove(tactic);
+                await _db.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 return Ok();
@@ -139,7 +156,7 @@ namespace FootballOpenServer.Controllers
         [HttpGet("getPlayerTactics/{tacticID}")]
         public async Task<IActionResult> GetPlayerTactics(Guid tacticID)
         {
-            List<PlayerTactic> playerTactics = await _context.PlayerTactics
+            List<PlayerTactic> playerTactics = await _db.PlayerTactics
                 .Where(pt => pt.TacticID == tacticID)
                 .Include(pt => pt.Player).ThenInclude(p => p.Person)
                 .ToListAsync();
@@ -151,8 +168,8 @@ namespace FootballOpenServer.Controllers
         public async Task<IActionResult> GetPlayerTacticsByTeamID(Guid teamID)
         {
             // Use a join to get all player tactics for the team's tactics in a single query
-            List<PlayerTactic> playerTactics = await _context.PlayerTactics
-                .Where(pt => _context.Tactics
+            List<PlayerTactic> playerTactics = await _db.PlayerTactics
+                .Where(pt => _db.Tactics
                     .Where(t => t.TeamID == teamID)
                     .Select(t => t.TacticID)
                     .Contains(pt.TacticID))
@@ -164,17 +181,17 @@ namespace FootballOpenServer.Controllers
         [HttpPost("addPlayerTactic")]
         public async Task<IActionResult> AddPlayerTactic([FromBody] PlayerTactic newPlayerTactic)
         {
-            PlayerTactic? alreadySamePlayerTactic = await _context.PlayerTactics
+            PlayerTactic? alreadySamePlayerTactic = await _db.PlayerTactics
                 .Where(pt => pt.TacticID == newPlayerTactic.TacticID && pt.PlayerPosition == newPlayerTactic.PlayerPosition)
                 .FirstOrDefaultAsync();
 
             if (alreadySamePlayerTactic != null)
             {
-                _context.PlayerTactics.Remove(alreadySamePlayerTactic);
+                _db.PlayerTactics.Remove(alreadySamePlayerTactic);
             }
 
-            _context.PlayerTactics.Add(newPlayerTactic);
-            await _context.SaveChangesAsync();
+            _db.PlayerTactics.Add(newPlayerTactic);
+            await _db.SaveChangesAsync();
 
             return Ok(newPlayerTactic);
         }
