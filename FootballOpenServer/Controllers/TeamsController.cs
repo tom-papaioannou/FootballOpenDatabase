@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Tom Papaioannou. All rights reserved.
 // Licensed under the MIT License
 
-﻿using FootballOpenServer.Models.Contracts;
+using FootballOpenServer.Models.Competitions;
+using FootballOpenServer.Models.Contracts;
 using FootballOpenServer.Models.People;
 using FootballOpenServer.Models.Teams;
 using FootballOpenServer.Services;
@@ -129,6 +130,40 @@ namespace FootballOpenServer.Controllers
                 .FirstOrDefaultAsync();
 
             return Ok(player);
+        }
+
+        [HttpGet("getCurrentTeamDashboard")]
+        public async Task<ActionResult<Team>> GetCurrentTeamDashboard()
+        {
+            var team = await _teamAccessService.GetOwnedTeamAsync(User);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            Competition competition = await _db.Competitions
+                .Where(c => c.Teams.Any(t => t.TeamID == team.TeamID) && c.CompetitionType == CompetitionType.League)
+                .FirstOrDefaultAsync();
+
+            Person[] players = await _db.People
+                .Where(p => _db.Contracts.Any(c => c.PersonID == p.PersonID && c.TeamID == team.TeamID && c.EndDate > DateTime.Now && c.Role == Role.Player))
+                .Take(15)
+                .ToArrayAsync();
+
+            Formation formation = await _db.Tactics
+                .Where(t => t.TeamID == team.TeamID && t.isMain)
+                .Select(t => t.Formation ?? Formation.None)
+                .FirstOrDefaultAsync();
+
+            var dashboardInformation = new
+            {
+                TeamName = team.Name,
+                CompetitionName = competition?.CompetitionName ?? "No active league",
+                Players = players,
+                Formation = formation
+            };
+
+            return Ok(dashboardInformation);
         }
     }
 }
