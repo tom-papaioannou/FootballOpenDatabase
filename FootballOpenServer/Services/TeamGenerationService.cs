@@ -137,7 +137,7 @@ namespace FootballOpenServer.Services
                         ContractID = Guid.NewGuid(),
                         PersonID = personID,
                         TeamID = team.TeamID,
-                        StartDate = DateTime.Now,
+                        StartDate = DateTime.UtcNow,
                         EndDate = new DateTime(contractEndYear, 6, 30),
                         Role = Role.Player
                     };
