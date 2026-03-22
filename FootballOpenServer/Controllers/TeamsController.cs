@@ -147,7 +147,8 @@ namespace FootballOpenServer.Controllers
 
             Person[] players = await _db.People
                 .Where(p => _db.Contracts.Any(c => c.PersonID == p.PersonID && c.TeamID == team.TeamID && c.EndDate > DateTime.Now && c.Role == Role.Player))
-                .Take(15)
+                .Include(p => p.PlayerTrainedPositions)
+                .Take(10)
                 .ToArrayAsync();
 
             Formation formation = await _db.Tactics
