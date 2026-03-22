@@ -8,9 +8,7 @@ using FootballOpenServer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.Security.Claims;
-using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);

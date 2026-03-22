@@ -8,7 +8,7 @@ namespace FootballOpenServer.Models.People
     public class PlayerTrainedPosition
     {
         public Guid PlayerTrainedPositionID { get; set; }
-        public Guid PlayerID { get; set; }
+        public Guid PersonID { get; set; }
         public PlayerPosition PlayerPosition { get; set; }
 
         [Range(1, 100)]

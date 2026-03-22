@@ -122,23 +122,16 @@ namespace FootballOpenServer.Controllers
                     Surname = "Doe",
                     DateOfBirth = new DateTime(1970, 1, 1),
                     PlaceOfBirth = "Athens",
-                    ServerID = dto.ServerID
+                    ServerID = dto.ServerID,
+                    StaffRole = StaffRole.Manager
                 };
 
                 user.Person = person;
                 var now = DateTime.UtcNow;
 
                 var availableTeams = await _db.Teams
-                    .Where(t => !_db.Staffs.Any(s =>
-                        s.StaffRole == StaffRole.Manager
-                        && s.Person != null
-                        && s.Person.Contracts.Any(c =>
-                            c.TeamID == t.TeamID
-                            && (c.EndDate == null || c.EndDate > now)
-                        )
-                    ))
+                    .Where(t => !_db.People.Any(p => p.StaffRole == StaffRole.Manager && p.Contracts.Any(c => c.TeamID == t.TeamID && (c.EndDate == null || c.EndDate > now))))
                     .ToListAsync();
-
 
                 // If there's at least one available team, assign a random one
                 if (availableTeams.Any())
@@ -154,14 +147,6 @@ namespace FootballOpenServer.Controllers
                     };
 
                     _db.Contracts.Add(contract);
-
-                    var staff = new Staff
-                    {
-                        Person = person,
-                        StaffRole = StaffRole.Manager
-                    };
-
-                    _db.Staffs.Add(staff);
 
                     randomTeam.AppUserID = user.Id;
                     _db.Teams.Update(randomTeam);

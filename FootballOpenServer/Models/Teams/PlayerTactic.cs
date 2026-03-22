@@ -9,8 +9,8 @@ namespace FootballOpenServer.Models.Teams
     {
         public Guid PlayerTacticID { get; set; }
         public Guid TacticID { get; set; }
-        public Guid PlayerID { get; set; }
-        public virtual Player? Player { get; set; }
+        public Guid PersonID { get; set; }
+        public virtual Person? Person { get; set; }
         public PlayerPosition PlayerPosition { get; set; }
         public PlayerRole PlayerRole { get; set; }
     }

@@ -3,6 +3,7 @@
 
 ﻿using FootballOpenServer.Models.Contracts;
 using FootballOpenServer.Models.Servers;
+using FootballOpenServer.Models.Teams;
 using FootballOpenServer.Models.Users;
 using FootballOpenServer.Models.World;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,10 +19,6 @@ namespace FootballOpenServer.Models.People
         public DateTime? DateOfBirth { get; set; }
         public string? PlaceOfBirth { get; set; }
         public ICollection<Contract> Contracts { get; set; } = new List<Contract>();
-        [JsonIgnore]
-        public virtual Player? Player { get; set; }
-        [JsonIgnore]
-        public virtual Staff? Staff { get; set; }
         public AppUser? AppUser { get; set; }
         public Guid? NationID { get; set; }
         [JsonIgnore]
@@ -30,5 +27,12 @@ namespace FootballOpenServer.Models.People
         [JsonIgnore]
         [ForeignKey("ServerID")]
         public virtual Server? Server { get; set; }
+
+        public ICollection<PlayerTrainedPosition>? PlayerTrainedPositions { get; set; }
+        public ICollection<PlayerTrainedRole>? PlayerTrainedRoles { get; set; }
+        public virtual PlayerStats? PlayerStats { get; set; }
+        [JsonIgnore]
+        public ICollection<PlayerTactic>? PlayerTactics { get; set; }
+        public StaffRole? StaffRole { get; set; }
     }
 }

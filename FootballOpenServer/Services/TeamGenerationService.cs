@@ -116,7 +116,6 @@ namespace FootballOpenServer.Services
                 for (int j = 0; j < 30; j++)
                 {
                     var personID = Guid.NewGuid();
-                    var playerID = Guid.NewGuid();
 
                     // Create Person
                     var person = new Person
@@ -126,7 +125,9 @@ namespace FootballOpenServer.Services
                         Surname = LastNames[random.Next(LastNames.Length)],
                         DateOfBirth = DateTime.Now.AddYears(-random.Next(18, 35)).AddDays(-random.Next(0, 365)),
                         PlaceOfBirth = Cities[random.Next(Cities.Length)],
-                        ServerID = serverID
+                        ServerID = serverID,
+                        PlayerTrainedPositions = new List<PlayerTrainedPosition>(),
+                        PlayerTrainedRoles = new List<PlayerTrainedRole>()
                     };
 
                     // Create Contract with random end date (June 30, random year 2026-2030)
@@ -141,21 +142,11 @@ namespace FootballOpenServer.Services
                         Role = Role.Player
                     };
 
-                    // Create Player
-                    var player = new Player
-                    {
-                        PlayerID = playerID,
-                        PersonID = personID,
-                        Person = person,
-                        PlayerTrainedPositions = new List<PlayerTrainedPosition>(),
-                        PlayerTrainedRoles = new List<PlayerTrainedRole>()
-                    };
-
                     // Create PlayerStats with random values between 1 and 100
                     var playerStats = new PlayerStats
                     {
                         PlayerStatsID = Guid.NewGuid(),
-                        PlayerID = playerID,
+                        PersonID = personID,
                         Shooting = (byte)random.Next(1, 101),
                         Passing = (byte)random.Next(1, 101),
                         Crossing = (byte)random.Next(1, 101),
@@ -176,26 +167,25 @@ namespace FootballOpenServer.Services
                     };
 
                     // Generate PlayerTrainedPositions
-                    var trainedPositions = GeneratePlayerTrainedPositions(random, playerID);
+                    var trainedPositions = GeneratePlayerTrainedPositions(random, personID);
                     
                     // Generate PlayerTrainedRoles for each PlayerTrainedPosition
                     var trainedRoles = new List<PlayerTrainedRole>();
                     foreach (var trainedPosition in trainedPositions)
                     {
-                        var rolesForPosition = GeneratePlayerTrainedRoles(random, playerID, trainedPosition.PlayerPosition);
+                        var rolesForPosition = GeneratePlayerTrainedRoles(random, personID, trainedPosition.PlayerPosition);
                         trainedRoles.AddRange(rolesForPosition);
                     }
 
                     // Add entities to database context
                     _context.People.Add(person);
                     _context.Contracts.Add(contract);
-                    _context.Players.Add(player);
                     _context.PlayerStats.Add(playerStats);
                     _context.PlayerTrainedPositions.AddRange(trainedPositions);
                     _context.PlayerTrainedRoles.AddRange(trainedRoles);
 
                     // Store player ID for position assignment
-                    teamPlayerIDs.Add(playerID);
+                    teamPlayerIDs.Add(personID);
                 }
 
                 // Auto-assign players to positions in the primary tactic
@@ -207,7 +197,7 @@ namespace FootballOpenServer.Services
             return teams;
         }
 
-        private List<PlayerTrainedPosition> GeneratePlayerTrainedPositions(Random random, Guid playerID)
+        private List<PlayerTrainedPosition> GeneratePlayerTrainedPositions(Random random, Guid personID)
         {
             var trainedPositions = new List<PlayerTrainedPosition>();
             
@@ -222,7 +212,7 @@ namespace FootballOpenServer.Services
             trainedPositions.Add(new PlayerTrainedPosition
             {
                 PlayerTrainedPositionID = Guid.NewGuid(),
-                PlayerID = playerID,
+                PersonID = personID,
                 PlayerPosition = firstPosition,
                 PlayerTrainedPositionAdaptation = (byte)random.Next(80, 101) // 80-100 inclusive
             });
@@ -238,7 +228,7 @@ namespace FootballOpenServer.Services
                     trainedPositions.Add(new PlayerTrainedPosition
                     {
                         PlayerTrainedPositionID = Guid.NewGuid(),
-                        PlayerID = playerID,
+                        PersonID = personID,
                         PlayerPosition = secondPosition,
                         PlayerTrainedPositionAdaptation = (byte)random.Next(50, 81) // 50-80 inclusive
                     });
@@ -248,7 +238,7 @@ namespace FootballOpenServer.Services
             return trainedPositions;
         }
 
-        private List<PlayerTrainedRole> GeneratePlayerTrainedRoles(Random random, Guid playerID, PlayerPosition position)
+        private List<PlayerTrainedRole> GeneratePlayerTrainedRoles(Random random, Guid personID, PlayerPosition position)
         {
             var trainedRoles = new List<PlayerTrainedRole>();
             
@@ -263,7 +253,7 @@ namespace FootballOpenServer.Services
             trainedRoles.Add(new PlayerTrainedRole
             {
                 PlayerTrainedRoleID = Guid.NewGuid(),
-                PlayerID = playerID,
+                PersonID = personID,
                 PlayerPosition = position,
                 PlayerRole = firstRole,
                 PlayerTrainedRoleAdaptation = (byte)random.Next(80, 101) // 80-100 inclusive
@@ -280,7 +270,7 @@ namespace FootballOpenServer.Services
                     trainedRoles.Add(new PlayerTrainedRole
                     {
                         PlayerTrainedRoleID = Guid.NewGuid(),
-                        PlayerID = playerID,
+                        PersonID = personID,
                         PlayerPosition = position,
                         PlayerRole = secondRole,
                         PlayerTrainedRoleAdaptation = (byte)random.Next(50, 81) // 50-80 inclusive
@@ -366,27 +356,27 @@ namespace FootballOpenServer.Services
 
             // Find players trained for this position by querying PlayerTrainedRoles
             var playersWithTrainedRoles = _context.PlayerTrainedRoles
-                .Where(ptr => availablePlayers.Contains(ptr.PlayerID) && ptr.PlayerPosition == desiredPosition)
+                .Where(ptr => availablePlayers.Contains(ptr.PersonID) && ptr.PlayerPosition == desiredPosition)
                 .OrderByDescending(ptr => ptr.PlayerTrainedRoleAdaptation)
                 .ToList();
 
             if (playersWithTrainedRoles.Any())
             {
                 // Return the player with the highest adaptation for this position
-                return playersWithTrainedRoles.First().PlayerID;
+                return playersWithTrainedRoles.First().PersonID;
             }
 
             // If no player is trained for this position, return a random available player
             return availablePlayers[random.Next(availablePlayers.Count)];
         }
 
-        private void CreatePlayerTactic(Guid tacticID, Guid playerID, PlayerPosition position, PlayerRole role)
+        private void CreatePlayerTactic(Guid tacticID, Guid personID, PlayerPosition position, PlayerRole role)
         {
             var playerTactic = new PlayerTactic
             {
                 PlayerTacticID = Guid.NewGuid(),
                 TacticID = tacticID,
-                PlayerID = playerID,
+                PersonID = personID,
                 PlayerPosition = position,
                 PlayerRole = role
             };

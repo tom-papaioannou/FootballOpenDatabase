@@ -9,9 +9,9 @@ namespace FootballOpenServer.Models.People
     public class PlayerStats
     {
         public Guid PlayerStatsID { get; set; }
-        public Guid PlayerID { get; set; }
+        public Guid PersonID { get; set; }
         [JsonIgnore]
-        public virtual Player Player { get; set; } = null!;
+        public virtual Person Person { get; set; } = null!;
         [Range(1, 100)]
         public byte Shooting { get; set; }
         [Range(1, 100)]

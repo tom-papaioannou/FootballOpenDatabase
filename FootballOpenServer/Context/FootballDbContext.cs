@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 public class FootballDbContext : DbContext
 {
     public DbSet<Person> People { get; set; }
-    public DbSet<Player> Players { get; set; }
     public DbSet<Contract> Contracts { get; set; }
     public DbSet<Team> Teams { get; set; }
     public DbSet<Tactic> Tactics { get; set; }
@@ -24,7 +23,6 @@ public class FootballDbContext : DbContext
     public DbSet<AppUser> AppUsers { get; set; }
     public DbSet<AppUserClaim> AppUserClaims { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
-    public DbSet<Staff> Staffs { get; set; }
     public DbSet<PlayerStats> PlayerStats { get; set; }
     public DbSet<Nation> Nations { get; set; }
     public DbSet<Continent> Continents { get; set; }
@@ -70,9 +68,9 @@ public class FootballDbContext : DbContext
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<PlayerTactic>()
-            .HasOne(pt => pt.Player)
+            .HasOne(pt => pt.Person)
             .WithMany(p => p.PlayerTactics)
-            .HasForeignKey(pt => pt.PlayerID);
+            .HasForeignKey(pt => pt.PersonID);
 
         modelBuilder.Entity<Contract>()
             .HasOne(c => c.Person)
@@ -85,7 +83,7 @@ public class FootballDbContext : DbContext
             .HasForeignKey(c => c.TeamID);
 
         modelBuilder.Entity<PlayerStats>()
-            .HasIndex(ps => ps.PlayerID)
+            .HasIndex(ps => ps.PersonID)
             .IsUnique();
 
         modelBuilder.Entity<Person>()

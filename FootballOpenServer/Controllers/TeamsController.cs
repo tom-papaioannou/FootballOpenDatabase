@@ -85,24 +85,16 @@ namespace FootballOpenServer.Controllers
                 return NotFound();
             }
 
-            var squad = await _db.Players
-                .Where(pl => _db.Contracts.Any(c =>
-                    c.PersonID == pl.PersonID &&
-                    c.TeamID == teamID &&
-                    c.EndDate > DateTime.Now &&
-                    c.Role == Role.Player))
-                .Include(pl => pl.Person)
-                .Include(pl => pl.PlayerTrainedPositions)
-                .Select(pl => new
+            var squad = await _db.People
+                .Where(p => _db.Contracts.Any(c => c.PersonID == p.PersonID && c.TeamID == teamID && c.EndDate > DateTime.Now && c.Role == Role.Player))
+                .Include(p => p.PlayerTrainedPositions)
+                .Select(p => new
                 {
-                    pl.PlayerID,
-                    Person = new
-                    {
-                        pl.Person!.Name,
-                        pl.Person!.Surname,
-                        pl.Person!.DateOfBirth,
-                    },
-                    PlayerTrainedPositions = pl.PlayerTrainedPositions!.Select(ptp => new
+                    p.PersonID,
+                    p!.Name,
+                    p!.Surname,
+                    p!.DateOfBirth,
+                    PlayerTrainedPositions = p.PlayerTrainedPositions!.Select(ptp => new
                     {
                         ptp.PlayerPosition,
                         ptp.PlayerTrainedPositionAdaptation
@@ -113,32 +105,28 @@ namespace FootballOpenServer.Controllers
             return Ok(squad);
         }
 
-        [HttpGet("getPlayerDetails/{playerID}")]
-        public async Task<IActionResult> GetPlayerDetails(Guid playerID)
+        [HttpGet("getPlayerDetails/{personID}")]
+        public async Task<IActionResult> GetPlayerDetails(Guid personID)
         {
-            var player = await _db.Players
-                .Where(pl => pl.PlayerID == playerID)
-                .Select(pl => new {
-                    Person = new
-                    {
-                        pl.Person!.Name,
-                        pl.Person!.Surname,
-                        pl.Person!.DateOfBirth,
-                        pl.Person!.PlaceOfBirth,
-                        Contracts = pl.Person.Contracts
+            var player = await _db.People
+                .Where(p => p.PersonID == personID)
+                .Select(p => new {
+                    p.Name,
+                    p.Surname,
+                    p.DateOfBirth,
+                    p.PlaceOfBirth,
+                    Contracts = p.Contracts
                             .OrderByDescending(c => c.EndDate)
                             .Select(c => new {
                                 c.StartDate,
                                 c.EndDate,
                                 Team = new { c.Team.Name }
-                            })
-                    },
-                    pl.PlayerStats,
-                    pl.PlayerTrainedPositions,
-                    pl.PlayerTrainedRoles
+                            }),
+                    p.PlayerStats,
+                    p.PlayerTrainedPositions,
+                    p.PlayerTrainedRoles
                 })
                 .FirstOrDefaultAsync();
-
 
             return Ok(player);
         }
