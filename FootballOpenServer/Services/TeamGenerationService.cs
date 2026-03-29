@@ -66,6 +66,30 @@ namespace FootballOpenServer.Services
             "Istanbul", "Dubai", "Tel Aviv", "Riyadh", "Doha", "Abu Dhabi"
         };
 
+        private static readonly Dictionary<PlayerPosition, PlayerPosition[]> _positionTripletes = new()
+        {
+            // Center-Back triplete
+            { PlayerPosition.RightCenterBack,            new[] { PlayerPosition.CentralCenterBack,        PlayerPosition.LeftCenterBack } },
+            { PlayerPosition.CentralCenterBack,          new[] { PlayerPosition.RightCenterBack,          PlayerPosition.LeftCenterBack } },
+            { PlayerPosition.LeftCenterBack,             new[] { PlayerPosition.RightCenterBack,          PlayerPosition.CentralCenterBack } },
+            // Defensive-Midfielder triplete
+            { PlayerPosition.RightDefensiveMidfielder,   new[] { PlayerPosition.CentralDefensiveMidfielder, PlayerPosition.LeftDefensiveMidfielder } },
+            { PlayerPosition.CentralDefensiveMidfielder, new[] { PlayerPosition.RightDefensiveMidfielder,   PlayerPosition.LeftDefensiveMidfielder } },
+            { PlayerPosition.LeftDefensiveMidfielder,    new[] { PlayerPosition.RightDefensiveMidfielder,   PlayerPosition.CentralDefensiveMidfielder } },
+            // Center-Midfielder triplete
+            { PlayerPosition.RightCenterMidfielder,      new[] { PlayerPosition.CentralCenterMidfielder,  PlayerPosition.LeftCenterMidfielder } },
+            { PlayerPosition.CentralCenterMidfielder,    new[] { PlayerPosition.RightCenterMidfielder,    PlayerPosition.LeftCenterMidfielder } },
+            { PlayerPosition.LeftCenterMidfielder,       new[] { PlayerPosition.RightCenterMidfielder,    PlayerPosition.CentralCenterMidfielder } },
+            // Attacking-Midfielder triplete
+            { PlayerPosition.RightAttackingMidfielder,   new[] { PlayerPosition.CentralAttackingMidfielder, PlayerPosition.LeftAttackingMidfielder } },
+            { PlayerPosition.CentralAttackingMidfielder, new[] { PlayerPosition.RightAttackingMidfielder,   PlayerPosition.LeftAttackingMidfielder } },
+            { PlayerPosition.LeftAttackingMidfielder,    new[] { PlayerPosition.RightAttackingMidfielder,   PlayerPosition.CentralAttackingMidfielder } },
+            // Striker triplete
+            { PlayerPosition.RightStriker,               new[] { PlayerPosition.CentralStriker,           PlayerPosition.LeftStriker } },
+            { PlayerPosition.CentralStriker,             new[] { PlayerPosition.RightStriker,             PlayerPosition.LeftStriker } },
+            { PlayerPosition.LeftStriker,                new[] { PlayerPosition.RightStriker,             PlayerPosition.CentralStriker } },
+        };
+
         private readonly FootballDbContext _context;
 
         public TeamGenerationService(FootballDbContext context)
@@ -209,29 +233,65 @@ namespace FootballOpenServer.Services
 
             // First trained position (80-100 adaptaption)
             var firstPosition = validPositions[random.Next(validPositions.Count)];
+            var firstAdaptation = (byte)random.Next(80, 101); // 80-100 inclusive
             trainedPositions.Add(new PlayerTrainedPosition
             {
                 PlayerTrainedPositionID = Guid.NewGuid(),
                 PersonID = personID,
                 PlayerPosition = firstPosition,
-                PlayerTrainedPositionAdaptation = (byte)random.Next(80, 101) // 80-100 inclusive
+                PlayerTrainedPositionAdaptation = firstAdaptation
             });
+
+            // If firstPosition belongs to a triplete, also add the other 2 companion positions
+            if (_positionTripletes.TryGetValue(firstPosition, out var firstCompanions))
+            {
+                foreach (var companion in firstCompanions)
+                {
+                    trainedPositions.Add(new PlayerTrainedPosition
+                    {
+                        PlayerTrainedPositionID = Guid.NewGuid(),
+                        PersonID = personID,
+                        PlayerPosition = companion,
+                        PlayerTrainedPositionAdaptation = firstAdaptation
+                    });
+                }
+            }
 
             // 15% chance for second trained position (50-80 adaptaption)
             if (random.Next(100) < 15)
             {
-                // Make sure second position is different from first
-                var availablePositions = validPositions.Where(p => p != firstPosition).ToList();
+                // Make sure second position is different from all already-added positions
+                var addedPositions = trainedPositions.Select(tp => tp.PlayerPosition).ToHashSet();
+                var availablePositions = validPositions.Where(p => !addedPositions.Contains(p)).ToList();
                 if (availablePositions.Any())
                 {
                     var secondPosition = availablePositions[random.Next(availablePositions.Count)];
+                    var secondAdaptation = (byte)random.Next(50, 81); // 50-80 inclusive
                     trainedPositions.Add(new PlayerTrainedPosition
                     {
                         PlayerTrainedPositionID = Guid.NewGuid(),
                         PersonID = personID,
                         PlayerPosition = secondPosition,
-                        PlayerTrainedPositionAdaptation = (byte)random.Next(50, 81) // 50-80 inclusive
+                        PlayerTrainedPositionAdaptation = secondAdaptation
                     });
+
+                    // If secondPosition belongs to a triplete, also add the other 2 companion positions
+                    if (_positionTripletes.TryGetValue(secondPosition, out var secondCompanions))
+                    {
+                        foreach (var companion in secondCompanions)
+                        {
+                            if (!addedPositions.Contains(companion))
+                            {
+                                trainedPositions.Add(new PlayerTrainedPosition
+                                {
+                                    PlayerTrainedPositionID = Guid.NewGuid(),
+                                    PersonID = personID,
+                                    PlayerPosition = companion,
+                                    PlayerTrainedPositionAdaptation = secondAdaptation
+                                });
+                            }
+                        }
+                    }
                 }
             }
 
