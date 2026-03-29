@@ -304,12 +304,12 @@ namespace FootballOpenServer.Services
             CreatePlayerTactic(tacticID, leftBack, PlayerPosition.LeftBack, PlayerRole.FullBack);
             assignedPlayerIDs.Add(leftBack);
 
-            var centerBack1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CenterBack, random);
-            CreatePlayerTactic(tacticID, centerBack1, PlayerPosition.CenterBack, PlayerRole.CenterBack);
+            var centerBack1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.RightCenterBack, random);
+            CreatePlayerTactic(tacticID, centerBack1, PlayerPosition.RightCenterBack, PlayerRole.CenterBack);
             assignedPlayerIDs.Add(centerBack1);
 
-            var centerBack2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CenterBack, random);
-            CreatePlayerTactic(tacticID, centerBack2, PlayerPosition.CenterBack, PlayerRole.CenterBack);
+            var centerBack2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.LeftCenterBack, random);
+            CreatePlayerTactic(tacticID, centerBack2, PlayerPosition.LeftCenterBack, PlayerRole.CenterBack);
             assignedPlayerIDs.Add(centerBack2);
 
             var rightBack = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.RightBack, random);
@@ -321,12 +321,12 @@ namespace FootballOpenServer.Services
             CreatePlayerTactic(tacticID, leftMidfielder, PlayerPosition.LeftMidfielder, PlayerRole.WideMidfielder);
             assignedPlayerIDs.Add(leftMidfielder);
 
-            var centralMidfielder1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CentralMidfielder, random);
-            CreatePlayerTactic(tacticID, centralMidfielder1, PlayerPosition.CentralMidfielder, PlayerRole.CentralMidfielder);
+            var centralMidfielder1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.RightCenterMidfielder, random);
+            CreatePlayerTactic(tacticID, centralMidfielder1, PlayerPosition.RightCenterMidfielder, PlayerRole.CentralMidfielder);
             assignedPlayerIDs.Add(centralMidfielder1);
 
-            var centralMidfielder2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.CentralMidfielder, random);
-            CreatePlayerTactic(tacticID, centralMidfielder2, PlayerPosition.CentralMidfielder, PlayerRole.CentralMidfielder);
+            var centralMidfielder2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.LeftCenterMidfielder, random);
+            CreatePlayerTactic(tacticID, centralMidfielder2, PlayerPosition.LeftCenterMidfielder, PlayerRole.CentralMidfielder);
             assignedPlayerIDs.Add(centralMidfielder2);
 
             var rightMidfielder = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.RightMidfielder, random);
@@ -334,12 +334,12 @@ namespace FootballOpenServer.Services
             assignedPlayerIDs.Add(rightMidfielder);
 
             // 4. Assign Forwards (2 Strikers)
-            var striker1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.Striker, random);
-            CreatePlayerTactic(tacticID, striker1, PlayerPosition.Striker, PlayerRole.AdvancedForward);
+            var striker1 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.RightStriker, random);
+            CreatePlayerTactic(tacticID, striker1, PlayerPosition.RightStriker, PlayerRole.AdvancedForward);
             assignedPlayerIDs.Add(striker1);
 
-            var striker2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.Striker, random);
-            CreatePlayerTactic(tacticID, striker2, PlayerPosition.Striker, PlayerRole.AdvancedForward);
+            var striker2 = FindBestPlayerForPosition(teamPlayerIDs, assignedPlayerIDs, PlayerPosition.LeftStriker, random);
+            CreatePlayerTactic(tacticID, striker2, PlayerPosition.LeftStriker, PlayerRole.AdvancedForward);
             assignedPlayerIDs.Add(striker2);
         }
 
