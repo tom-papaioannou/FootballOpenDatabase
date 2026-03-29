@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Tom Papaioannou. All rights reserved.
 // Licensed under the MIT License
 
-﻿using FootballOpenServer.Models.Teams;
+using FootballOpenServer.DTO.Tactics;
+using FootballOpenServer.Models.Teams;
 using FootballOpenServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -194,6 +195,35 @@ namespace FootballOpenServer.Controllers
             await _db.SaveChangesAsync();
 
             return Ok(newPlayerTactic);
+        }
+
+        [HttpPost("swapPlayersTactic")]
+        public async Task<IActionResult> SwapPlayersTactic([FromBody] SwapPlayerTacticsDTO swapPlayerTacticsModel)
+        {
+            PlayerTactic? firstPlayerTactic = await _db.PlayerTactics
+                .Where(pt => pt.TacticID == swapPlayerTacticsModel.TacticID && pt.PersonID == swapPlayerTacticsModel.FirstPersonID)
+                .FirstOrDefaultAsync();
+
+            if (firstPlayerTactic == null)
+            {
+                return NotFound("Could not find tactic for first player.");
+            }
+
+            PlayerTactic? secondPlayerTactic = await _db.PlayerTactics
+                .Where(pt => pt.TacticID == swapPlayerTacticsModel.TacticID && pt.PersonID == swapPlayerTacticsModel.SecondPersonID)
+                .FirstOrDefaultAsync();
+
+            if (secondPlayerTactic == null)
+            {
+                return NotFound("Could not find tactic for second player.");
+            }
+
+            firstPlayerTactic.PersonID = swapPlayerTacticsModel.SecondPersonID;
+            secondPlayerTactic.PersonID = swapPlayerTacticsModel.FirstPersonID;
+
+            await _db.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }
