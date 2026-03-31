@@ -1,6 +1,9 @@
 // Copyright (c) 2026 Tom Papaioannou. All rights reserved.
 // Licensed under the MIT License
 
+using FootballOpenServer.Models.Competitions;
+using FootballOpenServer.Models.Contracts;
+using FootballOpenServer.Models.People;
 using FootballOpenServer.Models.Servers;
 using FootballOpenServer.Models.Users;
 using FootballOpenServer.Models.World;
@@ -69,6 +72,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<FootballDbContext>();
     var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasherService>();
+    var teamGenerationService = scope.ServiceProvider.GetRequiredService<ITeamGenerationService>();
     var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
     // optional: ensure DB exists / migrations applied
@@ -76,6 +80,8 @@ using (var scope = app.Services.CreateScope())
 
     var adminUsername = config["SeedAdmin:Username"] ?? "admin";
     var adminPassword = config["SeedAdmin:Password"] ?? "ChangeMe123!";
+    var hostPassword = config["SeedHost:Password"] ?? "ChangeMe123!";
+    var userPassword = config["SeedUser:Password"] ?? "ChangeMe123!";
 
     var adminExists = await db.AppUsers.AnyAsync(u => u.Username == adminUsername);
 
@@ -179,6 +185,123 @@ using (var scope = app.Services.CreateScope())
     if (!serverExists)
     {
         db.Servers.Add(new Server { ServerID = Guid.NewGuid(), Name = "Main" });
+        await db.SaveChangesAsync();
+    }
+
+    var mainServer = await db.Servers.FirstOrDefaultAsync(s => s.Name == "Main");
+
+    // Create default host user if none exist
+    var hostExists = await db.AppUsers.AnyAsync(u => u.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "Host"));
+    if (!hostExists && mainServer != null)
+    {
+        hasher.CreateHash(hostPassword, out var hostHash, out var hostSalt);
+        Guid hostId = Guid.NewGuid();
+
+        var hostUser = new AppUser
+        {
+            Id = hostId,
+            Username = "host",
+            PasswordHash = hostHash,
+            PasswordSalt = hostSalt,
+            Claims = new List<AppUserClaim>
+            {
+                new AppUserClaim { Type = ClaimTypes.Role, Value = "Host" },
+                new AppUserClaim { Type = ClaimTypes.NameIdentifier, Value = hostId.ToString() }
+            },
+            Person = new Person
+            {
+                Name = "John",
+                Surname = "Doe",
+                DateOfBirth = new DateTime(1970, 1, 1),
+                PlaceOfBirth = "Athens",
+                ServerID = mainServer.ServerID
+            }
+        };
+
+        db.AppUsers.Add(hostUser);
+        await db.SaveChangesAsync();
+    }
+
+    // Create default competition if none exist
+    var competitionExists = await db.Competitions.AnyAsync();
+    if (!competitionExists && mainServer != null)
+    {
+        var greece = await db.Nations.FirstOrDefaultAsync(n => n.Name == "Greece");
+        if (greece != null)
+        {
+            var generatedTeams = teamGenerationService.GenerateTeamsForCompetition(mainServer.ServerID, 20);
+
+            var competition = new Competition
+            {
+                CompetitionID = Guid.NewGuid(),
+                CompetitionName = "Greek League 1",
+                NationID = greece.NationID,
+                CompetitionTeamsType = CompetitionTeamsType.Club,
+                Priority = 1,
+                CompetitionType = CompetitionType.League,
+                Teams = generatedTeams,
+                ServerID = mainServer.ServerID
+            };
+
+            db.Competitions.Add(competition);
+            await db.SaveChangesAsync();
+        }
+    }
+
+    // Create default regular user if none exist
+    var userExists = await db.AppUsers.AnyAsync(u => u.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "User"));
+    if (!userExists && mainServer != null)
+    {
+        hasher.CreateHash(userPassword, out var userHash, out var userSalt);
+        Guid userId = Guid.NewGuid();
+
+        var person = new Person
+        {
+            Name = "John",
+            Surname = "Doe",
+            DateOfBirth = new DateTime(1970, 1, 1),
+            PlaceOfBirth = "Athens",
+            ServerID = mainServer.ServerID,
+            StaffRole = StaffRole.Manager
+        };
+
+        var regularUser = new AppUser
+        {
+            Id = userId,
+            Username = "user",
+            PasswordHash = userHash,
+            PasswordSalt = userSalt,
+            Claims = new List<AppUserClaim>
+            {
+                new AppUserClaim { Type = ClaimTypes.Role, Value = "User" },
+                new AppUserClaim { Type = ClaimTypes.NameIdentifier, Value = userId.ToString() }
+            },
+            Person = person
+        };
+
+        var now = DateTime.UtcNow;
+        var availableTeams = await db.Teams
+            .Where(t => !db.People.Any(p => p.StaffRole == StaffRole.Manager && p.Contracts.Any(c => c.TeamID == t.TeamID && (c.EndDate == null || c.EndDate > now))))
+            .ToListAsync();
+
+        if (availableTeams.Any())
+        {
+            var randomTeam = availableTeams[Random.Shared.Next(availableTeams.Count)];
+
+            var contract = new Contract
+            {
+                Person = person,
+                Team = randomTeam,
+                StartDate = now,
+                EndDate = now.AddYears(1)
+            };
+
+            db.Contracts.Add(contract);
+            randomTeam.AppUserID = userId;
+            db.Teams.Update(randomTeam);
+        }
+
+        db.AppUsers.Add(regularUser);
         await db.SaveChangesAsync();
     }
 }
