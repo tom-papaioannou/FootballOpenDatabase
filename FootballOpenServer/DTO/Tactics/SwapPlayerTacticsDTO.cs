@@ -2,8 +2,7 @@
 {
     public class SwapPlayerTacticsDTO
     {
-        public Guid FirstPersonID { get; set; }
-        public Guid SecondPersonID { get; set; }
-        public Guid TacticID { get; set; }
+        public Guid FirstPersonTacticID { get; set; }
+        public Guid SecondPersonTacticID { get; set; }
     }
 }

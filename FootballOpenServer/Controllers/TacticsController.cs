@@ -197,31 +197,33 @@ namespace FootballOpenServer.Controllers
             return Ok(newPlayerTactic);
         }
 
-        [HttpPost("swapPlayersTactic")]
+        [HttpPost("swapPlayersTactics")]
         public async Task<IActionResult> SwapPlayersTactic([FromBody] SwapPlayerTacticsDTO swapPlayerTacticsModel)
         {
-            PlayerTactic? firstPlayerTactic = await _db.PlayerTactics
-                .Where(pt => pt.TacticID == swapPlayerTacticsModel.TacticID && pt.PersonID == swapPlayerTacticsModel.FirstPersonID)
-                .FirstOrDefaultAsync();
+            List<PlayerTactic>? playerTactics = await _db.PlayerTactics
+                .Where(pt => pt.PlayerTacticID == swapPlayerTacticsModel.FirstPersonTacticID || pt.PlayerTacticID == swapPlayerTacticsModel.SecondPersonTacticID)
+                .ToListAsync();
 
-            if (firstPlayerTactic == null)
+            if (playerTactics == null || playerTactics.Count != 2)
             {
-                return NotFound("Could not find tactic for first player.");
+                return NotFound("Could not find tactics for players.");
             }
 
-            PlayerTactic? secondPlayerTactic = await _db.PlayerTactics
-                .Where(pt => pt.TacticID == swapPlayerTacticsModel.TacticID && pt.PersonID == swapPlayerTacticsModel.SecondPersonID)
-                .FirstOrDefaultAsync();
+            PlayerTactic firstPlayerTactic = playerTactics.FirstOrDefault(pt => pt.PlayerTacticID == swapPlayerTacticsModel.FirstPersonTacticID);
+            PlayerTactic secondPlayerTactic = playerTactics.FirstOrDefault(pt => pt.PlayerTacticID == swapPlayerTacticsModel.SecondPersonTacticID);
 
-            if (secondPlayerTactic == null)
+            Guid temp = firstPlayerTactic.PersonID;
+            firstPlayerTactic.PersonID = secondPlayerTactic.PersonID;
+            secondPlayerTactic.PersonID = temp;
+
+            try
             {
-                return NotFound("Could not find tactic for second player.");
+                await _db.SaveChangesAsync();
             }
-
-            firstPlayerTactic.PersonID = swapPlayerTacticsModel.SecondPersonID;
-            secondPlayerTactic.PersonID = swapPlayerTacticsModel.FirstPersonID;
-
-            await _db.SaveChangesAsync();
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+            }
 
             return Ok();
         }
