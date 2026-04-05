@@ -215,6 +215,8 @@ namespace FootballOpenServer.Services
                 // Auto-assign players to positions in the primary tactic
                 AssignPlayersToFormation(primaryTactic.TacticID, teamPlayerIDs, primaryTactic.Formation, random);
 
+                AssignSubstitutionsAndReserves(primaryTactic.TacticID, teamPlayerIDs, primaryTactic.Formation, random);
+
                 teams.Add(team);
             }
 
@@ -348,6 +350,59 @@ namespace FootballOpenServer.Services
                 AssignPlayersToFourFourTwo(tacticID, teamPlayerIDs, random);
             }
             // Add more formations here as needed
+        }
+
+        private void AssignSubstitutionsAndReserves(Guid tacticID, List<Guid> teamPlayerIDs, Formation? formation, Random random)
+        {
+            var assignedPlayerIDs = _context.PlayerTactics
+                .Where(pt => pt.TacticID == tacticID)
+                .Select(pt => pt.PersonID)
+                .ToHashSet();
+            var availablePlayers = teamPlayerIDs.Where(id => !assignedPlayerIDs.Contains(id)).ToList();
+            int i = 0;
+            foreach (Guid availablePlayerID in availablePlayers)
+            {
+                if (i <= 9)
+                {
+                    AddSubstitution(tacticID, availablePlayerID, i);
+                }
+                else
+                {
+                    AddReserve(tacticID, availablePlayerID);
+                }
+
+                i++;
+            }
+        }
+
+        private void AddSubstitution(Guid tacticID, Guid personID, int substituteOrder)
+        {
+            var playerTactic = new PlayerTactic
+            {
+                PlayerTacticID = Guid.NewGuid(),
+                TacticID = tacticID,
+                PersonID = personID,
+                PlayerPosition = PlayerPosition.None,
+                PlayerRole = PlayerRole.None,
+                SquadUnit = SquadUnit.Substitute,
+                SubstituteOrder = substituteOrder
+            };
+            _context.PlayerTactics.Add(playerTactic);
+        }
+
+        private void AddReserve(Guid tacticID, Guid personID)
+        {
+            var playerTactic = new PlayerTactic
+            {
+                PlayerTacticID = Guid.NewGuid(),
+                TacticID = tacticID,
+                PersonID = personID,
+                PlayerPosition = PlayerPosition.None,
+                PlayerRole = PlayerRole.None,
+                SquadUnit = SquadUnit.Reserve,
+                SubstituteOrder = null
+            };
+            _context.PlayerTactics.Add(playerTactic);
         }
 
         private void AssignPlayersToFourFourTwo(Guid tacticID, List<Guid> teamPlayerIDs, Random random)
