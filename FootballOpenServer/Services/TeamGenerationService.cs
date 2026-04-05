@@ -438,7 +438,9 @@ namespace FootballOpenServer.Services
                 TacticID = tacticID,
                 PersonID = personID,
                 PlayerPosition = position,
-                PlayerRole = role
+                PlayerRole = role,
+                SquadUnit = SquadUnit.Starting,
+                SubstituteOrder = null
             };
 
             _context.PlayerTactics.Add(playerTactic);
