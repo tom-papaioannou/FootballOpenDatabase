@@ -13,5 +13,7 @@ namespace FootballOpenServer.Models.Teams
         public virtual Person? Person { get; set; }
         public PlayerPosition PlayerPosition { get; set; }
         public PlayerRole PlayerRole { get; set; }
+        public SquadUnit SquadUnit { get; set; }
+        public int? SubstituteOrder { get; set; }
     }
 }
