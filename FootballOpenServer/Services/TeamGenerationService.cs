@@ -359,7 +359,7 @@ namespace FootballOpenServer.Services
                 .Select(pt => pt.PersonID)
                 .ToHashSet();
             var availablePlayers = teamPlayerIDs.Where(id => !assignedPlayerIDs.Contains(id)).ToList();
-            int i = 0;
+            int i = 1;
             foreach (Guid availablePlayerID in availablePlayers)
             {
                 if (i <= 9)
