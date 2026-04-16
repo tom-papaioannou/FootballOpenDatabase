@@ -229,7 +229,7 @@ using (var scope = app.Services.CreateScope())
         var greece = await db.Nations.FirstOrDefaultAsync(n => n.Name == "Greece");
         if (greece != null)
         {
-            var generatedTeams = teamGenerationService.GenerateTeamsForCompetition(mainServer.ServerID, 20);
+            var generatedTeams = await teamGenerationService.GenerateTeamsForCompetition(mainServer.ServerID, greece.NationID, 20);
 
             var competition = new Competition
             {
