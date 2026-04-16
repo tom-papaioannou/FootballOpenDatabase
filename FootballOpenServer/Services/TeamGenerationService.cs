@@ -4,12 +4,14 @@
 using FootballOpenServer.Models.Teams;
 using FootballOpenServer.Models.People;
 using FootballOpenServer.Models.Contracts;
+using FootballOpenServer.Models.Competitions;
+using Microsoft.EntityFrameworkCore;
 
 namespace FootballOpenServer.Services
 {
     public interface ITeamGenerationService
     {
-        List<Team> GenerateTeamsForCompetition(Guid? serverID, int numberOfTeams = 20);
+       Task<List<Team>> GenerateTeamsForCompetition(Guid? serverID, Guid? nationID, int numberOfTeams = 20);
     }
 
     public class TeamGenerationService : ITeamGenerationService
@@ -97,10 +99,12 @@ namespace FootballOpenServer.Services
             _context = context;
         }
 
-        public List<Team> GenerateTeamsForCompetition(Guid? serverID,int numberOfTeams = 20)
+        public async Task<List<Team>> GenerateTeamsForCompetition(Guid? serverID, Guid? nationID, int numberOfTeams = 20)
         {
             var teams = new List<Team>();
             var random = new Random();
+
+            var restNations = await _context.Nations.Where(n => n.NationID != nationID).ToListAsync();
 
             // Create a shuffled copy of team names to avoid duplicates
             var availableNames = TeamNames.ToList();
@@ -118,8 +122,8 @@ namespace FootballOpenServer.Services
                 {
                     TeamID = Guid.NewGuid(),
                     Name = teamName,
-                    Competitions = new List<Models.Competitions.Competition>(),
-                    Contracts = new List<Models.Contracts.Contract>()
+                    Competitions = new List<Competition>(),
+                    Contracts = new List<Contract>()
                 };
 
                 // Generate primary tactic for the team
@@ -149,6 +153,7 @@ namespace FootballOpenServer.Services
                         Surname = LastNames[random.Next(LastNames.Length)],
                         DateOfBirth = DateTime.Now.AddYears(-random.Next(18, 35)).AddDays(-random.Next(0, 365)),
                         PlaceOfBirth = Cities[random.Next(Cities.Length)],
+                        NationID = random.Next(0, 10) < 7 ? nationID : restNations[random.Next(restNations.Count)].NationID,
                         ServerID = serverID,
                         PlayerTrainedPositions = new List<PlayerTrainedPosition>(),
                         PlayerTrainedRoles = new List<PlayerTrainedRole>()
