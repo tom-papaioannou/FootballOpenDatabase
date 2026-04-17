@@ -21,7 +21,7 @@ namespace FootballOpenServer.Services
             "CanonRed FC", "Limani City", "Peter United", "Sea FC", "Ham Ham SC",
             "Metropolitan City", "Lester Country", "Levadia", "Notos FC", "Newcera",
             "Karpe DIEM Villa", "Southeastamptonica", "Crystal City", "Bright Future SC", "Likoi FC",
-            "Burn-Burn FC", "Leeds United", "Notham Town", "Fulleriom", "Brenta",
+            "Burn-Burn FC", "Notham Town", "Fulleriom", "Brenta",
             "Catalonica", "Real Athens", "Atletico Posidwnos", "Cella", "Vale King",
             "Sillogos Munich", "Dort Port", "Leipzia Team Soccer", "Eintracht Karpenisiou",
             "AC Lamias", "Inter Kavalas", "Romaioi United",
@@ -29,6 +29,54 @@ namespace FootballOpenServer.Services
             "Thermaikos", "Portogalia SC", "Sport Limaniou SC",
             "Celt Heroes", "Strong Heart FC", "Milky Way United", "Andromeda Team",
             "Stars Beyond", "Galaxias Elliniki Omada", "Fioreba Team"
+        };
+
+        private static readonly Dictionary<string, string> TeamCodes = new()
+        {
+            { "CanonRed FC", "CRD" },
+            { "Limani City", "LIM" },
+            { "Peter United", "PTR" },
+            { "Sea FC", "SEA" },
+            { "Ham Ham SC", "HHS" },
+            { "Metropolitan City", "MTRC" },
+            { "Lester Country", "LSTC" },
+            { "Levadia", "LVD" },
+            { "Notos FC", "NTF" },
+            { "Newcera", "NCR" },
+            { "Karpe DIEM Villa", "KDV" },
+            { "Southeastamptonica", "SEAM" },
+            { "Crystal City", "CRY" },
+            { "Bright Future SC", "BFS" },
+            { "Likoi FC", "LKFC" },
+            { "Burn-Burn FC", "BBFC" },
+            { "Notham Town", "NHT" },
+            { "Fulleriom", "FULL" },
+            { "Brenta", "BRE" },
+            { "Catalonica", "CAT" },
+            { "Real Athens", "RATH" },
+            { "Atletico Posidwnos", "ATLP" },
+            { "Cella", "CELL" },
+            { "Vale King", "KING" },
+            { "Sillogos Munich", "SIM" },
+            { "Dort Port", "DORP" },
+            { "Leipzia Team Soccer", "LTS" },
+            { "Eintracht Karpenisiou", "EKRP" },
+            { "AC Lamias", "ACL" },
+            { "Inter Kavalas", "IKVL" },
+            { "Romaioi United", "ROMU" },
+            { "Paris-France Team", "PFT" },
+            { "Mona Basel", "MBAS" },
+            { "Aias Salaminas", "ASAL" },
+            { "Thermaikos", "THER" },
+            { "Portogalia SC", "POSC" },
+            { "Sport Limaniou SC", "SLSC" },
+            { "Celt Heroes", "CEHE" },
+            { "Strong Heart FC", "SHFC" },
+            { "Milky Way United", "MWU" },
+            { "Andromeda Team", "ANDR" },
+            { "Stars Beyond", "STB" },
+            { "Galaxias Elliniki Omada", "GLXE" },
+            { "Fioreba Team", "FIOT" }
         };
 
         private static readonly string[] FirstNames = new[]
@@ -123,7 +171,8 @@ namespace FootballOpenServer.Services
                     TeamID = Guid.NewGuid(),
                     Name = teamName,
                     Competitions = new List<Competition>(),
-                    Contracts = new List<Contract>()
+                    Contracts = new List<Contract>(),
+                    Code = TeamCodes[teamName] ?? "UNKT",
                 };
 
                 // Generate primary tactic for the team
