@@ -23,5 +23,7 @@ namespace FootballOpenServer.Models.Teams
         public ICollection<Competition>? Competitions { get; set; }
         [JsonIgnore]
         public ICollection<Contract>? Contracts { get; set; }
+
+        public string Code { get; set; }
     }
 }
