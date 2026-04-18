@@ -172,7 +172,8 @@ namespace FootballOpenServer.Services
                     Name = $"{teamName} Stadium",
                     Capacity = random.Next(20000, 80001), // Random capacity between 20,000 and 80,000
                     Latitude = random.NextDouble() * 180 - 90, // Random latitude between -90 and 90
-                    Longitude = random.NextDouble() * 360 - 180 // Random longitude between -180 and 180
+                    Longitude = random.NextDouble() * 360 - 180, // Random longitude between -180 and 180
+                    City = Cities[random.Next(Cities.Length)]
                 };
 
                 _context.Add(stadium);

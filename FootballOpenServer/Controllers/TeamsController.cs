@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Tom Papaioannou. All rights reserved.
 // Licensed under the MIT License
 
+using FootballOpenServer.DTO.Teams;
 using FootballOpenServer.Models.Competitions;
 using FootballOpenServer.Models.Contracts;
 using FootballOpenServer.Models.People;
@@ -8,7 +9,6 @@ using FootballOpenServer.Models.Teams;
 using FootballOpenServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace FootballOpenServer.Controllers
 {
@@ -26,7 +26,7 @@ namespace FootballOpenServer.Controllers
         }
 
         [HttpGet("getCurrentTeam")]
-        public async Task<ActionResult<Team>> GetCurrentTeam()
+        public async Task<ActionResult<TeamInformationDTO>> GetCurrentTeam()
         {
             var team = await _teamAccessService.GetOwnedTeamAsync(User);
 

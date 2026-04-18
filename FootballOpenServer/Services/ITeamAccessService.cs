@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using FootballOpenServer.DTO.Teams;
 using FootballOpenServer.Models.Teams;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,7 +8,7 @@ namespace FootballOpenServer.Services
     public interface ITeamAccessService
     {
         Guid? GetCurrentUserID(ClaimsPrincipal user);
-        Task<Team?> GetOwnedTeamAsync(ClaimsPrincipal user);
+        Task<TeamInformationDTO?> GetOwnedTeamAsync(ClaimsPrincipal user);
         Task<bool> OwnsTeamAsync(ClaimsPrincipal user, Guid teamId);
     }
 
@@ -33,13 +34,31 @@ namespace FootballOpenServer.Services
             return userId;
         }
 
-        public async Task<Team?> GetOwnedTeamAsync(ClaimsPrincipal user)
+        public async Task<TeamInformationDTO?> GetOwnedTeamAsync(ClaimsPrincipal user)
         {
             Guid? userId = GetCurrentUserID(user);
             if (userId == null)
                 return null;
 
-            return await _db.Teams.FirstOrDefaultAsync(t => t.AppUserID == userId.Value);
+            return await _db.Teams
+                .Where(t => t.AppUserID == userId.Value)
+                .AsNoTracking()
+                .Include(t => t.Stadium)
+                .Select(t => new TeamInformationDTO
+                {
+                    TeamID = t.TeamID,
+                    Name = t.Name,
+                    Stadium = new StadiumDTO
+                    {
+                        StadiumID = t.Stadium.StadiumID,
+                        Name = t.Stadium.Name,
+                        Capacity = t.Stadium.Capacity,
+                        City = t.Stadium.City,
+                        Latitude = t.Stadium.Latitude,
+                        Longitude = t.Stadium.Longitude
+                    }
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<bool> OwnsTeamAsync(ClaimsPrincipal user, Guid teamID)
