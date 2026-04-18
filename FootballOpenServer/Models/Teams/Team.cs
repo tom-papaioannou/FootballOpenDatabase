@@ -25,5 +25,10 @@ namespace FootballOpenServer.Models.Teams
         public ICollection<Contract>? Contracts { get; set; }
 
         public string Code { get; set; }
+
+        public Guid StadiumID { get; set; }
+
+        [JsonIgnore]
+        public virtual Stadium? Stadium { get; set; }
     }
 }
