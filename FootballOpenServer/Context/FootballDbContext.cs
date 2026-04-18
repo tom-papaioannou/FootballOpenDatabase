@@ -132,5 +132,11 @@ public class FootballDbContext : DbContext
             .HasIndex(t => t.AppUserID)
             .IsUnique()
             .HasFilter("[AppUserID] IS NOT NULL");
+
+        modelBuilder.Entity<Team>()
+            .HasOne(t => t.Stadium)
+            .WithOne(s => s.Team)
+            .HasForeignKey<Team>(t => t.StadiumID);
+    
     }
 }

@@ -166,6 +166,17 @@ namespace FootballOpenServer.Services
                 // Remove the name from available names to prevent duplicates
                 availableNames.RemoveAt(randomIndex);
 
+                Stadium stadium = new Stadium
+                {
+                    StadiumID = Guid.NewGuid(),
+                    Name = $"{teamName} Stadium",
+                    Capacity = random.Next(20000, 80001), // Random capacity between 20,000 and 80,000
+                    Latitude = random.NextDouble() * 180 - 90, // Random latitude between -90 and 90
+                    Longitude = random.NextDouble() * 360 - 180 // Random longitude between -180 and 180
+                };
+
+                _context.Add(stadium);
+
                 var team = new Team
                 {
                     TeamID = Guid.NewGuid(),
@@ -173,6 +184,7 @@ namespace FootballOpenServer.Services
                     Competitions = new List<Competition>(),
                     Contracts = new List<Contract>(),
                     Code = TeamCodes[teamName] ?? "UNKT",
+                    StadiumID = stadium.StadiumID
                 };
 
                 // Generate primary tactic for the team
