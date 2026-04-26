@@ -211,6 +211,11 @@ namespace FootballOpenServer.Controllers
                 return BadRequest("Only starting squad player roles can be updated.");
             }
 
+            if (!IsRoleAvailableForPosition(playerTactic.PlayerPosition, updatePlayerRoleModel.PlayerRole))
+            {
+                return BadRequest("Player role is not available for the player's current position.");
+            }
+
             DateTime now = DateTime.Now;
             bool playerBelongsToTeam = await _db.Contracts.AnyAsync(c =>
                 c.PersonID == playerTactic.PersonID &&
@@ -298,6 +303,98 @@ namespace FootballOpenServer.Controllers
             }
 
             return Ok();
+        }
+
+        private static bool IsRoleAvailableForPosition(PlayerPosition position, PlayerRole role)
+        {
+            return position switch
+            {
+                PlayerPosition.Goalkeeper => role is
+                    PlayerRole.Goalkeeper or
+                    PlayerRole.SweeperKeeper,
+
+                PlayerPosition.RightCenterBack or
+                PlayerPosition.CentralCenterBack or
+                PlayerPosition.LeftCenterBack => role is
+                    PlayerRole.CenterBack or
+                    PlayerRole.BallPlayingDefender or
+                    PlayerRole.NoNonsenseCenterBack or
+                    PlayerRole.Libero or
+                    PlayerRole.Stopper or
+                    PlayerRole.Cover,
+
+                PlayerPosition.RightBack or
+                PlayerPosition.LeftBack or
+                PlayerPosition.RightWingBack or
+                PlayerPosition.LeftWingBack => role is
+                    PlayerRole.FullBack or
+                    PlayerRole.WingBack or
+                    PlayerRole.CompleteWingBack or
+                    PlayerRole.InvertedWingBack or
+                    PlayerRole.WideCenterBack,
+
+                PlayerPosition.RightDefensiveMidfielder or
+                PlayerPosition.CentralDefensiveMidfielder or
+                PlayerPosition.LeftDefensiveMidfielder => role is
+                    PlayerRole.DefensiveMidfielder or
+                    PlayerRole.Anchorman or
+                    PlayerRole.HalfBack or
+                    PlayerRole.DeepLyingPlaymaker or
+                    PlayerRole.Regista or
+                    PlayerRole.Volante or
+                    PlayerRole.SegundoVolante or
+                    PlayerRole.BallWinningMidfielder,
+
+                PlayerPosition.RightCenterMidfielder or
+                PlayerPosition.CentralCenterMidfielder or
+                PlayerPosition.LeftCenterMidfielder => role is
+                    PlayerRole.CentralMidfielder or
+                    PlayerRole.BoxToBoxMidfielder or
+                    PlayerRole.Mezzala or
+                    PlayerRole.Carrilero or
+                    PlayerRole.AdvancedPlaymaker or
+                    PlayerRole.RoamingPlaymaker,
+
+                PlayerPosition.RightMidfielder or
+                PlayerPosition.LeftMidfielder or
+                PlayerPosition.RightWinger or
+                PlayerPosition.LeftWinger => role is
+                    PlayerRole.WideMidfielder or
+                    PlayerRole.WidePlaymaker or
+                    PlayerRole.Winger or
+                    PlayerRole.InvertedWinger or
+                    PlayerRole.InsideForward or
+                    PlayerRole.InvertedForward or
+                    PlayerRole.Raumdeuter or
+                    PlayerRole.WideTargetMan or
+                    PlayerRole.DefensiveWinger,
+
+                PlayerPosition.RightAttackingMidfielder or
+                PlayerPosition.CentralAttackingMidfielder or
+                PlayerPosition.LeftAttackingMidfielder => role is
+                    PlayerRole.AttackingMidfielder or
+                    PlayerRole.ShadowStriker or
+                    PlayerRole.Enganche or
+                    PlayerRole.Trequartista or
+                    PlayerRole.SecondStriker or
+                    PlayerRole.FalseTen or
+                    PlayerRole.CentralWinger,
+
+                PlayerPosition.RightStriker or
+                PlayerPosition.CentralStriker or
+                PlayerPosition.LeftStriker => role is
+                    PlayerRole.AdvancedForward or
+                    PlayerRole.CompleteForward or
+                    PlayerRole.Poacher or
+                    PlayerRole.TargetMan or
+                    PlayerRole.DeepLyingForward or
+                    PlayerRole.PressingForward or
+                    PlayerRole.DefensiveForward or
+                    PlayerRole.FalseNine or
+                    PlayerRole.TrequartistaForward,
+
+                _ => false
+            };
         }
     }
 }
