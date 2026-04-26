@@ -2,6 +2,8 @@
 // Licensed under the MIT License
 
 using FootballOpenServer.DTO.Tactics;
+using FootballOpenServer.Models.Contracts;
+using FootballOpenServer.Models.People;
 using FootballOpenServer.Models.Teams;
 using FootballOpenServer.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -163,6 +165,76 @@ namespace FootballOpenServer.Controllers
                 .ToListAsync();
 
             return Ok(playerTactics);
+        }
+
+        [HttpPatch("teams/{teamID}/starting-player-tactics/{playerTacticID}/role")]
+        public async Task<IActionResult> UpdateStartingPlayerRole(
+            Guid teamID,
+            Guid playerTacticID,
+            [FromBody] UpdatePlayerTacticRoleDTO? updatePlayerRoleModel)
+        {
+            if (updatePlayerRoleModel == null)
+            {
+                return BadRequest("Player role update payload is required.");
+            }
+
+            if (!Enum.IsDefined(typeof(PlayerRole), updatePlayerRoleModel.PlayerRole))
+            {
+                return BadRequest("Invalid player role.");
+            }
+
+            bool ownsTeam = await _teamAccessService.OwnsTeamAsync(User, teamID);
+            if (!ownsTeam)
+            {
+                return NotFound("Team not found or user does not have access to this team.");
+            }
+
+            PlayerTactic? playerTactic = await _db.PlayerTactics
+                .Include(pt => pt.Person)
+                .FirstOrDefaultAsync(pt => pt.PlayerTacticID == playerTacticID);
+
+            if (playerTactic == null)
+            {
+                return NotFound("Player tactic not found.");
+            }
+
+            bool tacticBelongsToTeam = await _db.Tactics
+                .AnyAsync(t => t.TacticID == playerTactic.TacticID && t.TeamID == teamID);
+
+            if (!tacticBelongsToTeam)
+            {
+                return BadRequest("Player tactic does not belong to the given team.");
+            }
+
+            if (playerTactic.SquadUnit != SquadUnit.Starting)
+            {
+                return BadRequest("Only starting squad player roles can be updated.");
+            }
+
+            DateTime now = DateTime.Now;
+            bool playerBelongsToTeam = await _db.Contracts.AnyAsync(c =>
+                c.PersonID == playerTactic.PersonID &&
+                c.TeamID == teamID &&
+                (c.EndDate == null || c.EndDate > now) &&
+                c.Role == Role.Player);
+
+            if (!playerBelongsToTeam)
+            {
+                return BadRequest("Player does not belong to the given team.");
+            }
+
+            playerTactic.PlayerRole = updatePlayerRoleModel.PlayerRole;
+
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+            }
+
+            return Ok(playerTactic);
         }
 
         [HttpGet("getPlayerTacticsByTeamID/{teamID}")]
