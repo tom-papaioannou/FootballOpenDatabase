@@ -371,11 +371,12 @@ namespace FootballOpenServer.Services
         {
             var trainedRoles = new List<PlayerTrainedRole>();
             
-            // Get all valid player roles (exclude None)
-            var validRoles = Enum.GetValues(typeof(PlayerRole))
-                .Cast<PlayerRole>()
-                .Where(r => r != PlayerRole.None)
-                .ToList();
+            var validRoles = GetValidRolesForPosition(position);
+
+            if (!validRoles.Any())
+            {
+                return trainedRoles;
+            }
 
             // First trained role (80-100 adaptaption)
             var firstRole = validRoles[random.Next(validRoles.Count)];
@@ -408,6 +409,114 @@ namespace FootballOpenServer.Services
             }
 
             return trainedRoles;
+        }
+
+        private static List<PlayerRole> GetValidRolesForPosition(PlayerPosition position)
+        {
+            return position switch
+            {
+                PlayerPosition.Goalkeeper => new List<PlayerRole>
+                {
+                    PlayerRole.Goalkeeper,
+                    PlayerRole.SweeperKeeper
+                },
+
+                PlayerPosition.RightCenterBack or
+                PlayerPosition.CentralCenterBack or
+                PlayerPosition.LeftCenterBack => new List<PlayerRole>
+                {
+                    PlayerRole.CenterBack,
+                    PlayerRole.BallPlayingDefender,
+                    PlayerRole.NoNonsenseCenterBack,
+                    PlayerRole.Libero,
+                    PlayerRole.Stopper,
+                    PlayerRole.Cover
+                },
+
+                PlayerPosition.RightBack or
+                PlayerPosition.LeftBack or
+                PlayerPosition.RightWingBack or
+                PlayerPosition.LeftWingBack => new List<PlayerRole>
+                {
+                    PlayerRole.FullBack,
+                    PlayerRole.WingBack,
+                    PlayerRole.CompleteWingBack,
+                    PlayerRole.InvertedWingBack,
+                    PlayerRole.WideCenterBack
+                },
+
+                PlayerPosition.RightDefensiveMidfielder or
+                PlayerPosition.CentralDefensiveMidfielder or
+                PlayerPosition.LeftDefensiveMidfielder => new List<PlayerRole>
+                {
+                    PlayerRole.DefensiveMidfielder,
+                    PlayerRole.Anchorman,
+                    PlayerRole.HalfBack,
+                    PlayerRole.DeepLyingPlaymaker,
+                    PlayerRole.Regista,
+                    PlayerRole.Volante,
+                    PlayerRole.SegundoVolante,
+                    PlayerRole.BallWinningMidfielder
+                },
+
+                PlayerPosition.RightCenterMidfielder or
+                PlayerPosition.CentralCenterMidfielder or
+                PlayerPosition.LeftCenterMidfielder => new List<PlayerRole>
+                {
+                    PlayerRole.CentralMidfielder,
+                    PlayerRole.BoxToBoxMidfielder,
+                    PlayerRole.Mezzala,
+                    PlayerRole.Carrilero,
+                    PlayerRole.AdvancedPlaymaker,
+                    PlayerRole.RoamingPlaymaker
+                },
+
+                PlayerPosition.RightMidfielder or
+                PlayerPosition.LeftMidfielder or
+                PlayerPosition.RightWinger or
+                PlayerPosition.LeftWinger => new List<PlayerRole>
+                {
+                    PlayerRole.WideMidfielder,
+                    PlayerRole.WidePlaymaker,
+                    PlayerRole.Winger,
+                    PlayerRole.InvertedWinger,
+                    PlayerRole.InsideForward,
+                    PlayerRole.InvertedForward,
+                    PlayerRole.Raumdeuter,
+                    PlayerRole.WideTargetMan,
+                    PlayerRole.DefensiveWinger
+                },
+
+                PlayerPosition.RightAttackingMidfielder or
+                PlayerPosition.CentralAttackingMidfielder or
+                PlayerPosition.LeftAttackingMidfielder => new List<PlayerRole>
+                {
+                    PlayerRole.AttackingMidfielder,
+                    PlayerRole.ShadowStriker,
+                    PlayerRole.Enganche,
+                    PlayerRole.Trequartista,
+                    PlayerRole.SecondStriker,
+                    PlayerRole.FalseTen,
+                    PlayerRole.CentralWinger
+                },
+
+                PlayerPosition.RightStriker or
+                PlayerPosition.CentralStriker or
+                PlayerPosition.LeftStriker => new List<PlayerRole>
+                {
+                    PlayerRole.AdvancedForward,
+                    PlayerRole.CompleteForward,
+                    PlayerRole.Poacher,
+                    PlayerRole.TargetMan,
+                    PlayerRole.DeepLyingForward,
+                    PlayerRole.PressingForward,
+                    PlayerRole.DefensiveForward,
+                    PlayerRole.FalseNine,
+                    PlayerRole.TrequartistaForward
+                },
+
+                _ => new List<PlayerRole>()
+            };
         }
 
         private void AssignPlayersToFormation(Guid tacticID, List<Guid> teamPlayerIDs, Formation? formation, Random random)
