@@ -86,16 +86,20 @@ namespace FootballOpenServer.Controllers
                 return NotFound();
             }
 
-            var squad = await _db.People
-                .Where(p => _db.Contracts.Any(c => c.PersonID == p.PersonID && c.TeamID == teamID && c.EndDate > DateOnly.FromDateTime(DateTime.UtcNow) && c.Role == Role.Player))
-                .Include(p => p.PlayerTrainedPositions)
-                .Select(p => new
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            var squad = await _db.Contracts
+                .Where(c => c.TeamID == teamID && (c.EndDate == null || c.EndDate > today) && c.Role == Role.Player)
+                .Include(c => c.Person)
+                    .ThenInclude(p => p.PlayerTrainedPositions)
+                .Select(c => new
                 {
-                    p.PersonID,
-                    p!.Name,
-                    p!.Surname,
-                    p!.DateOfBirth,
-                    PlayerTrainedPositions = p.PlayerTrainedPositions!.Select(ptp => new
+                    c.Person.PersonID,
+                    c.Person.Name,
+                    c.Person.Surname,
+                    c.Person.DateOfBirth,
+                    c.ShirtNumber,
+                    PlayerTrainedPositions = c.Person.PlayerTrainedPositions!.Select(ptp => new
                     {
                         ptp.PlayerPosition,
                         ptp.PlayerTrainedPositionAdaptation
