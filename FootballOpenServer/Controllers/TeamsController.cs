@@ -110,6 +110,44 @@ namespace FootballOpenServer.Controllers
             return Ok(squad);
         }
 
+        [HttpPut("updatePlayerShirtNumber")]
+        public async Task<IActionResult> UpdatePlayerShirtNumber([FromBody] UpdatePlayerShirtNumberDTO model)
+        {
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            var playerContract = await _db.Contracts
+                .FirstOrDefaultAsync(c =>
+                    c.TeamID == model.TeamID &&
+                    c.PersonID == model.PersonID &&
+                    (c.EndDate == null || c.EndDate > today) &&
+                    c.Role == Role.Player);
+
+            if (playerContract == null)
+            {
+                return NotFound();
+            }
+
+            var previousAssignedContract = await _db.Contracts
+                .FirstOrDefaultAsync(c =>
+                    c.TeamID == model.TeamID &&
+                    c.PersonID != model.PersonID &&
+                    c.ShirtNumber == model.ShirtNumber &&
+                    (c.EndDate == null || c.EndDate > today) &&
+                    c.Role == Role.Player);
+
+            var playerPreviousShirtNumber = playerContract.ShirtNumber;
+            playerContract.ShirtNumber = model.ShirtNumber;
+
+            if (previousAssignedContract != null)
+            {
+                previousAssignedContract.ShirtNumber = playerPreviousShirtNumber;
+            }
+
+            await _db.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         [HttpGet("getPlayerDetails/{personID}")]
         public async Task<IActionResult> GetPlayerDetails(Guid personID)
         {
