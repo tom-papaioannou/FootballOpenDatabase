@@ -22,8 +22,8 @@ namespace FootballOpenServer.Models.Contracts
         [JsonIgnore]
         public virtual Team Team { get; set; } = null!;
 
-        public DateTime StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly? EndDate { get; set; }
         public Role Role { get; set; }
 
         [Range(1, 99)]

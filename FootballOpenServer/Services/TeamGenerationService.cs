@@ -215,7 +215,7 @@ namespace FootballOpenServer.Services
                         PersonID = personID,
                         Name = FirstNames[random.Next(FirstNames.Length)],
                         Surname = LastNames[random.Next(LastNames.Length)],
-                        DateOfBirth = DateTime.Now.AddYears(-random.Next(18, 35)).AddDays(-random.Next(0, 365)),
+                        DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-random.Next(18, 35)).AddDays(-random.Next(0, 365))),
                         PlaceOfBirth = Cities[random.Next(Cities.Length)],
                         NationID = random.Next(0, 10) < 7 ? nationID : restNations[random.Next(restNations.Count)].NationID,
                         ServerID = serverID,
@@ -230,8 +230,8 @@ namespace FootballOpenServer.Services
                         ContractID = Guid.NewGuid(),
                         PersonID = personID,
                         TeamID = team.TeamID,
-                        StartDate = DateTime.UtcNow,
-                        EndDate = new DateTime(contractEndYear, 6, 30),
+                        StartDate = DateOnly.FromDateTime(DateTime.UtcNow),
+                        EndDate = new DateOnly(contractEndYear, 6, 30),
                         Role = Role.Player
                     };
 

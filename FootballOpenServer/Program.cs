@@ -212,7 +212,7 @@ using (var scope = app.Services.CreateScope())
             {
                 Name = "John",
                 Surname = "Doe",
-                DateOfBirth = new DateTime(1970, 1, 1),
+                DateOfBirth = new DateOnly(1970, 1, 1),
                 PlaceOfBirth = "Athens",
                 ServerID = mainServer.ServerID
             }
@@ -259,7 +259,7 @@ using (var scope = app.Services.CreateScope())
         {
             Name = "John",
             Surname = "Doe",
-            DateOfBirth = new DateTime(1970, 1, 1),
+            DateOfBirth = new DateOnly(1970, 1, 1),
             PlaceOfBirth = "Athens",
             ServerID = mainServer.ServerID,
             StaffRole = StaffRole.Manager
@@ -281,7 +281,7 @@ using (var scope = app.Services.CreateScope())
 
         var now = DateTime.UtcNow;
         var availableTeams = await db.Teams
-            .Where(t => !db.People.Any(p => p.StaffRole == StaffRole.Manager && p.Contracts.Any(c => c.TeamID == t.TeamID && (c.EndDate == null || c.EndDate > now))))
+            .Where(t => !db.People.Any(p => p.StaffRole == StaffRole.Manager && p.Contracts.Any(c => c.TeamID == t.TeamID && (c.EndDate == null || c.EndDate > DateOnly.FromDateTime(now)))))
             .ToListAsync();
 
         if (availableTeams.Any())
@@ -292,8 +292,8 @@ using (var scope = app.Services.CreateScope())
             {
                 Person = person,
                 Team = randomTeam,
-                StartDate = now,
-                EndDate = now.AddYears(1)
+                StartDate = DateOnly.FromDateTime(now),
+                EndDate = DateOnly.FromDateTime(now.AddYears(1))
             };
 
             db.Contracts.Add(contract);

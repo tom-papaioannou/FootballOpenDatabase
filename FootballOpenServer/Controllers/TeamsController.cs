@@ -87,7 +87,7 @@ namespace FootballOpenServer.Controllers
             }
 
             var squad = await _db.People
-                .Where(p => _db.Contracts.Any(c => c.PersonID == p.PersonID && c.TeamID == teamID && c.EndDate > DateTime.Now && c.Role == Role.Player))
+                .Where(p => _db.Contracts.Any(c => c.PersonID == p.PersonID && c.TeamID == teamID && c.EndDate > DateOnly.FromDateTime(DateTime.UtcNow) && c.Role == Role.Player))
                 .Include(p => p.PlayerTrainedPositions)
                 .Select(p => new
                 {
@@ -146,7 +146,7 @@ namespace FootballOpenServer.Controllers
                 .FirstOrDefaultAsync();
 
             Person[] players = await _db.People
-                .Where(p => _db.Contracts.Any(c => c.PersonID == p.PersonID && c.TeamID == team.TeamID && c.EndDate > DateTime.Now && c.Role == Role.Player))
+                .Where(p => _db.Contracts.Any(c => c.PersonID == p.PersonID && c.TeamID == team.TeamID && c.EndDate > DateOnly.FromDateTime(DateTime.UtcNow) && c.Role == Role.Player))
                 .Include(p => p.PlayerTrainedPositions)
                 .Take(10)
                 .ToArrayAsync();
