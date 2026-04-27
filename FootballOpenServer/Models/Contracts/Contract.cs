@@ -3,6 +3,7 @@
 
 ﻿using FootballOpenServer.Models.People;
 using FootballOpenServer.Models.Teams;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace FootballOpenServer.Models.Contracts
@@ -24,5 +25,8 @@ namespace FootballOpenServer.Models.Contracts
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public Role Role { get; set; }
+
+        [Range(1, 99)]
+        public byte? ShirtNumber { get; set; }
     }
 }

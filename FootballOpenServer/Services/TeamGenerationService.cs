@@ -202,6 +202,8 @@ namespace FootballOpenServer.Services
                 // Store player IDs for later position assignment
                 var teamPlayerIDs = new List<Guid>();
 
+                List<byte> teamShirtNumbersAssigned = new List<byte>();
+
                 // Generate 30 people for each team
                 for (int j = 0; j < 30; j++)
                 {
@@ -267,6 +269,21 @@ namespace FootballOpenServer.Services
                         var rolesForPosition = GeneratePlayerTrainedRoles(random, personID, trainedPosition.PlayerPosition);
                         trainedRoles.AddRange(rolesForPosition);
                     }
+
+                    byte shirtNumber = (byte)random.Next(1, 100);
+
+                    if(teamShirtNumbersAssigned.Contains(shirtNumber))
+                    {
+                        // If shirt number is already assigned, find the next available one
+                        shirtNumber = 1;
+                        while (teamShirtNumbersAssigned.Contains(shirtNumber) && shirtNumber < 99)
+                        {
+                            shirtNumber++;
+                        }
+                    }
+
+                    teamShirtNumbersAssigned.Add(shirtNumber);
+                    contract.ShirtNumber = shirtNumber;
 
                     // Add entities to database context
                     _context.People.Add(person);
