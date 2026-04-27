@@ -16,7 +16,7 @@ namespace FootballOpenServer.Models.People
         public Guid PersonID { get; set; }
         public string? Name { get; set; }
         public string? Surname { get; set; }
-        public DateTime? DateOfBirth { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
         public string? PlaceOfBirth { get; set; }
         public ICollection<Contract> Contracts { get; set; } = new List<Contract>();
         public AppUser? AppUser { get; set; }

@@ -216,7 +216,7 @@ namespace FootballOpenServer.Controllers
                 return BadRequest("Player role is not available for the player's current position.");
             }
 
-            DateTime now = DateTime.Now;
+            DateOnly now = DateOnly.FromDateTime(DateTime.Now);
             bool playerBelongsToTeam = await _db.Contracts.AnyAsync(c =>
                 c.PersonID == playerTactic.PersonID &&
                 c.TeamID == teamID &&
