@@ -203,7 +203,8 @@ namespace FootballOpenServer.Controllers
                 TeamName = team.Name,
                 CompetitionName = competition?.CompetitionName ?? "No active league",
                 Players = players,
-                Formation = formation
+                Formation = formation,
+                Kit = team.Kit
             };
 
             return Ok(dashboardInformation);

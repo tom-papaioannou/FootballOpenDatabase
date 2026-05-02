@@ -56,7 +56,8 @@ namespace FootballOpenServer.Services
                         City = t.Stadium.City,
                         Latitude = t.Stadium.Latitude,
                         Longitude = t.Stadium.Longitude
-                    }
+                    },
+                    Kit = t.Kit
                 })
                 .FirstOrDefaultAsync();
         }
