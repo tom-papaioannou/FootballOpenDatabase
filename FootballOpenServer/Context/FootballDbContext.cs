@@ -27,7 +27,7 @@ public class FootballDbContext : DbContext
     public DbSet<Nation> Nations { get; set; }
     public DbSet<Continent> Continents { get; set; }
     public DbSet<Server> Servers { get; set; }
-
+    public DbSet<Kit> Kits { get; set; }
     public FootballDbContext(DbContextOptions<FootballDbContext> options)
         : base(options) { }
 
@@ -137,6 +137,10 @@ public class FootballDbContext : DbContext
             .HasOne(t => t.Stadium)
             .WithOne(s => s.Team)
             .HasForeignKey<Team>(t => t.StadiumID);
-    
+
+        modelBuilder.Entity<Team>()
+            .HasOne(t => t.Kit)
+            .WithOne(k => k.Team)
+            .HasForeignKey<Team>(t => t.KitID);
     }
 }
