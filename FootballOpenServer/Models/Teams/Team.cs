@@ -30,5 +30,10 @@ namespace FootballOpenServer.Models.Teams
 
         [JsonIgnore]
         public virtual Stadium? Stadium { get; set; }
+
+        public Guid KitID { get; set; }
+
+        [JsonIgnore]
+        public virtual Kit Kit { get; set; } = null!;
     }
 }

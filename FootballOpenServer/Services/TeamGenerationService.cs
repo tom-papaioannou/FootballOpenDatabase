@@ -178,6 +178,17 @@ namespace FootballOpenServer.Services
 
                 _context.Add(stadium);
 
+                Kit kit = new Kit
+                {
+                    KitID = Guid.NewGuid(),
+                    HomeShirtColor = $"#{random.Next(0x1000000):X6}",
+                    HomeShortsColor = $"#{random.Next(0x1000000):X6}",
+                    AwayShirtColor = $"#{random.Next(0x1000000):X6}",
+                    AwayShortsColor = $"#{random.Next(0x1000000):X6}"
+                };
+
+                _context.Kits.Add(kit);
+
                 var team = new Team
                 {
                     TeamID = Guid.NewGuid(),
@@ -185,7 +196,8 @@ namespace FootballOpenServer.Services
                     Competitions = new List<Competition>(),
                     Contracts = new List<Contract>(),
                     Code = TeamCodes[teamName] ?? "UNKT",
-                    StadiumID = stadium.StadiumID
+                    StadiumID = stadium.StadiumID,
+                    KitID = kit.KitID
                 };
 
                 // Generate primary tactic for the team
