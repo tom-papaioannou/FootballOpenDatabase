@@ -201,6 +201,7 @@ namespace FootballOpenServer.Controllers
             var dashboardInformation = new
             {
                 TeamName = team.Name,
+                CompetitionID = competition?.CompetitionID,
                 CompetitionName = competition?.CompetitionName ?? "No active league",
                 Players = players,
                 Formation = formation,
