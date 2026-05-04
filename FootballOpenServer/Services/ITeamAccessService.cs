@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using FootballOpenServer.DTO.Teams;
+using FootballOpenServer.Models.Competitions;
 using FootballOpenServer.Models.Teams;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ namespace FootballOpenServer.Services
     {
         Guid? GetCurrentUserID(ClaimsPrincipal user);
         Task<TeamInformationDTO?> GetOwnedTeamAsync(ClaimsPrincipal user);
+        Task<TeamCompetitionsDTO?> GetOwnedTeamCompetitionsAsync(ClaimsPrincipal user);
         Task<bool> OwnsTeamAsync(ClaimsPrincipal user, Guid teamId);
     }
 
@@ -58,6 +60,25 @@ namespace FootballOpenServer.Services
                         Longitude = t.Stadium.Longitude
                     },
                     Kit = t.Kit
+                })
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<TeamCompetitionsDTO?> GetOwnedTeamCompetitionsAsync(ClaimsPrincipal user)
+        {
+            Guid? userId = GetCurrentUserID(user);
+            if (userId == null)
+                return null;
+
+            return await _db.Teams
+                .Where(t => t.AppUserID == userId.Value)
+                .AsNoTracking()
+                .Include(t => t.Competitions).ThenInclude(c => c.Nation)
+                .Include(t => t.Competitions).ThenInclude(c => c.Continent)
+                .Select(t => new TeamCompetitionsDTO
+                {
+                    TeamID = t.TeamID,
+                    Competitions = t.Competitions != null ? t.Competitions.ToList() : new List<Competition>(),
                 })
                 .FirstOrDefaultAsync();
         }
