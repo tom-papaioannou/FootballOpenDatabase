@@ -15,11 +15,16 @@ namespace FootballOpenServer.Controllers
     {
         private readonly FootballDbContext _context;
         private readonly ITeamGenerationService _teamGenerationService;
+        private readonly ITeamAccessService _teamAccessService;
 
-        public CompetitionsController(FootballDbContext context, ITeamGenerationService teamGenerationService)
+        public CompetitionsController(
+            FootballDbContext context,
+            ITeamGenerationService teamGenerationService,
+            ITeamAccessService teamAccessService)
         {
             _context = context;
             _teamGenerationService = teamGenerationService;
+            _teamAccessService = teamAccessService;
         }
 
         [HttpGet("{competitionID}")]
@@ -51,6 +56,45 @@ namespace FootballOpenServer.Controllers
                 return NotFound();
 
             return Ok(competition);
+        }
+
+        [HttpGet("world")]
+        public async Task<ActionResult<IEnumerable<Competition>>> GetWorldCompetitions()
+        {
+            var competitions = await _context.Competitions
+                .Where(c => c.NationID == null && c.ContinentID == null)
+                .Include(c => c.Teams)
+                .Include(c => c.Nation)
+                .Include(c => c.Continent)
+                .ToListAsync();
+
+            return Ok(competitions);
+        }
+
+        [HttpGet("continent/{continentID}")]
+        public async Task<ActionResult<IEnumerable<Competition>>> GetContinentCompetitions(Guid continentID)
+        {
+            var competitions = await _context.Competitions
+                .Where(c => c.NationID == null && c.ContinentID == continentID)
+                .Include(c => c.Teams)
+                .Include(c => c.Nation)
+                .Include(c => c.Continent)
+                .ToListAsync();
+
+            return Ok(competitions);
+        }
+
+        [HttpGet("my")]
+        public async Task<ActionResult<IEnumerable<Competition>>> GetMyCompetitions()
+        {
+            var team = await _teamAccessService.GetOwnedTeamCompetitionsAsync(User);
+
+            if (team == null)
+            {
+                return Ok(Array.Empty<Competition>());
+            }
+
+            return Ok(team);
         }
 
         [HttpPost]
