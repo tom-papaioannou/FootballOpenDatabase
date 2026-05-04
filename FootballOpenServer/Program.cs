@@ -143,6 +143,42 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
+    // Create North America
+    Continent? northAmerica = await db.Continents.FirstOrDefaultAsync(c => c.Name == "North America");
+    if (northAmerica == null)
+    {
+        northAmerica = new Continent { ContinentID = Guid.NewGuid(), Name = "North America", Code = "NAM" };
+        db.Continents.Add(northAmerica);
+        await db.SaveChangesAsync();
+    }
+
+    var nationSeedsNorthAmerica = new (string Name, string ISO2, string ISO3)[]
+    {
+        ("United States", "US", "USA"),
+        ("Canada", "CA", "CAN"),
+        ("Mexico", "MX", "MEX")
+    };
+
+    var existingNationNamesNorthAmerica = await db.Nations
+        .Where(n => nationSeedsNorthAmerica.Select(s => s.Name).Contains(n.Name))
+        .Select(n => n.Name)
+        .ToListAsync();
+
+    foreach (var (name, iso2, iso3) in nationSeedsNorthAmerica)
+    {
+        if (!existingNationNamesNorthAmerica.Contains(name))
+        {
+            db.Nations.Add(new Nation
+            {
+                NationID = Guid.NewGuid(),
+                Name = name,
+                ISO2 = iso2,
+                ISO3 = iso3,
+                ContinentID = northAmerica.ContinentID
+            });
+        }
+    }
+
     // Create South America
     Continent? southAmerica = await db.Continents.FirstOrDefaultAsync(c => c.Name == "South America");
     if (southAmerica == null)
@@ -226,26 +262,34 @@ using (var scope = app.Services.CreateScope())
     var competitionExists = await db.Competitions.AnyAsync();
     if (!competitionExists && mainServer != null)
     {
-        var greece = await db.Nations.FirstOrDefaultAsync(n => n.Name == "Greece");
-        if (greece != null)
+        var nations = await db.Nations.ToListAsync();
+        var leagueSeeds = new (int Priority, string Suffix)[]
         {
-            var generatedTeams = await teamGenerationService.GenerateTeamsForCompetition(mainServer.ServerID, greece.NationID, 20);
+            (1, "A"),
+            (2, "B")
+        };
 
-            var competition = new Competition
+        foreach (var nation in nations)
+        {
+            foreach (var (priority, suffix) in leagueSeeds)
             {
-                CompetitionID = Guid.NewGuid(),
-                CompetitionName = "Greek League 1",
-                NationID = greece.NationID,
-                CompetitionTeamsType = CompetitionTeamsType.Club,
-                Priority = 1,
-                CompetitionType = CompetitionType.League,
-                Teams = generatedTeams,
-                ServerID = mainServer.ServerID
-            };
+                var generatedTeams = await teamGenerationService.GenerateTeamsForCompetition(mainServer.ServerID, nation.NationID, 20);
 
-            db.Competitions.Add(competition);
-            await db.SaveChangesAsync();
+                db.Competitions.Add(new Competition
+                {
+                    CompetitionID = Guid.NewGuid(),
+                    CompetitionName = $"{nation.Name} League {suffix}",
+                    NationID = nation.NationID,
+                    CompetitionTeamsType = CompetitionTeamsType.Club,
+                    Priority = priority,
+                    CompetitionType = CompetitionType.League,
+                    Teams = generatedTeams,
+                    ServerID = mainServer.ServerID
+                });
+            }
         }
+
+        await db.SaveChangesAsync();
     }
 
     // Create default regular user if none exist
