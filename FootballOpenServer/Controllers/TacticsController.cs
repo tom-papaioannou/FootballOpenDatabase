@@ -194,6 +194,9 @@ namespace FootballOpenServer.Controllers
 
             PlayerTactic? playerTactic = await _db.PlayerTactics
                 .Include(pt => pt.Person)
+                    .ThenInclude(p => p!.PlayerTrainedPositions)
+                .Include(pt => pt.Person)
+                    .ThenInclude(p => p!.PlayerTrainedRoles)
                 .FirstOrDefaultAsync(pt => pt.PlayerTacticID == playerTacticID);
 
             if (playerTactic == null)
