@@ -123,6 +123,8 @@ namespace FootballOpenServer.Controllers
 
                 _context.Competitions.Add(competition);
                 await _context.SaveChangesAsync();
+                await _teamGenerationService.AssignPlayersToGeneratedTeams(generatedTeams.Select(t => t.TeamID));
+                await _context.SaveChangesAsync();
                 return CreatedAtAction(nameof(GetCompetition), new { competitionID = competition.CompetitionID }, competition);
             }
             else if(request.ContinentID != null)

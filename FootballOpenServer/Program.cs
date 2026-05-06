@@ -263,6 +263,7 @@ using (var scope = app.Services.CreateScope())
     if (!competitionExists && mainServer != null)
     {
         var nations = await db.Nations.ToListAsync();
+        var generatedTeamIDs = new List<Guid>();
         var leagueSeeds = new (int Priority, string Suffix)[]
         {
             (1, "A"),
@@ -274,6 +275,7 @@ using (var scope = app.Services.CreateScope())
             foreach (var (priority, suffix) in leagueSeeds)
             {
                 var generatedTeams = await teamGenerationService.GenerateTeamsForCompetition(mainServer.ServerID, nation.NationID, 20);
+                generatedTeamIDs.AddRange(generatedTeams.Select(t => t.TeamID));
 
                 db.Competitions.Add(new Competition
                 {
@@ -289,6 +291,8 @@ using (var scope = app.Services.CreateScope())
             }
         }
 
+        await db.SaveChangesAsync();
+        await teamGenerationService.AssignPlayersToGeneratedTeams(generatedTeamIDs);
         await db.SaveChangesAsync();
     }
 
