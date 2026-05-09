@@ -5,117 +5,352 @@ using FootballOpenServer.Models.Teams;
 using FootballOpenServer.Models.People;
 using FootballOpenServer.Models.Contracts;
 using FootballOpenServer.Models.Competitions;
+using FootballOpenServer.Models.World;
 using Microsoft.EntityFrameworkCore;
 
 namespace FootballOpenServer.Services
 {
     public interface ITeamGenerationService
     {
-       Task<List<Team>> GenerateTeamsForCompetition(Guid? serverID, Guid? nationID, int numberOfTeams = 20);
+       Task<List<Team>> GenerateTeamsForCompetition(Guid? serverID, Guid? nationID, int numberOfTeams = 20, int priority = 1);
        Task AssignPlayersToGeneratedTeams(IEnumerable<Guid> teamIDs);
     }
 
     public class TeamGenerationService : ITeamGenerationService
     {
-        private static readonly string[] TeamNames = new[]
+        private static readonly Dictionary<string, NationGenerationData> GenerationDataByNation = new(StringComparer.OrdinalIgnoreCase)
         {
-            "CanonRed FC", "Limani City", "Peter United", "Sea FC", "Ham Ham SC",
-            "Metropolitan City", "Lester Country", "Levadia", "Notos FC", "Newcera",
-            "Karpe DIEM Villa", "Southeastamptonica", "Crystal City", "Bright Future SC", "Likoi FC",
-            "Burn-Burn FC", "Notham Town", "Fulleriom", "Brenta",
-            "Catalonica", "Real Athens", "Atletico Posidwnos", "Cella", "Vale King",
-            "Sillogos Munich", "Dort Port", "Leipzia Team Soccer", "Eintracht Karpenisiou",
-            "AC Lamias", "Inter Kavalas", "Romaioi United",
-            "Paris-France Team", "Mona Basel", "Aias Salaminas",
-            "Thermaikos", "Portogalia SC", "Sport Limaniou SC",
-            "Celt Heroes", "Strong Heart FC", "Milky Way United", "Andromeda Team",
-            "Stars Beyond", "Galaxias Elliniki Omada", "Fioreba Team"
+            ["Greece"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Athinaikos FC", "Piraeus Harbor", "Thessalia Union", "Patraikos", "Crete Mariners",
+                    "Olympia Stars", "Aegean Wave", "Macedonia Eagles", "Epirus Gate", "Sparta Forge",
+                    "Rhodes Knights", "Larissa Storm", "Corinth Shield", "Delphi Oracle", "Volos Tide",
+                    "Kavala North", "Arcadia Greens", "Ioannina Peak", "Kalamata Olive", "Naxos Blue"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Attica Rovers", "Pella United", "Achaia Athletic", "Messinia Town", "Thrace Wanderers",
+                    "Samos Harbor", "Chios Mariners", "Aitolia FC", "Laconia Stars", "Argos Vale",
+                    "Kos Islanders", "Drama Falcons", "Xanthi Forge", "Serres Dynamo", "Preveza Coast",
+                    "Trikala Union", "Korinthos City", "Mykonos Cyclones", "Paros Tide", "Lesvos Albion"
+                ],
+                FirstNames:
+                [
+                    "Giorgos", "Yannis", "Nikos", "Dimitris", "Kostas", "Panagiotis", "Vasilis", "Thanasis",
+                    "Christos", "Andreas", "Stelios", "Manolis", "Sotiris", "Lefteris", "Michalis", "Spyros",
+                    "Petros", "Antonis", "Theodoros", "Alexandros"
+                ],
+                LastNames:
+                [
+                    "Papadopoulos", "Nikolaidis", "Georgiou", "Dimitriou", "Konstantinou", "Ioannidis", "Vasileiou", "Christodoulou",
+                    "Antonopoulos", "Theodorou", "Stavridis", "Manolakis", "Karagiannis", "Papanikolaou", "Kotsakis", "Roussos",
+                    "Mavridis", "Tzimas", "Laskaridis", "Economou"
+                ],
+                Cities:
+                [
+                    "Athens", "Piraeus", "Thessaloniki", "Patras", "Heraklion",
+                    "Larissa", "Volos", "Ioannina", "Kalamata", "Kavala"
+                ]),
+            ["England"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Northbridge FC", "London Borough", "Mersey Albion", "Yorkshire County", "Bristol Harbors",
+                    "Westford United", "Eastmoor Town", "Kingsport Athletic", "Rivergate FC", "Lancaster Vale",
+                    "Stonechester", "Southwick City", "Crown Anchor FC", "Redminster", "Oakfield Rovers",
+                    "Brightmere", "Ironbridge FC", "Wellington Heath", "Norcastle", "Greenford Athletic"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Ashford Town", "Derwent FC", "Midshire Athletic", "Portsmouth Vale", "Chesterfield Rovers",
+                    "Blackpool Sands", "Reading Borough", "Trentham United", "Hartford City", "Windsor Albion",
+                    "Somerset County", "Rutland FC", "Devonport Mariners", "Sunderland Forge", "Camden Wanderers",
+                    "Oxford Heath", "Norwich Crown", "Plymouth Docks", "Durham Stars", "Canterbury Gate"
+                ],
+                FirstNames:
+                [
+                    "James", "Oliver", "George", "Harry", "Jack", "Charlie", "Thomas", "William",
+                    "Henry", "Alfie", "Noah", "Finley", "Joshua", "Daniel", "Samuel", "Edward",
+                    "Jacob", "Alexander", "Max", "Joseph"
+                ],
+                LastNames:
+                [
+                    "Smith", "Johnson", "Taylor", "Brown", "Wilson", "Evans", "Thomas", "Roberts",
+                    "Walker", "White", "Hughes", "Edwards", "Green", "Hall", "Turner", "Carter",
+                    "Phillips", "Mitchell", "Baker", "Campbell"
+                ],
+                Cities:
+                [
+                    "London", "Manchester", "Liverpool", "Birmingham", "Leeds",
+                    "Bristol", "Newcastle", "Sheffield", "Nottingham", "Leicester"
+                ]),
+            ["Italy"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Roma Aurea", "Milano Navigli", "Torino Bulls", "Napoli Mare", "Firenze Viola",
+                    "Genova Lanterns", "Bologna Towers", "Verona Arena", "Parma Ducale", "Palermo Sole",
+                    "Bari Levante", "Pisa Mariners", "Modena Gialli", "Siena Stallions", "Trieste Port",
+                    "Perugia Hill", "Cagliari Wind", "Salerno Granata", "Ravenna Pines", "Udine Stars"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Lecce Barocco", "Como Lago", "Taranto Ionio", "Mantova Virgil", "Padova Veneto",
+                    "Vicenza Bianco", "Livorno Porto", "Ferrara Este", "Ancona Adriatico", "Cosenza Rossa",
+                    "Foggia Tavoliere", "Pescara Delfini", "Arezzo Rosso", "Lucca Mura", "Novara Piemonte",
+                    "Cremona Violini", "Trapani Vento", "Messina Stretto", "Catanzaro Aquile", "Brescia Leonessa"
+                ],
+                FirstNames:
+                [
+                    "Luca", "Marco", "Giovanni", "Francesco", "Alessandro", "Matteo", "Andrea", "Giuseppe",
+                    "Antonio", "Stefano", "Paolo", "Davide", "Simone", "Roberto", "Federico", "Lorenzo",
+                    "Nicolo", "Salvatore", "Daniele", "Enrico"
+                ],
+                LastNames:
+                [
+                    "Rossi", "Russo", "Ferrari", "Esposito", "Bianchi", "Romano", "Colombo", "Ricci",
+                    "Marino", "Greco", "Bruno", "Gallo", "Conti", "DeLuca", "Moretti", "Barbieri",
+                    "Lombardi", "Fontana", "Caruso", "Vitale"
+                ],
+                Cities:
+                [
+                    "Rome", "Milan", "Naples", "Turin", "Florence",
+                    "Genoa", "Bologna", "Verona", "Palermo", "Bari"
+                ]),
+            ["France"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Paris Lumiere", "Lyonnais FC", "Marseille Bleu", "Bordeaux Vignes", "Lille Nord",
+                    "Nice Azur", "Nantes Loire", "Toulouse Garonne", "Monaco Rouge", "Rennes Armor",
+                    "Strasbourg Etoile", "Montpellier Herault", "Grenoble Alpes", "Reims Champagne", "Saint Etienne Vert",
+                    "Le Havre Ocean", "Caen Normand", "Metz Lorraine", "Lens Sang Or", "Dijon Bourgogne"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Rouen Seine", "Tours Loire", "Amiens Picardie", "Brest Oceanique", "Angers Maine",
+                    "Clermont Auvergne", "Nancy Lorraine", "Orleans Loiret", "Mulhouse Alsace", "Poitiers Vienne",
+                    "Avignon Rhone", "Perpignan Catalan", "Limoges Porcelaine", "Annecy Lac", "Troyes Aube",
+                    "Le Mans Sarthe", "Valence Drome", "Besancon Doubs", "Lorient Bretagne", "Pau Pyrenees"
+                ],
+                FirstNames:
+                [
+                    "Jean", "Pierre", "Michel", "Antoine", "Nicolas", "Julien", "Thomas", "Alexandre",
+                    "Maxime", "Lucas", "Hugo", "Baptiste", "Adrien", "Arthur", "Mathis", "Quentin",
+                    "Romain", "Florian", "Theo", "Victor"
+                ],
+                LastNames:
+                [
+                    "Martin", "Bernard", "Thomas", "Petit", "Robert", "Richard", "Durand", "Dubois",
+                    "Moreau", "Laurent", "Simon", "Michel", "Lefevre", "Leroy", "Roux", "David",
+                    "Bertrand", "Morel", "Fournier", "Girard"
+                ],
+                Cities:
+                [
+                    "Paris", "Lyon", "Marseille", "Bordeaux", "Lille",
+                    "Nice", "Nantes", "Toulouse", "Strasbourg", "Montpellier"
+                ]),
+            ["Germany"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Berlin Adler", "Munich Isar", "Hamburg Harbor", "Cologne Dom", "Dortheim FC",
+                    "Leipzig Roten", "Stuttgart Engine", "Bremen Weser", "Frankfurt Main", "Dresden Elbe",
+                    "Hanover Horses", "Nuremberg Castle", "Essen Steel", "Kiel Baltic", "Freiburg Forest",
+                    "Augsburg Gate", "Mainz Carnival", "Rostock Coast", "Bonn Capitals", "Wolfsburg Motors"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Bochum Ruhr", "Karlsruhe Baden", "Lubeck Hanse", "Regensburg Danube", "Aachen Gate",
+                    "Magdeburg Elbe", "Kassel Hessen", "Ulm Spatzen", "Bielefeld Armin", "Saarbrucken Coal",
+                    "Jena Optics", "Erfurt Garden", "Potsdam Crown", "Chemnitz Forge", "Mannheim Harbor",
+                    "Osnabruck Bridge", "Heidelberg Neckar", "Koblenz Rhine", "Furth Clover", "Oldenburg North"
+                ],
+                FirstNames:
+                [
+                    "Lukas", "Leon", "Felix", "Jonas", "Paul", "Maximilian", "Tim", "Julian",
+                    "Nico", "Tobias", "Florian", "Marcel", "Daniel", "Christian", "Patrick", "Alexander",
+                    "Stefan", "Martin", "Kevin", "Johannes"
+                ],
+                LastNames:
+                [
+                    "Muller", "Schmidt", "Schneider", "Fischer", "Weber", "Meyer", "Wagner", "Becker",
+                    "Hoffmann", "Schulz", "Koch", "Bauer", "Richter", "Klein", "Wolf", "Schroder",
+                    "Neumann", "Schwarz", "Zimmermann", "Krause"
+                ],
+                Cities:
+                [
+                    "Berlin", "Munich", "Hamburg", "Cologne", "Frankfurt",
+                    "Stuttgart", "Dortmund", "Leipzig", "Dresden", "Bremen"
+                ]),
+            ["United States"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Liberty FC", "Pacific Sound", "Chicago Blaze", "Texas Lone Stars", "Boston Harbor",
+                    "Atlanta Peaks", "Seattle Emerald", "Phoenix Heat", "Denver Summit", "Miami Atlantic",
+                    "Detroit Motors", "Nashville Rhythm", "Portland Pines", "San Diego Surf", "Dallas Rangers",
+                    "Houston Comets", "Orlando Suns", "Cleveland Iron", "Minneapolis North", "Philadelphia Bell"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Sacramento Gold", "Charlotte Crown", "Columbus Crewmen", "St Louis Gateway", "Cincinnati River",
+                    "Tampa Bay Storm", "Baltimore Forge", "Austin Oaks", "Las Vegas Lights", "Kansas City Plains",
+                    "Indianapolis Circle", "Pittsburgh Steel", "Raleigh Capital", "Milwaukee Lake", "Memphis Blues",
+                    "New Orleans Jazz", "Salt Lake Peaks", "Richmond United", "Buffalo Snow", "Albuquerque Sol"
+                ],
+                FirstNames:
+                [
+                    "Michael", "Christopher", "Matthew", "Joshua", "Andrew", "David", "John", "Joseph",
+                    "Anthony", "Nicholas", "Tyler", "Brandon", "Ryan", "Justin", "Kevin", "Jason",
+                    "Zachary", "Christian", "Austin", "Logan"
+                ],
+                LastNames:
+                [
+                    "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
+                    "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Moore",
+                    "Jackson", "Martin", "Lee", "Perez"
+                ],
+                Cities:
+                [
+                    "New York", "Los Angeles", "Chicago", "Houston", "Phoenix",
+                    "Philadelphia", "San Antonio", "San Diego", "Dallas", "Seattle"
+                ]),
+            ["Canada"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Toronto Maple FC", "Montreal Nord", "Vancouver Tides", "Ottawa Capital", "Calgary Peaks",
+                    "Edmonton Aurora", "Winnipeg Plains", "Quebec Citadelle", "Halifax Harbor", "Saskatoon Prairie",
+                    "Hamilton Steel", "Victoria Island", "London Ontario FC", "Regina Crown", "Kelowna Lake",
+                    "Moncton Acadie", "Sherbrooke Rouge", "Sudbury Nickel", "Kingston Limestone", "Saint Johns Atlantic"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Trois Rivieres Bleu", "Laval Metro", "Brandon Wheat", "Red Deer Summit", "Whitehorse North",
+                    "Yellowknife Aurora", "Prince George Timber", "Kamloops Heat", "Windsor Border", "Gatineau Hull",
+                    "Sarnia Rapids", "Moose Jaw Prairie", "Thunder Bay Lake", "Charlottetown Crown", "Fredericton River",
+                    "North Bay Trappers", "St Catharines Canal", "Medicine Hat Gas", "Lethbridge Foothills", "Saguenay Fjord"
+                ],
+                FirstNames:
+                [
+                    "Liam", "Noah", "Ethan", "Lucas", "William", "Benjamin", "Logan", "Nathan",
+                    "Samuel", "Jacob", "Thomas", "Charles", "Owen", "Jack", "Adam", "Julien",
+                    "Antoine", "Gabriel", "Felix", "Connor"
+                ],
+                LastNames:
+                [
+                    "Smith", "Tremblay", "Gagnon", "Roy", "Cote", "Bouchard", "Martin", "Lefebvre",
+                    "Wilson", "Johnson", "Campbell", "MacDonald", "Anderson", "Clark", "Reid", "Stewart",
+                    "Fraser", "Murray", "Levesque", "Brown"
+                ],
+                Cities:
+                [
+                    "Toronto", "Montreal", "Vancouver", "Calgary", "Ottawa",
+                    "Edmonton", "Winnipeg", "Quebec City", "Halifax", "Victoria"
+                ]),
+            ["Mexico"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Azteca Sur", "Monterrey Cerro", "Guadalajara Sol", "Puebla Blanca", "Tijuana Frontera",
+                    "Veracruz Puerto", "Merida Maya", "Toluca Nevado", "Leon Bajio", "Queretaro Campanas",
+                    "Oaxaca Monte", "Cancun Caribe", "Chiapas Selva", "Juarez Norte", "Culiacan Pacifico",
+                    "Aguascalientes Ferro", "Morelia Cantera", "Durango Sierra", "Tepic Nayar", "San Luis Altiplano"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Zacatecas Plata", "Tampico Marea", "Celaya Toros", "Irapuato Fresa", "Mazatlan Ola",
+                    "Villahermosa Grijalva", "Colima Fuego", "Cuernavaca Primavera", "Tlaxcala Volcan", "Campeche Muralla",
+                    "La Paz Baja", "Hermosillo Desierto", "Torreon Laguna", "Pachuca Mineros", "Ensenada Costa",
+                    "Matamoros Frontera", "Saltillo Norte", "Tuxtla Jaguar", "Chihuahua Sierra", "Acapulco Dorado"
+                ],
+                FirstNames:
+                [
+                    "Jose", "Juan", "Luis", "Carlos", "Miguel", "Alejandro", "Francisco", "Diego",
+                    "Ricardo", "Antonio", "Manuel", "Fernando", "Jesus", "Roberto", "Pedro", "Javier",
+                    "Raul", "Hector", "Andres", "Emiliano"
+                ],
+                LastNames:
+                [
+                    "Hernandez", "Gonzalez", "Lopez", "Martinez", "Rodriguez", "Perez", "Sanchez", "Ramirez",
+                    "Cruz", "Flores", "Gomez", "Diaz", "Reyes", "Morales", "Ortiz", "Castillo",
+                    "Rojas", "Navarro", "Vargas", "Mendoza"
+                ],
+                Cities:
+                [
+                    "Mexico City", "Guadalajara", "Monterrey", "Puebla", "Tijuana",
+                    "Merida", "Veracruz", "Leon", "Queretaro", "Juarez"
+                ]),
+            ["Argentina"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Buenos Aires Sur", "Cordoba Central", "Rosario Norte", "Mendoza Andes", "La Plata Estrella",
+                    "Mar del Plata Port", "Tucuman Azucar", "Salta Valles", "Santa Fe Union", "Neuquen Patagonia",
+                    "Bahia Blanca Wind", "San Juan Cuyo", "Corrientes River", "Posadas Misiones", "Parana Litoral",
+                    "Jujuy Altura", "San Luis Sierra", "Comodoro Coast", "Rio Cuarto Celeste", "Catamarca Sol"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Chaco Rojo", "Formosa Norte", "Trelew Patagonia", "Rawson Atlántico", "Junin Verde",
+                    "Olavarria Cemento", "Rafaela Leche", "Moron Oeste", "Quilmes Cerveceros", "Tandil Sierras",
+                    "San Rafael Sur", "Concordia Rio", "Gualeguay Blue", "Pergamino Fields", "Resistencia Litoral",
+                    "Villa Maria Unido", "Rio Gallegos Hielo", "Ushuaia Austral", "Santiago Estero Sol", "La Rioja Andina"
+                ],
+                FirstNames:
+                [
+                    "Juan", "Bautista", "Santiago", "Matias", "Nicolas", "Franco", "Agustin", "Tomas",
+                    "Facundo", "Lautaro", "Luciano", "Martin", "Diego", "Federico", "Gonzalo", "Ramiro",
+                    "Emiliano", "Ignacio", "Bruno", "Maximo"
+                ],
+                LastNames:
+                [
+                    "Gonzalez", "Rodriguez", "Gomez", "Fernandez", "Lopez", "Diaz", "Martinez", "Perez",
+                    "Garcia", "Sanchez", "Romero", "Sosa", "Alvarez", "Torres", "Ruiz", "Suarez",
+                    "Acosta", "Castro", "Medina", "Ortiz"
+                ],
+                Cities:
+                [
+                    "Buenos Aires", "Cordoba", "Rosario", "Mendoza", "La Plata",
+                    "Mar del Plata", "Tucuman", "Salta", "Santa Fe", "Neuquen"
+                ]),
+            ["Brazil"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Rio Carioca", "Sao Paulo Paulista", "Belo Horizonte Mineiro", "Porto Alegre Sul", "Salvador Bahia",
+                    "Recife Coral", "Fortaleza Sol", "Curitiba Pinheiros", "Manaus Amazonia", "Goiania Cerrado",
+                    "Santos Praia", "Belem Norte", "Campinas Ponte", "Natal Dunas", "Florianopolis Ilha",
+                    "Cuiaba Pantanal", "Vitoria Capixaba", "Maceio Mar", "Joao Pessoa Litoral", "Brasilia Planalto"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Niteroi Guanabara", "Sao Luis Reggae", "Aracaju Sergipe", "Londrina Cafe", "Joinville Norte",
+                    "Ribeirao Preto Interior", "Uberlandia Triangulo", "Pelotas Gaucho", "Juiz de Fora Zona", "Caxias Serra",
+                    "Bauru Central", "Macapa Equator", "Boa Vista Branco", "Porto Velho Madeira", "Teresina Piaui",
+                    "Petrolina Sao Francisco", "Caruaru Agreste", "Sorocaba Ferro", "Maringa Verde", "Uberaba Minas"
+                ],
+                FirstNames:
+                [
+                    "Joao", "Gabriel", "Pedro", "Lucas", "Matheus", "Rafael", "Bruno", "Felipe",
+                    "Guilherme", "Thiago", "Andre", "Leonardo", "Caio", "Gustavo", "Daniel", "Henrique",
+                    "Victor", "Diego", "Igor", "Vinicius"
+                ],
+                LastNames:
+                [
+                    "Silva", "Santos", "Oliveira", "Souza", "Rodrigues", "Ferreira", "Alves", "Pereira",
+                    "Lima", "Gomes", "Ribeiro", "Carvalho", "Almeida", "Monteiro", "Melo", "Araujo",
+                    "Costa", "Nascimento", "Barbosa", "Rocha"
+                ],
+                Cities:
+                [
+                    "Sao Paulo", "Rio de Janeiro", "Belo Horizonte", "Porto Alegre", "Salvador",
+                    "Recife", "Fortaleza", "Curitiba", "Manaus", "Brasilia"
+                ])
         };
 
-        private static readonly Dictionary<string, string> TeamCodes = new()
+        private sealed record NationGenerationData(
+            string[] PriorityOneTeamNames,
+            string[] PriorityTwoTeamNames,
+            string[] FirstNames,
+            string[] LastNames,
+            string[] Cities)
         {
-            { "CanonRed FC", "CRD" },
-            { "Limani City", "LIM" },
-            { "Peter United", "PTR" },
-            { "Sea FC", "SEA" },
-            { "Ham Ham SC", "HHS" },
-            { "Metropolitan City", "MTRC" },
-            { "Lester Country", "LSTC" },
-            { "Levadia", "LVD" },
-            { "Notos FC", "NTF" },
-            { "Newcera", "NCR" },
-            { "Karpe DIEM Villa", "KDV" },
-            { "Southeastamptonica", "SEAM" },
-            { "Crystal City", "CRY" },
-            { "Bright Future SC", "BFS" },
-            { "Likoi FC", "LKFC" },
-            { "Burn-Burn FC", "BBFC" },
-            { "Notham Town", "NHT" },
-            { "Fulleriom", "FULL" },
-            { "Brenta", "BRE" },
-            { "Catalonica", "CAT" },
-            { "Real Athens", "RATH" },
-            { "Atletico Posidwnos", "ATLP" },
-            { "Cella", "CELL" },
-            { "Vale King", "KING" },
-            { "Sillogos Munich", "SIM" },
-            { "Dort Port", "DORP" },
-            { "Leipzia Team Soccer", "LTS" },
-            { "Eintracht Karpenisiou", "EKRP" },
-            { "AC Lamias", "ACL" },
-            { "Inter Kavalas", "IKVL" },
-            { "Romaioi United", "ROMU" },
-            { "Paris-France Team", "PFT" },
-            { "Mona Basel", "MBAS" },
-            { "Aias Salaminas", "ASAL" },
-            { "Thermaikos", "THER" },
-            { "Portogalia SC", "POSC" },
-            { "Sport Limaniou SC", "SLSC" },
-            { "Celt Heroes", "CEHE" },
-            { "Strong Heart FC", "SHFC" },
-            { "Milky Way United", "MWU" },
-            { "Andromeda Team", "ANDR" },
-            { "Stars Beyond", "STB" },
-            { "Galaxias Elliniki Omada", "GLXE" },
-            { "Fioreba Team", "FIOT" }
-        };
-
-        private static readonly string[] FirstNames = new[]
-        {
-            "James", "John", "Robert", "Michael", "William", "David", "Richard", "Joseph",
-            "Thomas", "Charles", "Christopher", "Daniel", "Matthew", "Anthony", "Mark", "Donald",
-            "Steven", "Paul", "Andrew", "Joshua", "Kenneth", "Kevin", "Brian", "George",
-            "Edward", "Ronald", "Timothy", "Jason", "Jeffrey", "Ryan", "Jacob", "Gary",
-            "Nicholas", "Eric", "Jonathan", "Stephen", "Larry", "Justin", "Scott", "Brandon",
-            "Benjamin", "Samuel", "Raymond", "Gregory", "Alexander", "Patrick", "Jack", "Dennis"
-        };
-
-        private static readonly string[] LastNames = new[]
-        {
-            "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
-            "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas",
-            "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White",
-            "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Walker", "Young",
-            "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores",
-            "Green", "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell"
-        };
-
-        private static readonly string[] Cities = new[]
-        {
-            "London", "Paris", "Berlin", "Madrid", "Rome", "Athens", "Amsterdam", "Vienna",
-            "Brussels", "Copenhagen", "Dublin", "Helsinki", "Lisbon", "Oslo", "Prague",
-            "Stockholm", "Warsaw", "Budapest", "Bucharest", "Sofia", "Zagreb", "Belgrade",
-            "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego",
-            "Dallas", "San Jose", "Austin", "Jacksonville", "San Francisco", "Seattle", "Denver", "Washington",
-            "Boston", "Nashville", "Detroit", "Portland", "Las Vegas", "Miami", "Atlanta", "Minneapolis",
-            "Tokyo", "Beijing", "Shanghai", "Delhi", "Mumbai", "Seoul", "Jakarta", "Manila",
-            "Bangkok", "Ho Chi Minh City", "Hong Kong", "Singapore", "Kuala Lumpur", "Taipei", "Osaka", "Karachi",
-            "Sydney", "Melbourne", "Brisbane", "Perth", "Auckland", "Wellington", "Adelaide", "Canberra",
-            "Sao Paulo", "Rio de Janeiro", "Buenos Aires", "Lima", "Bogota", "Santiago", "Caracas", "Mexico City",
-            "Toronto", "Montreal", "Vancouver", "Calgary", "Ottawa", "Edmonton", "Winnipeg", "Quebec City",
-            "Cairo", "Lagos", "Nairobi", "Johannesburg", "Cape Town", "Casablanca", "Algiers", "Tunis",
-            "Istanbul", "Dubai", "Tel Aviv", "Riyadh", "Doha", "Abu Dhabi"
-        };
+            public string[] GetTeamNamesForPriority(int priority) => priority == 2 ? PriorityTwoTeamNames : PriorityOneTeamNames;
+        }
 
         private static readonly Dictionary<PlayerPosition, PlayerPosition[]> _positionTripletes = new()
         {
@@ -148,15 +383,19 @@ namespace FootballOpenServer.Services
             _context = context;
         }
 
-        public async Task<List<Team>> GenerateTeamsForCompetition(Guid? serverID, Guid? nationID, int numberOfTeams = 20)
+        public async Task<List<Team>> GenerateTeamsForCompetition(Guid? serverID, Guid? nationID, int numberOfTeams = 20, int priority = 1)
         {
             var teams = new List<Team>();
             var random = new Random();
 
-            var restNations = await _context.Nations.Where(n => n.NationID != nationID).ToListAsync();
+            var nations = await _context.Nations.ToListAsync();
+            var nationsById = nations.ToDictionary(n => n.NationID);
+            var targetNation = nations.FirstOrDefault(n => n.NationID == nationID);
+            var teamGenerationData = GetGenerationData(targetNation);
+            var restNations = nations.Where(n => n.NationID != nationID).ToList();
 
             // Create a shuffled copy of team names to avoid duplicates
-            var availableNames = TeamNames.ToList();
+            var availableNames = teamGenerationData.GetTeamNamesForPriority(priority).ToList();
             
             for (int i = 0; i < numberOfTeams && availableNames.Count > 0; i++)
             {
@@ -174,7 +413,7 @@ namespace FootballOpenServer.Services
                     Capacity = random.Next(20000, 80001), // Random capacity between 20,000 and 80,000
                     Latitude = random.NextDouble() * 180 - 90, // Random latitude between -90 and 90
                     Longitude = random.NextDouble() * 360 - 180, // Random longitude between -180 and 180
-                    City = Cities[random.Next(Cities.Length)]
+                    City = teamGenerationData.Cities[random.Next(teamGenerationData.Cities.Length)]
                 };
 
                 _context.Add(stadium);
@@ -196,7 +435,7 @@ namespace FootballOpenServer.Services
                     Name = teamName,
                     Competitions = new List<Competition>(),
                     Contracts = new List<Contract>(),
-                    Code = TeamCodes[teamName] ?? "UNKT",
+                    Code = BuildTeamCode(teamName),
                     StadiumID = stadium.StadiumID,
                     KitID = kit.KitID
                 };
@@ -222,16 +461,28 @@ namespace FootballOpenServer.Services
                 for (int j = 0; j < 30; j++)
                 {
                     var personID = Guid.NewGuid();
+                    var assignedNationID = nationID;
+                    if (restNations.Count > 0 && random.Next(0, 10) >= 7)
+                    {
+                        assignedNationID = restNations[random.Next(restNations.Count)].NationID;
+                    }
+
+                    Nation? assignedNation = null;
+                    if (assignedNationID.HasValue)
+                    {
+                        nationsById.TryGetValue(assignedNationID.Value, out assignedNation);
+                    }
+                    var personGenerationData = GetGenerationData(assignedNation ?? targetNation);
 
                     // Create Person
                     var person = new Person
                     {
                         PersonID = personID,
-                        Name = FirstNames[random.Next(FirstNames.Length)],
-                        Surname = LastNames[random.Next(LastNames.Length)],
+                        Name = personGenerationData.FirstNames[random.Next(personGenerationData.FirstNames.Length)],
+                        Surname = personGenerationData.LastNames[random.Next(personGenerationData.LastNames.Length)],
                         DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-random.Next(18, 35)).AddDays(-random.Next(0, 365))),
-                        PlaceOfBirth = Cities[random.Next(Cities.Length)],
-                        NationID = random.Next(0, 10) < 7 ? nationID : restNations[random.Next(restNations.Count)].NationID,
+                        PlaceOfBirth = personGenerationData.Cities[random.Next(personGenerationData.Cities.Length)],
+                        NationID = assignedNationID,
                         ServerID = serverID,
                         PlayerTrainedPositions = new List<PlayerTrainedPosition>(),
                         PlayerTrainedRoles = new List<PlayerTrainedRole>()
@@ -315,6 +566,39 @@ namespace FootballOpenServer.Services
             }
 
             return teams;
+        }
+
+        private static NationGenerationData GetGenerationData(Nation? nation)
+        {
+            if (nation != null && GenerationDataByNation.TryGetValue(nation.Name, out var nationGenerationData))
+            {
+                return nationGenerationData;
+            }
+
+            if (GenerationDataByNation.Values.FirstOrDefault() is { } fallbackGenerationData)
+            {
+                return fallbackGenerationData;
+            }
+
+            throw new InvalidOperationException("No nation generation data has been configured.");
+        }
+
+        private static string BuildTeamCode(string teamName)
+        {
+            var sanitizedName = new string(teamName
+                .Where(char.IsLetterOrDigit)
+                .Select(char.ToUpperInvariant)
+                .ToArray());
+
+            if (string.IsNullOrWhiteSpace(sanitizedName))
+            {
+                var fallbackSeed = teamName.Aggregate(17L, (current, character) => (current * 31 + character) % 1000);
+                return $"T{fallbackSeed:D3}";
+            }
+
+            return sanitizedName.Length >= 4
+                ? sanitizedName[..4]
+                : sanitizedName.PadRight(4, 'X');
         }
 
         private static List<PlayerPosition> BuildRequiredPrimaryPlayerPositions(Random random)
