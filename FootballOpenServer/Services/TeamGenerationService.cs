@@ -501,7 +501,12 @@ namespace FootballOpenServer.Services
                 return nationGenerationData;
             }
 
-            return GenerationDataByNation.Values.First();
+            if (GenerationDataByNation.Values.FirstOrDefault() is { } fallbackGenerationData)
+            {
+                return fallbackGenerationData;
+            }
+
+            throw new InvalidOperationException("No nation generation data has been configured.");
         }
 
         private static string BuildTeamCode(string teamName)
