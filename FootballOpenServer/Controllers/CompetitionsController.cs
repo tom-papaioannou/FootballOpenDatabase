@@ -107,7 +107,7 @@ namespace FootballOpenServer.Controllers
                     return BadRequest($"Nation with ID {request.NationID} not found");
 
                 // Generate 20 teams for the new competition
-                var generatedTeams = await _teamGenerationService.GenerateTeamsForCompetition(request.ServerID, request.NationID, 20);
+                var generatedTeams = await _teamGenerationService.GenerateTeamsForCompetition(request.ServerID, request.NationID, 20, request.Priority);
 
                 var competition = new Competition
                 {

@@ -274,7 +274,7 @@ using (var scope = app.Services.CreateScope())
         {
             foreach (var (priority, suffix) in leagueSeeds)
             {
-                var generatedTeams = await teamGenerationService.GenerateTeamsForCompetition(mainServer.ServerID, nation.NationID, 20);
+                var generatedTeams = await teamGenerationService.GenerateTeamsForCompetition(mainServer.ServerID, nation.NationID, 20, priority);
                 generatedTeamIDs.AddRange(generatedTeams.Select(t => t.TeamID));
 
                 db.Competitions.Add(new Competition
