@@ -18,8 +18,6 @@ namespace FootballOpenServer.Services
 
     public class TeamGenerationService : ITeamGenerationService
     {
-        private const string DefaultNationName = "England";
-
         private static readonly Dictionary<string, NationGenerationData> GenerationDataByNation = new(StringComparer.OrdinalIgnoreCase)
         {
             ["Greece"] = new(
@@ -395,7 +393,11 @@ namespace FootballOpenServer.Services
                         assignedNationID = restNations[random.Next(restNations.Count)].NationID;
                     }
 
-                    nationsById.TryGetValue(assignedNationID ?? Guid.Empty, out var assignedNation);
+                    Nation? assignedNation = null;
+                    if (assignedNationID.HasValue)
+                    {
+                        nationsById.TryGetValue(assignedNationID.Value, out assignedNation);
+                    }
                     var personGenerationData = GetGenerationData(assignedNation ?? targetNation);
 
                     // Create Person
@@ -499,7 +501,7 @@ namespace FootballOpenServer.Services
                 return nationGenerationData;
             }
 
-            return GenerationDataByNation[DefaultNationName];
+            return GenerationDataByNation.Values.First();
         }
 
         private static string BuildTeamCode(string teamName)
@@ -511,7 +513,8 @@ namespace FootballOpenServer.Services
 
             if (string.IsNullOrWhiteSpace(sanitizedName))
             {
-                return "TEAM";
+                var fallbackSeed = teamName.Aggregate(17L, (current, character) => (current * 31 + character) % 1000);
+                return $"T{fallbackSeed:D3}";
             }
 
             return sanitizedName.Length >= 4
