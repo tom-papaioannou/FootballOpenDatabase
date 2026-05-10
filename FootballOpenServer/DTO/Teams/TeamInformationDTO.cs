@@ -1,4 +1,7 @@
-﻿using FootballOpenServer.Models.Teams;
+﻿// Copyright (c) 2026 Tom Papaioannou. All rights reserved.
+// Licensed under the MIT License
+
+using FootballOpenServer.Models.Teams;
 
 namespace FootballOpenServer.DTO.Teams
 {

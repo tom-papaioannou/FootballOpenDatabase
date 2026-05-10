@@ -1,4 +1,7 @@
-﻿using System.Security.Claims;
+﻿// Copyright (c) 2026 Tom Papaioannou. All rights reserved.
+// Licensed under the MIT License
+
+using System.Security.Claims;
 using FootballOpenServer.DTO.Teams;
 using FootballOpenServer.Models.Competitions;
 using FootballOpenServer.Models.Teams;

@@ -1,4 +1,7 @@
-﻿using System.Text.Json.Serialization;
+﻿// Copyright (c) 2026 Tom Papaioannou. All rights reserved.
+// Licensed under the MIT License
+
+using System.Text.Json.Serialization;
 
 namespace FootballOpenServer.Models.Teams
 {
