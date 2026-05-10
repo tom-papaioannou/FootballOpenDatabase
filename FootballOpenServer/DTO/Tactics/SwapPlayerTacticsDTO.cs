@@ -1,4 +1,7 @@
-﻿namespace FootballOpenServer.DTO.Tactics
+﻿// Copyright (c) 2026 Tom Papaioannou. All rights reserved.
+// Licensed under the MIT License
+
+namespace FootballOpenServer.DTO.Tactics
 {
     public class SwapPlayerTacticsDTO
     {

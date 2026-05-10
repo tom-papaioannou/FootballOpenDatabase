@@ -1,4 +1,7 @@
-﻿namespace FootballOpenServer.Models.Teams
+﻿// Copyright (c) 2026 Tom Papaioannou. All rights reserved.
+// Licensed under the MIT License
+
+namespace FootballOpenServer.Models.Teams
 {
     public enum StadiumState
     {

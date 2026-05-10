@@ -1,4 +1,7 @@
-﻿using FootballOpenServer.Models.Servers;
+﻿// Copyright (c) 2026 Tom Papaioannou. All rights reserved.
+// Licensed under the MIT License
+
+using FootballOpenServer.Models.Servers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
