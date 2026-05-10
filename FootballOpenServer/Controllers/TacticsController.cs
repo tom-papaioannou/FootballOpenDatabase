@@ -156,6 +156,113 @@ namespace FootballOpenServer.Controllers
             }
         }
 
+        [HttpPut("updateTeamTactic/{tacticID}")]
+        public async Task<IActionResult> UpdateTeamTactic(Guid tacticID, [FromBody] UpdateTacticDTO updateTacticModel)
+        {
+            if (updateTacticModel == null)
+            {
+                return BadRequest("Tactic update payload is required.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            if (!Enum.IsDefined(typeof(Formation), updateTacticModel.Formation) || updateTacticModel.Formation == Formation.None)
+            {
+                return BadRequest("Invalid formation.");
+            }
+
+            Tactic? tactic = await _db.Tactics.FirstOrDefaultAsync(t => t.TacticID == tacticID);
+            if (tactic == null)
+            {
+                return NotFound("Tactic not found.");
+            }
+
+            var team = await _teamAccessService.GetOwnedTeamAsync(User);
+            if (team == null || team.TeamID != tactic.TeamID)
+            {
+                return NotFound("Team not found or user does not have access to this tactic.");
+            }
+
+            DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var selectedPlayerIDs = new[]
+            {
+                updateTacticModel.CaptainID,
+                updateTacticModel.PenaltyTakerID,
+                updateTacticModel.LeftCornerTakerID,
+                updateTacticModel.RightCornerTakerID
+            }
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .Distinct()
+                .ToList();
+
+            if (selectedPlayerIDs.Count > 0)
+            {
+                int validPlayersCount = await _db.Contracts
+                    .Where(c =>
+                        c.TeamID == team.TeamID &&
+                        selectedPlayerIDs.Contains(c.PersonID) &&
+                        (c.EndDate == null || c.EndDate > today) &&
+                        c.Role == Role.Player)
+                    .Select(c => c.PersonID)
+                    .Distinct()
+                    .CountAsync();
+
+                if (validPlayersCount != selectedPlayerIDs.Count)
+                {
+                    return BadRequest("One or more selected players do not belong to this team.");
+                }
+            }
+
+            using var transaction = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                tactic.Name = updateTacticModel.Name.Trim();
+                tactic.Formation = updateTacticModel.Formation;
+                tactic.CaptainID = updateTacticModel.CaptainID;
+                tactic.PenaltyTakerID = updateTacticModel.PenaltyTakerID;
+                tactic.LeftCornerTakerID = updateTacticModel.LeftCornerTakerID;
+                tactic.RightCornerTakerID = updateTacticModel.RightCornerTakerID;
+
+                if (updateTacticModel.isMain)
+                {
+                    List<Tactic> teamTactics = await _db.Tactics
+                        .Where(t => t.TeamID == team.TeamID)
+                        .ToListAsync();
+
+                    foreach (var teamTactic in teamTactics)
+                    {
+                        teamTactic.isMain = teamTactic.TacticID == tacticID;
+                    }
+                }
+                else
+                {
+                    tactic.isMain = false;
+
+                    bool hasOtherMainTactic = await _db.Tactics
+                        .AnyAsync(t => t.TeamID == team.TeamID && t.TacticID != tacticID && t.isMain);
+
+                    if (!hasOtherMainTactic)
+                    {
+                        tactic.isMain = true;
+                    }
+                }
+
+                await _db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok(tactic);
+            }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+            }
+        }
+
         [HttpGet("getPlayerTactics/{tacticID}")]
         public async Task<IActionResult> GetPlayerTactics(Guid tacticID)
         {

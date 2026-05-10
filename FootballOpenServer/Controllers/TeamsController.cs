@@ -92,17 +92,26 @@ namespace FootballOpenServer.Controllers
                 .Where(c => c.TeamID == teamID && (c.EndDate == null || c.EndDate > today) && c.Role == Role.Player)
                 .Include(c => c.Person)
                     .ThenInclude(p => p.PlayerTrainedPositions)
+                .Include(c => c.Person)
+                    .ThenInclude(p => p.PlayerTrainedRoles)
                 .Select(c => new
                 {
                     c.Person.PersonID,
                     c.Person.Name,
                     c.Person.Surname,
                     c.Person.DateOfBirth,
+                    c.Person.NationID,
                     c.ShirtNumber,
                     PlayerTrainedPositions = c.Person.PlayerTrainedPositions!.Select(ptp => new
                     {
                         ptp.PlayerPosition,
                         ptp.PlayerTrainedPositionAdaptation
+                    }),
+                    PlayerTrainedRoles = c.Person.PlayerTrainedRoles!.Select(ptr => new
+                    {
+                        ptr.PlayerPosition,
+                        ptr.PlayerRole,
+                        ptr.PlayerTrainedRoleAdaptation
                     })
                 })
                 .ToListAsync();

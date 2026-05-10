@@ -453,6 +453,7 @@ namespace FootballOpenServer.Services
 
                 // Store player IDs for later position assignment
                 var teamPlayerIDs = new List<Guid>();
+                var teamPlayerStats = new List<PlayerStats>();
 
                 List<byte> teamShirtNumbersAssigned = new List<byte>();
                 var requiredPrimaryPositions = BuildRequiredPrimaryPlayerPositions(random);
@@ -560,12 +561,50 @@ namespace FootballOpenServer.Services
 
                     // Store player ID for position assignment
                     teamPlayerIDs.Add(personID);
+                    teamPlayerStats.Add(playerStats);
                 }
+
+                AssignBestTacticSpecialists(primaryTactic, teamPlayerStats);
 
                 teams.Add(team);
             }
 
             return teams;
+        }
+
+        private static void AssignBestTacticSpecialists(Tactic tactic, IReadOnlyCollection<PlayerStats> teamPlayerStats)
+        {
+            tactic.CaptainID = GetBestCaptainID(teamPlayerStats);
+            tactic.PenaltyTakerID = GetBestPenaltyTakerID(teamPlayerStats);
+
+            Guid? bestCornerTakerID = GetBestCornerTakerID(teamPlayerStats);
+            tactic.LeftCornerTakerID = bestCornerTakerID;
+            tactic.RightCornerTakerID = bestCornerTakerID;
+        }
+
+        private static Guid? GetBestCaptainID(IReadOnlyCollection<PlayerStats> teamPlayerStats)
+        {
+            return GetBestPlayerID(teamPlayerStats, stats => (stats.Decisions + stats.Teamwork) / 2.0);
+        }
+
+        private static Guid? GetBestPenaltyTakerID(IReadOnlyCollection<PlayerStats> teamPlayerStats)
+        {
+            return GetBestPlayerID(teamPlayerStats, stats =>
+                (stats.Shooting + stats.Kicking + stats.Decisions + stats.Strength) / 4.0);
+        }
+
+        private static Guid? GetBestCornerTakerID(IReadOnlyCollection<PlayerStats> teamPlayerStats)
+        {
+            return GetBestPlayerID(teamPlayerStats, stats =>
+                (stats.Crossing + stats.Kicking + stats.Teamwork + stats.Decisions + stats.Strength) / 5.0);
+        }
+
+        private static Guid? GetBestPlayerID(IReadOnlyCollection<PlayerStats> teamPlayerStats, Func<PlayerStats, double> scoreSelector)
+        {
+            return teamPlayerStats
+                .OrderByDescending(scoreSelector)
+                .Select(stats => (Guid?)stats.PersonID)
+                .FirstOrDefault();
         }
 
         private static NationGenerationData GetGenerationData(Nation? nation)
