@@ -21,5 +21,13 @@ namespace FootballOpenServer.Models.Teams
 
         [Required]
         public Formation? Formation { get; set; }
+
+        public Guid? CaptainID { get; set; }
+
+        public Guid? PenaltyTakerID { get; set; }
+
+        public Guid? LeftCornerTakerID { get; set; }
+
+        public Guid? RightCornerTakerID { get; set; }
     }
 }
