@@ -14,6 +14,7 @@ namespace FootballOpenServer.Services
     {
        Task<List<Team>> GenerateTeamsForCompetition(Guid? serverID, Guid? nationID, int numberOfTeams = 20, int priority = 1);
        Task AssignPlayersToGeneratedTeams(IEnumerable<Guid> teamIDs);
+       Task AssignPlayersToTactic(Guid tacticID, Guid teamID, Formation? formation);
     }
 
     public class TeamGenerationService : ITeamGenerationService
@@ -909,20 +910,54 @@ namespace FootballOpenServer.Services
                 return;
             }
 
-            var random = new Random();
             var tactics = await _context.Tactics
                 .Where(t => generatedTeamIDs.Contains(t.TeamID) && t.isMain)
                 .ToListAsync();
 
             foreach (var tactic in tactics)
             {
-                var teamPlayerIDs = await _context.Contracts
-                    .Where(c => c.TeamID == tactic.TeamID && c.Role == Role.Player)
-                    .Select(c => c.PersonID)
-                    .ToListAsync();
+                await AssignPlayersToTactic(tactic.TacticID, tactic.TeamID, tactic.Formation, Random.Shared, saveChanges: false);
+            }
+        }
 
-                var assignedPlayerIDs = await AssignPlayersToFormation(tactic.TacticID, teamPlayerIDs, tactic.Formation, random);
-                AssignSubstitutionsAndReserves(tactic.TacticID, teamPlayerIDs, assignedPlayerIDs);
+        public async Task AssignPlayersToTactic(Guid tacticID, Guid teamID, Formation? formation)
+        {
+            await AssignPlayersToTactic(tacticID, teamID, formation, Random.Shared, saveChanges: true);
+        }
+
+        private async Task AssignPlayersToTactic(Guid tacticID, Guid teamID, Formation? formation, Random random, bool saveChanges)
+        {
+            DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            var teamPlayerIDs = await _context.Contracts
+                .Where(c =>
+                    c.TeamID == teamID &&
+                    c.Role == Role.Player &&
+                    (c.EndDate == null || c.EndDate > today))
+                .Select(c => c.PersonID)
+                .Distinct()
+                .ToListAsync();
+
+            if (!teamPlayerIDs.Any())
+            {
+                return;
+            }
+
+            var existingPlayerTactics = await _context.PlayerTactics
+                .Where(pt => pt.TacticID == tacticID)
+                .ToListAsync();
+
+            if (existingPlayerTactics.Any())
+            {
+                _context.PlayerTactics.RemoveRange(existingPlayerTactics);
+            }
+
+            var assignedPlayerIDs = await AssignPlayersToFormation(tacticID, teamPlayerIDs, formation, random);
+            AssignSubstitutionsAndReserves(tacticID, teamPlayerIDs, assignedPlayerIDs);
+
+            if (saveChanges)
+            {
+                await _context.SaveChangesAsync();
             }
         }
 
