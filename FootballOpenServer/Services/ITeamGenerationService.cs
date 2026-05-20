@@ -910,20 +910,19 @@ namespace FootballOpenServer.Services
                 return;
             }
 
-            var random = new Random();
             var tactics = await _context.Tactics
                 .Where(t => generatedTeamIDs.Contains(t.TeamID) && t.isMain)
                 .ToListAsync();
 
             foreach (var tactic in tactics)
             {
-                await AssignPlayersToTactic(tactic.TacticID, tactic.TeamID, tactic.Formation, random, saveChanges: false);
+                await AssignPlayersToTactic(tactic.TacticID, tactic.TeamID, tactic.Formation, Random.Shared, saveChanges: false);
             }
         }
 
         public async Task AssignPlayersToTactic(Guid tacticID, Guid teamID, Formation? formation)
         {
-            await AssignPlayersToTactic(tacticID, teamID, formation, new Random(), saveChanges: true);
+            await AssignPlayersToTactic(tacticID, teamID, formation, Random.Shared, saveChanges: true);
         }
 
         private async Task AssignPlayersToTactic(Guid tacticID, Guid teamID, Formation? formation, Random random, bool saveChanges)
