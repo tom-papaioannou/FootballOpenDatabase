@@ -83,10 +83,7 @@ namespace FootballOpenServer.Controllers
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
-                if (newTactic.TacticID == Guid.Empty)
-                {
-                    newTactic.TacticID = Guid.NewGuid();
-                }
+                newTactic.TacticID = Guid.NewGuid();
 
                 // Get all existing tactics for this team
                 var existingTactics = await _db.Tactics

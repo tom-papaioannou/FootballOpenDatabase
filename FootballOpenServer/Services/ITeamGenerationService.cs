@@ -947,7 +947,7 @@ namespace FootballOpenServer.Services
                 .Where(pt => pt.TacticID == tacticID)
                 .ToListAsync();
 
-            if (existingPlayerTactics.Count != 0)
+            if (existingPlayerTactics.Any())
             {
                 _context.PlayerTactics.RemoveRange(existingPlayerTactics);
             }
