@@ -402,11 +402,11 @@ namespace FootballOpenServer.Services
             [Formation.Five_Three_Two] =
             [
                 new(PlayerPosition.Goalkeeper, PlayerRole.Goalkeeper),
-                new(PlayerPosition.RightWingBack, PlayerRole.WingBack),
+                new(PlayerPosition.RightBack, PlayerRole.FullBack),
                 new(PlayerPosition.RightCenterBack, PlayerRole.CenterBack),
                 new(PlayerPosition.CentralCenterBack, PlayerRole.CenterBack),
                 new(PlayerPosition.LeftCenterBack, PlayerRole.CenterBack),
-                new(PlayerPosition.LeftWingBack, PlayerRole.WingBack),
+                new(PlayerPosition.LeftBack, PlayerRole.FullBack),
                 new(PlayerPosition.RightCenterMidfielder, PlayerRole.CentralMidfielder),
                 new(PlayerPosition.CentralCenterMidfielder, PlayerRole.CentralMidfielder),
                 new(PlayerPosition.LeftCenterMidfielder, PlayerRole.CentralMidfielder),
