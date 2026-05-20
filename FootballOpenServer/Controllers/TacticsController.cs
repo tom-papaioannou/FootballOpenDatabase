@@ -17,11 +17,13 @@ namespace FootballOpenServer.Controllers
     {
         private FootballDbContext _db;
         private readonly ITeamAccessService _teamAccessService;
+        private readonly ITeamGenerationService _teamGenerationService;
 
-        public TacticsController(FootballDbContext db, ITeamAccessService teamAccessService)
+        public TacticsController(FootballDbContext db, ITeamAccessService teamAccessService, ITeamGenerationService teamGenerationService)
         {
             _db = db;
             _teamAccessService = teamAccessService;
+            _teamGenerationService = teamGenerationService;
         }
 
         [HttpGet("getTeamTactic/{tacticID}")]
@@ -64,16 +66,28 @@ namespace FootballOpenServer.Controllers
         [HttpPost("createTeamTactic")]
         public async Task<IActionResult> CreateTeamTactic([FromBody] Tactic newTactic)
         {
-            var teamExists = await _db.Teams.AnyAsync(t => t.TeamID == newTactic.TeamID);
-
-            if (!teamExists)
+            if (newTactic.Formation == null ||
+                !Enum.IsDefined(typeof(Formation), newTactic.Formation.Value) ||
+                newTactic.Formation == Formation.None)
             {
-                return NotFound("Team not found.");
+                return BadRequest("Invalid formation.");
+            }
+
+            var team = await _teamAccessService.GetOwnedTeamAsync(User);
+
+            if (team == null || team.TeamID != newTactic.TeamID)
+            {
+                return NotFound("Team not found or user does not have access to this team.");
             }
 
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
+                if (newTactic.TacticID == Guid.Empty)
+                {
+                    newTactic.TacticID = Guid.NewGuid();
+                }
+
                 // Get all existing tactics for this team
                 var existingTactics = await _db.Tactics
                     .Where(t => t.TeamID == newTactic.TeamID)
@@ -95,6 +109,7 @@ namespace FootballOpenServer.Controllers
 
                 _db.Tactics.Add(newTactic);
                 await _db.SaveChangesAsync();
+                await _teamGenerationService.AssignPlayersToTactic(newTactic.TacticID, newTactic.TeamID, newTactic.Formation);
                 await transaction.CommitAsync();
 
                 return Ok(newTactic);
