@@ -233,7 +233,6 @@ namespace FootballOpenServer.Controllers
             try
             {
                 Formation? previousFormation = tactic.Formation;
-                bool formationChanged = previousFormation != updateTacticModel.Formation;
 
                 tactic.Name = updateTacticModel.Name.Trim();
                 tactic.Formation = updateTacticModel.Formation;
@@ -241,6 +240,8 @@ namespace FootballOpenServer.Controllers
                 tactic.PenaltyTakerID = updateTacticModel.PenaltyTakerID;
                 tactic.LeftCornerTakerID = updateTacticModel.LeftCornerTakerID;
                 tactic.RightCornerTakerID = updateTacticModel.RightCornerTakerID;
+
+                bool formationChanged = previousFormation != tactic.Formation;
 
                 if (updateTacticModel.isMain)
                 {
