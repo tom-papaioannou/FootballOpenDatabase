@@ -232,12 +232,16 @@ namespace FootballOpenServer.Controllers
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
+                Formation? previousFormation = tactic.Formation;
+
                 tactic.Name = updateTacticModel.Name.Trim();
                 tactic.Formation = updateTacticModel.Formation;
                 tactic.CaptainID = updateTacticModel.CaptainID;
                 tactic.PenaltyTakerID = updateTacticModel.PenaltyTakerID;
                 tactic.LeftCornerTakerID = updateTacticModel.LeftCornerTakerID;
                 tactic.RightCornerTakerID = updateTacticModel.RightCornerTakerID;
+
+                bool formationChanged = previousFormation != tactic.Formation;
 
                 if (updateTacticModel.isMain)
                 {
@@ -264,6 +268,12 @@ namespace FootballOpenServer.Controllers
                 }
 
                 await _db.SaveChangesAsync();
+
+                if (formationChanged)
+                {
+                    await _teamGenerationService.AssignPlayersToTactic(tactic.TacticID, tactic.TeamID, tactic.Formation);
+                }
+
                 await transaction.CommitAsync();
 
                 return Ok(tactic);
