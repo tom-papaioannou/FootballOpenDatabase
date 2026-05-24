@@ -167,6 +167,7 @@ namespace FootballOpenServer.Controllers
                     p.Surname,
                     p.DateOfBirth,
                     p.PlaceOfBirth,
+                    p.NationID,
                     Contracts = p.Contracts
                             .OrderByDescending(c => c.EndDate)
                             .Select(c => new {
