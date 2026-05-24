@@ -12,5 +12,6 @@ namespace FootballOpenServer.Models.Servers
         public string Name { get; set; }
         public List<Person> Persons { get; set; } = new();
         public List<Competition> Competitions { get; set; } = new();
+        public int Season { get; set; } = 1;
     }
 }
