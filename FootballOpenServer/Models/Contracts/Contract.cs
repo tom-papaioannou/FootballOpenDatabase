@@ -28,5 +28,7 @@ namespace FootballOpenServer.Models.Contracts
 
         [Range(1, 99)]
         public byte? ShirtNumber { get; set; }
+
+        public int Wage { get; set; } = 0;
     }
 }

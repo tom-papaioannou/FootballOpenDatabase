@@ -762,6 +762,10 @@ namespace FootballOpenServer.Services
                         PlayerTrainedRoles = new List<PlayerTrainedRole>()
                     };
 
+                    // random Wage per week, from 500 to 5000
+                    var randomWagePerWeek = random.Next(5, 50);
+                    randomWagePerWeek *= 100;
+
                     // Note: Changed first date to be one day before and last day at least in 2027 for debugging reasons
                     // Create Contract with random end date (June 30, random year 2027-2030)
                     var contractEndYear = random.Next(2027, 2031); // 2031 is exclusive, so 2027-2030
@@ -772,7 +776,8 @@ namespace FootballOpenServer.Services
                         TeamID = team.TeamID,
                         StartDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1),
                         EndDate = new DateOnly(contractEndYear, 6, 30),
-                        Role = Role.Player
+                        Role = Role.Player,
+                        Wage = randomWagePerWeek
                     };
 
                     // Create PlayerStats with random values between 1 and 100
