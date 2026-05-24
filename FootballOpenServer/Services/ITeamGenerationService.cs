@@ -762,14 +762,15 @@ namespace FootballOpenServer.Services
                         PlayerTrainedRoles = new List<PlayerTrainedRole>()
                     };
 
-                    // Create Contract with random end date (June 30, random year 2026-2030)
-                    var contractEndYear = random.Next(2026, 2031); // 2031 is exclusive, so 2026-2030
+                    // Note: Changed first date to be one day before and last day at least in 2027 for debugging reasons
+                    // Create Contract with random end date (June 30, random year 2027-2030)
+                    var contractEndYear = random.Next(2027, 2031); // 2031 is exclusive, so 2027-2030
                     var contract = new Contract
                     {
                         ContractID = Guid.NewGuid(),
                         PersonID = personID,
                         TeamID = team.TeamID,
-                        StartDate = DateOnly.FromDateTime(DateTime.UtcNow),
+                        StartDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1),
                         EndDate = new DateOnly(contractEndYear, 6, 30),
                         Role = Role.Player
                     };
