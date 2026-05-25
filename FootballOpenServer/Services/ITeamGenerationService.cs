@@ -749,6 +749,9 @@ namespace FootballOpenServer.Services
                     var personGenerationData = GetGenerationData(assignedNation ?? targetNation);
 
                     // Create Person
+                    int randomWeight = Random.Shared.Next(75, 95);
+                    int randomHeight = Random.Shared.Next(175, 195);
+
                     var person = new Person
                     {
                         PersonID = personID,
@@ -759,7 +762,9 @@ namespace FootballOpenServer.Services
                         NationID = assignedNationID,
                         ServerID = serverID,
                         PlayerTrainedPositions = new List<PlayerTrainedPosition>(),
-                        PlayerTrainedRoles = new List<PlayerTrainedRole>()
+                        PlayerTrainedRoles = new List<PlayerTrainedRole>(),
+                        Weight = randomWeight,
+                        Height = randomHeight
                     };
 
                     // random Wage per week, from 500 to 5000

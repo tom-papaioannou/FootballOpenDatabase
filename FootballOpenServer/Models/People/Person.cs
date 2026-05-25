@@ -34,5 +34,7 @@ namespace FootballOpenServer.Models.People
         [JsonIgnore]
         public ICollection<PlayerTactic>? PlayerTactics { get; set; }
         public StaffRole? StaffRole { get; set; }
+        public int Weight { get; set; } = 80;
+        public int Height { get; set; } = 180;
     }
 }

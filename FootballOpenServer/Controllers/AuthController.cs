@@ -116,6 +116,9 @@ namespace FootballOpenServer.Controllers
             }
             else if (dto.Role == "User")
             {
+                int randomWeight = Random.Shared.Next(75, 95);
+                int randomHeight = Random.Shared.Next(175, 195);
+
                 Person person = new Person
                 {
                     Name = "John",
@@ -123,7 +126,9 @@ namespace FootballOpenServer.Controllers
                     DateOfBirth = new DateOnly(1970, 1, 1),
                     PlaceOfBirth = "Athens",
                     ServerID = dto.ServerID,
-                    StaffRole = StaffRole.Manager
+                    StaffRole = StaffRole.Manager,
+                    Weight = randomWeight,
+                    Height = randomHeight
                 };
 
                 user.Person = person;
