@@ -168,11 +168,14 @@ namespace FootballOpenServer.Controllers
                     p.DateOfBirth,
                     p.PlaceOfBirth,
                     p.NationID,
+                    p.Weight,
+                    p.Height,
                     Contracts = p.Contracts
                             .OrderByDescending(c => c.EndDate)
                             .Select(c => new {
                                 c.StartDate,
                                 c.EndDate,
+                                c.Wage,
                                 Team = new { c.Team.Name }
                             }),
                     p.PlayerStats,
