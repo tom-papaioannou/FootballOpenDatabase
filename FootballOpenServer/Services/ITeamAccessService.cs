@@ -53,6 +53,16 @@ namespace FootballOpenServer.Services
                 {
                     TeamID = t.TeamID,
                     Name = t.Name,
+                    LeagueID = t.Competitions!
+                        .Where(c => c.CompetitionType == CompetitionType.League)
+                        .OrderBy(c => c.Priority)
+                        .Select(c => (Guid?)c.CompetitionID)
+                        .FirstOrDefault(),
+                    LeagueName = t.Competitions!
+                        .Where(c => c.CompetitionType == CompetitionType.League)
+                        .OrderBy(c => c.Priority)
+                        .Select(c => c.CompetitionName)
+                        .FirstOrDefault(),
                     Stadium = new StadiumDTO
                     {
                         StadiumID = t.Stadium.StadiumID,
