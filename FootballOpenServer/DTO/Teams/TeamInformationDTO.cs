@@ -9,6 +9,8 @@ namespace FootballOpenServer.DTO.Teams
     {
         public Guid TeamID { get; set; }
         public string? Name { get; set; }
+        public Guid? LeagueID { get; set; }
+        public string? LeagueName { get; set; }
         public StadiumDTO? Stadium { get; set; }
         public Kit? Kit { get; set; }
     }

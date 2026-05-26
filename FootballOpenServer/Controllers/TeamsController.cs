@@ -102,6 +102,8 @@ namespace FootballOpenServer.Controllers
                     c.Person.DateOfBirth,
                     c.Person.NationID,
                     c.ShirtNumber,
+                    c.Wage,
+                    c.EndDate,
                     PlayerTrainedPositions = c.Person.PlayerTrainedPositions!.Select(ptp => new
                     {
                         ptp.PlayerPosition,
