@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Tom Papaioannou. All rights reserved.
 // Licensed under the MIT License
 
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FootballOpenServer.DTO.Competitions;
+using Microsoft.AspNetCore.Mvc;
 using FootballOpenServer.Models.Competitions;
 using FootballOpenServer.Models.Teams;
 using FootballOpenServer.Services;
@@ -40,6 +41,50 @@ namespace FootballOpenServer.Controllers
                 return NotFound();
 
             return Ok(competition);
+        }
+
+        [HttpGet("{competitionID}/table")]
+        public async Task<ActionResult<IEnumerable<CompetitionTableRowDTO>>> GetCompetitionTable(Guid competitionID)
+        {
+            var competitionExists = await _context.Competitions
+                .AnyAsync(c => c.CompetitionID == competitionID);
+
+            if (!competitionExists)
+                return NotFound();
+
+            var tableRows = await _context.CompetitionTables
+                .Where(ct => ct.CompetitionID == competitionID)
+                .Join(
+                    _context.Teams,
+                    ct => ct.TeamID,
+                    team => team.TeamID,
+                    (ct, team) => new CompetitionTableRowDTO
+                    {
+                        TeamID = team.TeamID,
+                        TeamName = team.Name,
+                        Points = ct.Points,
+                        Wins = ct.Wins,
+                        Draws = ct.Draws,
+                        Losses = ct.Losses,
+                        YellowCards = ct.YellowCards,
+                        RedCards = ct.RedCards,
+                        MatchesPlayed = ct.MatchesPlayed
+                    })
+                .OrderByDescending(row => row.Points)
+                .ThenByDescending(row => row.Wins)
+                .ThenByDescending(row => row.Draws)
+                .ThenBy(row => row.Losses)
+                .ThenBy(row => row.YellowCards)
+                .ThenBy(row => row.RedCards)
+                .ThenBy(row => row.TeamName)
+                .ToListAsync();
+
+            for (int i = 0; i < tableRows.Count; i++)
+            {
+                tableRows[i].Position = i + 1;
+            }
+
+            return Ok(tableRows);
         }
 
         [HttpGet("getAllCompetitions/{competitionParentID}")]
@@ -122,6 +167,25 @@ namespace FootballOpenServer.Controllers
                 };
 
                 _context.Competitions.Add(competition);
+                foreach (var team in generatedTeams)
+                {
+                    _context.CompetitionTables.Add(new CompetitionTable
+                    {
+                        CompetitionTableID = Guid.NewGuid(),
+                        CompetitionID = competition.CompetitionID,
+                        TeamID = team.TeamID,
+                        MatchesPlayed = 0,
+                        Wins = 0,
+                        Draws = 0,
+                        Losses = 0,
+                        GoalsFor = 0,
+                        GoalsAgainst = 0,
+                        YellowCards = 0,
+                        RedCards = 0,
+                        Points = 0
+                    });
+                }
+
                 await _context.SaveChangesAsync();
                 await _teamGenerationService.AssignPlayersToGeneratedTeams(generatedTeams.Select(t => t.TeamID));
                 await _context.SaveChangesAsync();
