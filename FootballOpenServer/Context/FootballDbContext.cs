@@ -29,6 +29,7 @@ public class FootballDbContext : DbContext
     public DbSet<Server> Servers { get; set; }
     public DbSet<Kit> Kits { get; set; }
     public DbSet<CompetitionTable> CompetitionTables { get; set; }
+    public DbSet<PersonHealthAndFitness> PersonHealthAndFitnesses { get; set; }
     public FootballDbContext(DbContextOptions<FootballDbContext> options)
         : base(options) { }
 
@@ -143,5 +144,11 @@ public class FootballDbContext : DbContext
             .HasOne(t => t.Kit)
             .WithOne(k => k.Team)
             .HasForeignKey<Team>(t => t.KitID);
+
+        modelBuilder.Entity<Person>()
+            .HasOne(p => p.HealthAndFitness)
+            .WithOne(h => h.Person)
+            .HasForeignKey<PersonHealthAndFitness>(h => h.PersonID)
+            .IsRequired();
     }
 }
