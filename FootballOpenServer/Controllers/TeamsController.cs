@@ -51,6 +51,51 @@ namespace FootballOpenServer.Controllers
             return Ok(team);
         }
 
+        [HttpGet("getTeamInformation/{teamID}")]
+        public async Task<ActionResult<TeamInformationDTO>> GetTeamInformation(Guid teamID)
+        {
+            var currentUserID = _teamAccessService.GetCurrentUserID(User);
+
+            var team = await _db.Teams
+                .Where(t => t.TeamID == teamID)
+                .AsNoTracking()
+                .Include(t => t.Stadium)
+                .Select(t => new TeamInformationDTO
+                {
+                    TeamID = t.TeamID,
+                    Name = t.Name,
+                    IsOwned = currentUserID != null && t.AppUserID == currentUserID.Value,
+                    LeagueID = t.Competitions!
+                        .Where(c => c.CompetitionType == CompetitionType.League)
+                        .OrderBy(c => c.Priority)
+                        .Select(c => (Guid?)c.CompetitionID)
+                        .FirstOrDefault(),
+                    LeagueName = t.Competitions!
+                        .Where(c => c.CompetitionType == CompetitionType.League)
+                        .OrderBy(c => c.Priority)
+                        .Select(c => c.CompetitionName)
+                        .FirstOrDefault(),
+                    Stadium = t.Stadium == null ? null : new StadiumDTO
+                    {
+                        StadiumID = t.Stadium.StadiumID,
+                        Name = t.Stadium.Name,
+                        Capacity = t.Stadium.Capacity,
+                        City = t.Stadium.City,
+                        Latitude = t.Stadium.Latitude,
+                        Longitude = t.Stadium.Longitude
+                    },
+                    Kit = t.Kit
+                })
+                .FirstOrDefaultAsync();
+
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(team);
+        }
+
         [HttpPost]
         public async Task<ActionResult<Team>> PostTeam([FromBody] Team team)
         {
@@ -124,6 +169,11 @@ namespace FootballOpenServer.Controllers
         [HttpPut("updatePlayerShirtNumber")]
         public async Task<IActionResult> UpdatePlayerShirtNumber([FromBody] UpdatePlayerShirtNumberDTO model)
         {
+            if (!await _teamAccessService.OwnsTeamAsync(User, model.TeamID))
+            {
+                return Forbid();
+            }
+
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
             var playerContract = await _db.Contracts

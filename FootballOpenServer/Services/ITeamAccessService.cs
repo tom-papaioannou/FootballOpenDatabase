@@ -53,6 +53,7 @@ namespace FootballOpenServer.Services
                 {
                     TeamID = t.TeamID,
                     Name = t.Name,
+                    IsOwned = true,
                     LeagueID = t.Competitions!
                         .Where(c => c.CompetitionType == CompetitionType.League)
                         .OrderBy(c => c.Priority)
