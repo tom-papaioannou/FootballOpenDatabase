@@ -229,8 +229,9 @@ namespace FootballOpenServer.Controllers
                                 c.EndDate,
                                 c.Wage,
                                 Team = new { c.Team.Name }
-                            }),
+                    }),
                     p.PlayerStats,
+                    p.HealthAndFitness,
                     p.PlayerTrainedPositions,
                     p.PlayerTrainedRoles
                 })
