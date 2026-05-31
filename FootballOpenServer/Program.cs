@@ -277,9 +277,11 @@ using (var scope = app.Services.CreateScope())
                 var generatedTeams = await teamGenerationService.GenerateTeamsForCompetition(mainServer.ServerID, nation.NationID, 20, priority);
                 generatedTeamIDs.AddRange(generatedTeams.Select(t => t.TeamID));
 
+                Guid competitionID = Guid.NewGuid();
+
                 db.Competitions.Add(new Competition
                 {
-                    CompetitionID = Guid.NewGuid(),
+                    CompetitionID = competitionID,
                     CompetitionName = $"{nation.Name} League {suffix}",
                     NationID = nation.NationID,
                     CompetitionTeamsType = CompetitionTeamsType.Club,
@@ -288,6 +290,25 @@ using (var scope = app.Services.CreateScope())
                     Teams = generatedTeams,
                     ServerID = mainServer.ServerID
                 });
+
+                foreach (var team in generatedTeams)
+                {
+                    db.CompetitionTables.Add(new CompetitionTable
+                    {
+                        CompetitionTableID = Guid.NewGuid(),
+                        CompetitionID = competitionID,
+                        TeamID = team.TeamID,
+                        MatchesPlayed = 0,
+                        Wins = 0,
+                        Draws = 0,
+                        Losses = 0,
+                        GoalsFor = 0,
+                        GoalsAgainst = 0,
+                        YellowCards = 0,
+                        RedCards = 0,
+                        Points = 0
+                    });
+                }
             }
         }
 
