@@ -28,6 +28,7 @@ public class FootballDbContext : DbContext
     public DbSet<Continent> Continents { get; set; }
     public DbSet<Server> Servers { get; set; }
     public DbSet<Kit> Kits { get; set; }
+    public DbSet<CompetitionTable> CompetitionTables { get; set; }
     public FootballDbContext(DbContextOptions<FootballDbContext> options)
         : base(options) { }
 
