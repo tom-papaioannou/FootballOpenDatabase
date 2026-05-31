@@ -36,5 +36,7 @@ namespace FootballOpenServer.Models.People
         public StaffRole? StaffRole { get; set; }
         public int Weight { get; set; } = 80;
         public int Height { get; set; } = 180;
+
+        public PersonHealthAndFitness? HealthAndFitness { get; set; }
     }
 }

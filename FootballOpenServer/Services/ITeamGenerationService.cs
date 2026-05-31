@@ -767,6 +767,14 @@ namespace FootballOpenServer.Services
                         Height = randomHeight
                     };
 
+                    var personHealthAndFitness = new PersonHealthAndFitness
+                    {
+                        PersonID = personID,
+                        HealthStatus = HealthStatus.Healthy,
+                        PhysicalCondition = random.Next(10, 100),
+                        MentalCondition = random.Next(10, 100),
+                    };
+
                     // random Wage per week, from 500 to 5000
                     var randomWagePerWeek = random.Next(5, 50);
                     randomWagePerWeek *= 100;
@@ -838,6 +846,7 @@ namespace FootballOpenServer.Services
 
                     // Add entities to database context
                     _context.People.Add(person);
+                    _context.PersonHealthAndFitnesses.Add(personHealthAndFitness);
                     _context.Contracts.Add(contract);
                     _context.PlayerStats.Add(playerStats);
                     _context.PlayerTrainedPositions.AddRange(trainedPositions);
