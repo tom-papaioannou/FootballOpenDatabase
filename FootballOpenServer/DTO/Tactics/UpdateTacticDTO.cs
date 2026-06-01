@@ -17,6 +17,12 @@ namespace FootballOpenServer.DTO.Tactics
         [Required]
         public Formation Formation { get; set; }
 
+        [Required]
+        public TacticMentality TacticMentality { get; set; } = TacticMentality.Balanced;
+
+        [Required]
+        public PassingMentality PassingMentality { get; set; } = PassingMentality.Balanced;
+
         public Guid? CaptainID { get; set; }
 
         public Guid? PenaltyTakerID { get; set; }
@@ -24,5 +30,9 @@ namespace FootballOpenServer.DTO.Tactics
         public Guid? LeftCornerTakerID { get; set; }
 
         public Guid? RightCornerTakerID { get; set; }
+
+        public Guid? LeftFreeKickTakerID { get; set; }
+
+        public Guid? RightFreeKickTakerID { get; set; }
     }
 }

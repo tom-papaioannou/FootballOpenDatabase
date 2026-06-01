@@ -29,5 +29,12 @@ namespace FootballOpenServer.Models.Teams
         public Guid? LeftCornerTakerID { get; set; }
 
         public Guid? RightCornerTakerID { get; set; }
+
+        public Guid? LeftFreeKickTakerID { get; set; }
+
+        public Guid? RightFreeKickTakerID { get; set; }
+
+        public TacticMentality TacticMentality { get; set; } = TacticMentality.Balanced;
+        public PassingMentality PassingMentality { get; set; } = PassingMentality.Balanced;
     }
 }
