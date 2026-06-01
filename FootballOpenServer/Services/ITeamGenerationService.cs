@@ -873,6 +873,10 @@ namespace FootballOpenServer.Services
             Guid? bestCornerTakerID = GetBestCornerTakerID(teamPlayerStats);
             tactic.LeftCornerTakerID = bestCornerTakerID;
             tactic.RightCornerTakerID = bestCornerTakerID;
+
+            Guid? bestFreeKickTakerID = GetBestFreeKickTakerID(teamPlayerStats);
+            tactic.LeftFreeKickTakerID = bestFreeKickTakerID;
+            tactic.RightFreeKickTakerID = bestFreeKickTakerID;
         }
 
         private static Guid? GetBestCaptainID(IReadOnlyCollection<PlayerStats> teamPlayerStats)
@@ -890,6 +894,12 @@ namespace FootballOpenServer.Services
         {
             return GetBestPlayerID(teamPlayerStats, stats =>
                 (stats.Crossing + stats.Kicking + stats.Teamwork + stats.Decisions + stats.Strength) / 5.0);
+        }
+
+        private static Guid? GetBestFreeKickTakerID(IReadOnlyCollection<PlayerStats> teamPlayerStats)
+        {
+            return GetBestPlayerID(teamPlayerStats, stats =>
+                (stats.Shooting + stats.Crossing + stats.Kicking + stats.Teamwork + stats.Decisions + stats.Strength) / 6.0);
         }
 
         private static Guid? GetBestPlayerID(IReadOnlyCollection<PlayerStats> teamPlayerStats, Func<PlayerStats, double> scoreSelector)

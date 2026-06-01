@@ -73,11 +73,54 @@ namespace FootballOpenServer.Controllers
                 return BadRequest("Invalid formation.");
             }
 
+            if (!Enum.IsDefined(typeof(TacticMentality), newTactic.TacticMentality) || newTactic.TacticMentality == TacticMentality.None)
+            {
+                return BadRequest("Invalid tactic mentality.");
+            }
+
+            if (!Enum.IsDefined(typeof(PassingMentality), newTactic.PassingMentality) || newTactic.PassingMentality == PassingMentality.None)
+            {
+                return BadRequest("Invalid passing mentality.");
+            }
+
             var team = await _teamAccessService.GetOwnedTeamAsync(User);
 
             if (team == null || team.TeamID != newTactic.TeamID)
             {
                 return NotFound("Team not found or user does not have access to this team.");
+            }
+
+            DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var selectedPlayerIDs = new[]
+            {
+                newTactic.CaptainID,
+                newTactic.PenaltyTakerID,
+                newTactic.LeftCornerTakerID,
+                newTactic.RightCornerTakerID,
+                newTactic.LeftFreeKickTakerID,
+                newTactic.RightFreeKickTakerID
+            }
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .Distinct()
+                .ToList();
+
+            if (selectedPlayerIDs.Count > 0)
+            {
+                int validPlayersCount = await _db.Contracts
+                    .Where(c =>
+                        c.TeamID == team.TeamID &&
+                        selectedPlayerIDs.Contains(c.PersonID) &&
+                        (c.EndDate == null || c.EndDate > today) &&
+                        c.Role == Role.Player)
+                    .Select(c => c.PersonID)
+                    .Distinct()
+                    .CountAsync();
+
+                if (validPlayersCount != selectedPlayerIDs.Count)
+                {
+                    return BadRequest("One or more selected players do not belong to this team.");
+                }
             }
 
             using var transaction = await _db.Database.BeginTransactionAsync();
@@ -186,6 +229,16 @@ namespace FootballOpenServer.Controllers
                 return BadRequest("Invalid formation.");
             }
 
+            if (!Enum.IsDefined(typeof(TacticMentality), updateTacticModel.TacticMentality) || updateTacticModel.TacticMentality == TacticMentality.None)
+            {
+                return BadRequest("Invalid tactic mentality.");
+            }
+
+            if (!Enum.IsDefined(typeof(PassingMentality), updateTacticModel.PassingMentality) || updateTacticModel.PassingMentality == PassingMentality.None)
+            {
+                return BadRequest("Invalid passing mentality.");
+            }
+
             Tactic? tactic = await _db.Tactics.FirstOrDefaultAsync(t => t.TacticID == tacticID);
             if (tactic == null)
             {
@@ -204,7 +257,9 @@ namespace FootballOpenServer.Controllers
                 updateTacticModel.CaptainID,
                 updateTacticModel.PenaltyTakerID,
                 updateTacticModel.LeftCornerTakerID,
-                updateTacticModel.RightCornerTakerID
+                updateTacticModel.RightCornerTakerID,
+                updateTacticModel.LeftFreeKickTakerID,
+                updateTacticModel.RightFreeKickTakerID
             }
                 .Where(id => id.HasValue)
                 .Select(id => id!.Value)
@@ -236,10 +291,14 @@ namespace FootballOpenServer.Controllers
 
                 tactic.Name = updateTacticModel.Name.Trim();
                 tactic.Formation = updateTacticModel.Formation;
+                tactic.TacticMentality = updateTacticModel.TacticMentality;
+                tactic.PassingMentality = updateTacticModel.PassingMentality;
                 tactic.CaptainID = updateTacticModel.CaptainID;
                 tactic.PenaltyTakerID = updateTacticModel.PenaltyTakerID;
                 tactic.LeftCornerTakerID = updateTacticModel.LeftCornerTakerID;
                 tactic.RightCornerTakerID = updateTacticModel.RightCornerTakerID;
+                tactic.LeftFreeKickTakerID = updateTacticModel.LeftFreeKickTakerID;
+                tactic.RightFreeKickTakerID = updateTacticModel.RightFreeKickTakerID;
 
                 bool formationChanged = previousFormation != tactic.Formation;
 
