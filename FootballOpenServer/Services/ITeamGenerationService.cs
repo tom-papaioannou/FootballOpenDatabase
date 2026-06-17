@@ -12,7 +12,7 @@ namespace FootballOpenServer.Services
 {
     public interface ITeamGenerationService
     {
-       Task<List<Team>> GenerateTeamsForCompetition(Guid? serverID, Guid? nationID, int numberOfTeams = 20, int priority = 1);
+       Task<List<Team>> GenerateTeamsForCompetition(Guid? serverID, Guid? nationID, int numberOfTeams = 16, int priority = 1);
        Task AssignPlayersToGeneratedTeams(IEnumerable<Guid> teamIDs);
        Task AssignPlayersToTactic(Guid tacticID, Guid teamID, Formation? formation);
     }
@@ -27,14 +27,14 @@ namespace FootballOpenServer.Services
                     "Athinaikos FC", "Piraeus Harbor", "Thessalia Union", "Patraikos", "Crete Mariners",
                     "Olympia Stars", "Aegean Wave", "Macedonia Eagles", "Epirus Gate", "Sparta Forge",
                     "Rhodes Knights", "Larissa Storm", "Corinth Shield", "Delphi Oracle", "Volos Tide",
-                    "Kavala North", "Arcadia Greens", "Ioannina Peak", "Kalamata Olive", "Naxos Blue"
+                    "Kavala North"
                 ],
                 PriorityTwoTeamNames:
                 [
                     "Attica Rovers", "Pella United", "Achaia Athletic", "Messinia Town", "Thrace Wanderers",
                     "Samos Harbor", "Chios Mariners", "Aitolia FC", "Laconia Stars", "Argos Vale",
                     "Kos Islanders", "Drama Falcons", "Xanthi Forge", "Serres Dynamo", "Preveza Coast",
-                    "Trikala Union", "Korinthos City", "Mykonos Cyclones", "Paros Tide", "Lesvos Albion"
+                    "Trikala Union"
                 ],
                 FirstNames:
                 [
@@ -59,14 +59,14 @@ namespace FootballOpenServer.Services
                     "Northbridge FC", "London Borough", "Mersey Albion", "Yorkshire County", "Bristol Harbors",
                     "Westford United", "Eastmoor Town", "Kingsport Athletic", "Rivergate FC", "Lancaster Vale",
                     "Stonechester", "Southwick City", "Crown Anchor FC", "Redminster", "Oakfield Rovers",
-                    "Brightmere", "Ironbridge FC", "Wellington Heath", "Norcastle", "Greenford Athletic"
+                    "Brightmere"
                 ],
                 PriorityTwoTeamNames:
                 [
                     "Ashford Town", "Derwent FC", "Midshire Athletic", "Portsmouth Vale", "Chesterfield Rovers",
                     "Blackpool Sands", "Reading Borough", "Trentham United", "Hartford City", "Windsor Albion",
                     "Somerset County", "Rutland FC", "Devonport Mariners", "Sunderland Forge", "Camden Wanderers",
-                    "Oxford Heath", "Norwich Crown", "Plymouth Docks", "Durham Stars", "Canterbury Gate"
+                    "Oxford Heath"
                 ],
                 FirstNames:
                 [
@@ -91,14 +91,14 @@ namespace FootballOpenServer.Services
                     "Roma Aurea", "Milano Navigli", "Torino Bulls", "Napoli Mare", "Firenze Viola",
                     "Genova Lanterns", "Bologna Towers", "Verona Arena", "Parma Ducale", "Palermo Sole",
                     "Bari Levante", "Pisa Mariners", "Modena Gialli", "Siena Stallions", "Trieste Port",
-                    "Perugia Hill", "Cagliari Wind", "Salerno Granata", "Ravenna Pines", "Udine Stars"
+                    "Perugia Hill"
                 ],
                 PriorityTwoTeamNames:
                 [
                     "Lecce Barocco", "Como Lago", "Taranto Ionio", "Mantova Virgil", "Padova Veneto",
                     "Vicenza Bianco", "Livorno Porto", "Ferrara Este", "Ancona Adriatico", "Cosenza Rossa",
                     "Foggia Tavoliere", "Pescara Delfini", "Arezzo Rosso", "Lucca Mura", "Novara Piemonte",
-                    "Cremona Violini", "Trapani Vento", "Messina Stretto", "Catanzaro Aquile", "Brescia Leonessa"
+                    "Cremona Violini"
                 ],
                 FirstNames:
                 [
@@ -123,14 +123,14 @@ namespace FootballOpenServer.Services
                     "Paris Lumiere", "Lyonnais FC", "Marseille Bleu", "Bordeaux Vignes", "Lille Nord",
                     "Nice Azur", "Nantes Loire", "Toulouse Garonne", "Monaco Rouge", "Rennes Armor",
                     "Strasbourg Etoile", "Montpellier Herault", "Grenoble Alpes", "Reims Champagne", "Saint Etienne Vert",
-                    "Le Havre Ocean", "Caen Normand", "Metz Lorraine", "Lens Sang Or", "Dijon Bourgogne"
+                    "Le Havre Ocean"
                 ],
                 PriorityTwoTeamNames:
                 [
                     "Rouen Seine", "Tours Loire", "Amiens Picardie", "Brest Oceanique", "Angers Maine",
                     "Clermont Auvergne", "Nancy Lorraine", "Orleans Loiret", "Mulhouse Alsace", "Poitiers Vienne",
                     "Avignon Rhone", "Perpignan Catalan", "Limoges Porcelaine", "Annecy Lac", "Troyes Aube",
-                    "Le Mans Sarthe", "Valence Drome", "Besancon Doubs", "Lorient Bretagne", "Pau Pyrenees"
+                    "Le Mans Sarthe"
                 ],
                 FirstNames:
                 [
@@ -155,14 +155,14 @@ namespace FootballOpenServer.Services
                     "Berlin Adler", "Munich Isar", "Hamburg Harbor", "Cologne Dom", "Dortheim FC",
                     "Leipzig Roten", "Stuttgart Engine", "Bremen Weser", "Frankfurt Main", "Dresden Elbe",
                     "Hanover Horses", "Nuremberg Castle", "Essen Steel", "Kiel Baltic", "Freiburg Forest",
-                    "Augsburg Gate", "Mainz Carnival", "Rostock Coast", "Bonn Capitals", "Wolfsburg Motors"
+                    "Augsburg Gate"
                 ],
                 PriorityTwoTeamNames:
                 [
                     "Bochum Ruhr", "Karlsruhe Baden", "Lubeck Hanse", "Regensburg Danube", "Aachen Gate",
                     "Magdeburg Elbe", "Kassel Hessen", "Ulm Spatzen", "Bielefeld Armin", "Saarbrucken Coal",
                     "Jena Optics", "Erfurt Garden", "Potsdam Crown", "Chemnitz Forge", "Mannheim Harbor",
-                    "Osnabruck Bridge", "Heidelberg Neckar", "Koblenz Rhine", "Furth Clover", "Oldenburg North"
+                    "Osnabruck Bridge"
                 ],
                 FirstNames:
                 [
@@ -187,14 +187,14 @@ namespace FootballOpenServer.Services
                     "Liberty FC", "Pacific Sound", "Chicago Blaze", "Texas Lone Stars", "Boston Harbor",
                     "Atlanta Peaks", "Seattle Emerald", "Phoenix Heat", "Denver Summit", "Miami Atlantic",
                     "Detroit Motors", "Nashville Rhythm", "Portland Pines", "San Diego Surf", "Dallas Rangers",
-                    "Houston Comets", "Orlando Suns", "Cleveland Iron", "Minneapolis North", "Philadelphia Bell"
+                    "Houston Comets"
                 ],
                 PriorityTwoTeamNames:
                 [
                     "Sacramento Gold", "Charlotte Crown", "Columbus Crewmen", "St Louis Gateway", "Cincinnati River",
                     "Tampa Bay Storm", "Baltimore Forge", "Austin Oaks", "Las Vegas Lights", "Kansas City Plains",
                     "Indianapolis Circle", "Pittsburgh Steel", "Raleigh Capital", "Milwaukee Lake", "Memphis Blues",
-                    "New Orleans Jazz", "Salt Lake Peaks", "Richmond United", "Buffalo Snow", "Albuquerque Sol"
+                    "New Orleans Jazz"
                 ],
                 FirstNames:
                 [
@@ -219,14 +219,14 @@ namespace FootballOpenServer.Services
                     "Toronto Maple FC", "Montreal Nord", "Vancouver Tides", "Ottawa Capital", "Calgary Peaks",
                     "Edmonton Aurora", "Winnipeg Plains", "Quebec Citadelle", "Halifax Harbor", "Saskatoon Prairie",
                     "Hamilton Steel", "Victoria Island", "London Ontario FC", "Regina Crown", "Kelowna Lake",
-                    "Moncton Acadie", "Sherbrooke Rouge", "Sudbury Nickel", "Kingston Limestone", "Saint Johns Atlantic"
+                    "Moncton Acadie"
                 ],
                 PriorityTwoTeamNames:
                 [
                     "Trois Rivieres Bleu", "Laval Metro", "Brandon Wheat", "Red Deer Summit", "Whitehorse North",
                     "Yellowknife Aurora", "Prince George Timber", "Kamloops Heat", "Windsor Border", "Gatineau Hull",
                     "Sarnia Rapids", "Moose Jaw Prairie", "Thunder Bay Lake", "Charlottetown Crown", "Fredericton River",
-                    "North Bay Trappers", "St Catharines Canal", "Medicine Hat Gas", "Lethbridge Foothills", "Saguenay Fjord"
+                    "North Bay Trappers"
                 ],
                 FirstNames:
                 [
@@ -251,14 +251,14 @@ namespace FootballOpenServer.Services
                     "Azteca Sur", "Monterrey Cerro", "Guadalajara Sol", "Puebla Blanca", "Tijuana Frontera",
                     "Veracruz Puerto", "Merida Maya", "Toluca Nevado", "Leon Bajio", "Queretaro Campanas",
                     "Oaxaca Monte", "Cancun Caribe", "Chiapas Selva", "Juarez Norte", "Culiacan Pacifico",
-                    "Aguascalientes Ferro", "Morelia Cantera", "Durango Sierra", "Tepic Nayar", "San Luis Altiplano"
+                    "Aguascalientes Ferro"
                 ],
                 PriorityTwoTeamNames:
                 [
                     "Zacatecas Plata", "Tampico Marea", "Celaya Toros", "Irapuato Fresa", "Mazatlan Ola",
                     "Villahermosa Grijalva", "Colima Fuego", "Cuernavaca Primavera", "Tlaxcala Volcan", "Campeche Muralla",
                     "La Paz Baja", "Hermosillo Desierto", "Torreon Laguna", "Pachuca Mineros", "Ensenada Costa",
-                    "Matamoros Frontera", "Saltillo Norte", "Tuxtla Jaguar", "Chihuahua Sierra", "Acapulco Dorado"
+                    "Matamoros Frontera"
                 ],
                 FirstNames:
                 [
@@ -283,14 +283,14 @@ namespace FootballOpenServer.Services
                     "Buenos Aires Sur", "Cordoba Central", "Rosario Norte", "Mendoza Andes", "La Plata Estrella",
                     "Mar del Plata Port", "Tucuman Azucar", "Salta Valles", "Santa Fe Union", "Neuquen Patagonia",
                     "Bahia Blanca Wind", "San Juan Cuyo", "Corrientes River", "Posadas Misiones", "Parana Litoral",
-                    "Jujuy Altura", "San Luis Sierra", "Comodoro Coast", "Rio Cuarto Celeste", "Catamarca Sol"
+                    "Jujuy Altura"
                 ],
                 PriorityTwoTeamNames:
                 [
                     "Chaco Rojo", "Formosa Norte", "Trelew Patagonia", "Rawson Atlántico", "Junin Verde",
                     "Olavarria Cemento", "Rafaela Leche", "Moron Oeste", "Quilmes Cerveceros", "Tandil Sierras",
                     "San Rafael Sur", "Concordia Rio", "Gualeguay Blue", "Pergamino Fields", "Resistencia Litoral",
-                    "Villa Maria Unido", "Rio Gallegos Hielo", "Ushuaia Austral", "Santiago Estero Sol", "La Rioja Andina"
+                    "Villa Maria Unido"
                 ],
                 FirstNames:
                 [
@@ -315,14 +315,14 @@ namespace FootballOpenServer.Services
                     "Rio Carioca", "Sao Paulo Paulista", "Belo Horizonte Mineiro", "Porto Alegre Sul", "Salvador Bahia",
                     "Recife Coral", "Fortaleza Sol", "Curitiba Pinheiros", "Manaus Amazonia", "Goiania Cerrado",
                     "Santos Praia", "Belem Norte", "Campinas Ponte", "Natal Dunas", "Florianopolis Ilha",
-                    "Cuiaba Pantanal", "Vitoria Capixaba", "Maceio Mar", "Joao Pessoa Litoral", "Brasilia Planalto"
+                    "Cuiaba Pantanal"
                 ],
                 PriorityTwoTeamNames:
                 [
                     "Niteroi Guanabara", "Sao Luis Reggae", "Aracaju Sergipe", "Londrina Cafe", "Joinville Norte",
                     "Ribeirao Preto Interior", "Uberlandia Triangulo", "Pelotas Gaucho", "Juiz de Fora Zona", "Caxias Serra",
                     "Bauru Central", "Macapa Equator", "Boa Vista Branco", "Porto Velho Madeira", "Teresina Piaui",
-                    "Petrolina Sao Francisco", "Caruaru Agreste", "Sorocaba Ferro", "Maringa Verde", "Uberaba Minas"
+                    "Petrolina Sao Francisco"
                 ],
                 FirstNames:
                 [
@@ -656,7 +656,7 @@ namespace FootballOpenServer.Services
             _context = context;
         }
 
-        public async Task<List<Team>> GenerateTeamsForCompetition(Guid? serverID, Guid? nationID, int numberOfTeams = 20, int priority = 1)
+        public async Task<List<Team>> GenerateTeamsForCompetition(Guid? serverID, Guid? nationID, int numberOfTeams = 16, int priority = 1)
         {
             var teams = new List<Team>();
             var random = new Random();
