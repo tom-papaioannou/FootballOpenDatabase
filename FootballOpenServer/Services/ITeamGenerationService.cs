@@ -181,6 +181,102 @@ namespace FootballOpenServer.Services
                     "Berlin", "Munich", "Hamburg", "Cologne", "Frankfurt",
                     "Stuttgart", "Dortmund", "Leipzig", "Dresden", "Bremen"
                 ]),
+            ["Netherlands"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Amsterdam Canal", "Rotterdam Maas", "Eindhoven Light", "Utrecht Dom", "The Hague Coast",
+                    "Groningen North", "Twente Enschede", "Arnhem Rhine", "Tilburg Textile", "Breda Nassau",
+                    "Nijmegen Waal", "Haarlem Spaarne", "Leiden Keys", "Zwolle IJssel", "Alkmaar Cheese",
+                    "Heerenveen Fries"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Dordrecht Merwede", "Maastricht Maas", "Venlo Border", "Apeldoorn Veluwe", "Amersfoort Gate",
+                    "Delft Blue", "Leeuwarden Crown", "Almere Flevo", "Deventer Eagles", "Helmond Steel",
+                    "Oss Brabant", "Roosendaal Rose", "Sittard Fortune", "Volendam Harbor", "Emmen Drenthe",
+                    "Den Bosch Dragons"
+                ],
+                FirstNames:
+                [
+                    "Daan", "Luuk", "Sem", "Bram", "Milan", "Finn", "Lars", "Jesse",
+                    "Thijs", "Noah", "Tim", "Koen", "Niels", "Ruben", "Wout", "Joris",
+                    "Sven", "Dirk", "Pieter", "Floris"
+                ],
+                LastNames:
+                [
+                    "De Jong", "Jansen", "De Vries", "Van den Berg", "Van Dijk", "Bakker", "Visser", "Smit",
+                    "Meijer", "Boer", "Mulder", "De Groot", "Bos", "Vos", "Peters", "Hendriks",
+                    "Van Leeuwen", "Dekker", "Brouwer", "Dijkstra"
+                ],
+                Cities:
+                [
+                    "Amsterdam", "Rotterdam", "Eindhoven", "Utrecht", "The Hague",
+                    "Groningen", "Enschede", "Arnhem", "Tilburg", "Breda"
+                ]),
+            ["Spain"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Madrid Castile", "Barcelona Mar", "Valencia Turia", "Sevilla Giralda", "Bilbao Iron",
+                    "Malaga Costa", "Zaragoza Ebro", "Granada Sierra", "Vigo Atlantico", "Alicante Sol",
+                    "Murcia Huerta", "Valladolid Pucela", "Pamplona Navarre", "Santander Bahia", "Cordoba Califa",
+                    "Gijon Norte"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Cadiz Bahia", "Tarragona Tarraco", "Huelva Colombino", "Burgos Cid", "Logrono Rioja",
+                    "Almeria Indalo", "Salamanca Tormes", "Oviedo Azul", "Cartagena Puerto", "Elche Palmeral",
+                    "Badajoz Guadiana", "Leon Reino", "Jaen Oliva", "Lleida Segre", "Huesca Pirineos",
+                    "Albacete Llanos"
+                ],
+                FirstNames:
+                [
+                    "Alejandro", "Daniel", "Pablo", "David", "Adrian", "Javier", "Sergio", "Carlos",
+                    "Alvaro", "Diego", "Marcos", "Hugo", "Mario", "Raul", "Ivan", "Miguel",
+                    "Fernando", "Ruben", "Jorge", "Andres"
+                ],
+                LastNames:
+                [
+                    "Garcia", "Rodriguez", "Gonzalez", "Fernandez", "Lopez", "Martinez", "Sanchez", "Perez",
+                    "Gomez", "Martin", "Jimenez", "Ruiz", "Hernandez", "Diaz", "Moreno", "Munoz",
+                    "Alvarez", "Romero", "Alonso", "Gutierrez"
+                ],
+                Cities:
+                [
+                    "Madrid", "Barcelona", "Valencia", "Seville", "Bilbao",
+                    "Malaga", "Zaragoza", "Granada", "Vigo", "Alicante"
+                ]),
+            ["Portugal"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Lisboa Tejo", "Porto Douro", "Braga Minho", "Coimbra Mondego", "Faro Algarve",
+                    "Guimaraes Castle", "Setubal Sado", "Aveiro Ria", "Funchal Madeira", "Leiria Pinhal",
+                    "Viseu Durienses", "Evora Alentejo", "Santarem Ribatejo", "Vila Real Tras Montes", "Portimao Praia",
+                    "Covilha Serra"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Barreiro Industrial", "Matosinhos Atlantico", "Chaves Norte", "Beja Planicie", "Tomar Templarios",
+                    "Lagos Costa", "Ponta Delgada Acores", "Braganca Nordeste", "Castelo Branco Raia", "Caldas Rainha",
+                    "Amadora Estrela", "Oeiras Mar", "Viana Castelo Lima", "Torres Vedras Linhas", "Penafiel Vale",
+                    "Almada Cristo"
+                ],
+                FirstNames:
+                [
+                    "Joao", "Miguel", "Diogo", "Tiago", "Pedro", "Andre", "Rafael", "Goncalo",
+                    "Francisco", "Ricardo", "Bruno", "Luis", "Hugo", "Nuno", "Rui", "Carlos",
+                    "Tomas", "Martim", "Duarte", "Samuel"
+                ],
+                LastNames:
+                [
+                    "Silva", "Santos", "Ferreira", "Pereira", "Oliveira", "Costa", "Rodrigues", "Martins",
+                    "Jesus", "Sousa", "Fernandes", "Goncalves", "Gomes", "Lopes", "Marques", "Alves",
+                    "Almeida", "Ribeiro", "Carvalho", "Teixeira"
+                ],
+                Cities:
+                [
+                    "Lisbon", "Porto", "Braga", "Coimbra", "Faro",
+                    "Guimaraes", "Setubal", "Aveiro", "Funchal", "Leiria"
+                ]),
             ["United States"] = new(
                 PriorityOneTeamNames:
                 [
@@ -340,6 +436,102 @@ namespace FootballOpenServer.Services
                 [
                     "Sao Paulo", "Rio de Janeiro", "Belo Horizonte", "Porto Alegre", "Salvador",
                     "Recife", "Fortaleza", "Curitiba", "Manaus", "Brasilia"
+                ]),
+            ["Japan"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Tokyo Sakura", "Osaka Kansai", "Yokohama Harbor", "Nagoya Shiro", "Sapporo Snow",
+                    "Kyoto Kamo", "Kobe Port", "Fukuoka Hakata", "Hiroshima Peace", "Sendai Mori",
+                    "Shizuoka Fuji", "Niigata Swan", "Kashima Antlers", "Nagasaki Bay", "Okayama Peach",
+                    "Kumamoto Castle"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Chiba Bay", "Saitama Reds", "Kanazawa Gold", "Matsumoto Alps", "Oita Onsen",
+                    "Takamatsu Sanuki", "Mito Holly", "Utsunomiya Tochigi", "Toyama Tateyama", "Gifu Nagara",
+                    "Yamagata Dewasanzan", "Akita Komachi", "Miyazaki Sun", "Kofu Kai", "Tokushima Awa",
+                    "Tottori Dunes"
+                ],
+                FirstNames:
+                [
+                    "Haruto", "Yuto", "Sota", "Yuki", "Ren", "Kaito", "Daiki", "Takumi",
+                    "Riku", "Shota", "Hayato", "Tsubasa", "Ryota", "Kenta", "Naoki", "Hiroki",
+                    "Keisuke", "Makoto", "Kazuki", "Satoshi"
+                ],
+                LastNames:
+                [
+                    "Sato", "Suzuki", "Takahashi", "Tanaka", "Watanabe", "Ito", "Yamamoto", "Nakamura",
+                    "Kobayashi", "Kato", "Yoshida", "Yamada", "Sasaki", "Yamaguchi", "Matsumoto", "Inoue",
+                    "Kimura", "Hayashi", "Shimizu", "Mori"
+                ],
+                Cities:
+                [
+                    "Tokyo", "Osaka", "Yokohama", "Nagoya", "Sapporo",
+                    "Kyoto", "Kobe", "Fukuoka", "Hiroshima", "Sendai"
+                ]),
+            ["Morocco"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Casablanca Atlas", "Rabat Oudayas", "Marrakesh Palm", "Tangier Strait", "Fes Medina",
+                    "Agadir Souss", "Meknes Ismaili", "Oujda Orient", "Tetouan Rif", "Kenitra Sebou",
+                    "Safi Atlantic", "El Jadida Coast", "Beni Mellal Tadla", "Nador Lagoon", "Khouribga Phosphate",
+                    "Laayoune Sahara"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Mohammedia Harbor", "Taza Mountain", "Settat Chaouia", "Khemisset Zemmour", "Errachidia Ziz",
+                    "Taroudant Souss", "Guelmim Gate", "Larache Loukkos", "Essaouira Mogador", "Berkane Orange",
+                    "Midelt High Atlas", "Tiznit Silver", "Azrou Cedar", "Dakhla Atlantic", "Taourirt Fortress",
+                    "Sidi Kacem Gharb"
+                ],
+                FirstNames:
+                [
+                    "Youssef", "Mohamed", "Ahmed", "Hamza", "Omar", "Amine", "Anas", "Mehdi",
+                    "Karim", "Ilyas", "Reda", "Zakaria", "Ayoub", "Bilal", "Nabil", "Samir",
+                    "Hassan", "Sofiane", "Rachid", "Adil"
+                ],
+                LastNames:
+                [
+                    "El Amrani", "Benali", "Ait Lahcen", "El Idrissi", "Bennani", "Haddad", "Bouzid", "Cherkaoui",
+                    "Fassi", "Tahiri", "Mansouri", "Alaoui", "El Mansouri", "Sbai", "Jaafari", "Berrada",
+                    "Lamrani", "Naciri", "Kabbaj", "Essaid"
+                ],
+                Cities:
+                [
+                    "Casablanca", "Rabat", "Marrakesh", "Tangier", "Fes",
+                    "Agadir", "Meknes", "Oujda", "Tetouan", "Kenitra"
+                ]),
+            ["Australia"] = new(
+                PriorityOneTeamNames:
+                [
+                    "Sydney Harbour", "Melbourne Yarra", "Brisbane River", "Perth Swan", "Adelaide Torrens",
+                    "Canberra Capital", "Newcastle Steel", "Gold Coast Surf", "Wollongong Illawarra", "Hobart Derwent",
+                    "Darwin Top End", "Townsville Reef", "Geelong Bay", "Cairns Tropics", "Ballarat Gold",
+                    "Launceston Tamar"
+                ],
+                PriorityTwoTeamNames:
+                [
+                    "Parramatta West", "Fremantle Dockers", "Toowoomba Range", "Bendigo Miners", "Mackay Coral",
+                    "Rockhampton Bulls", "Albury Murray", "Wagga Plains", "Bunbury Coast", "Shepparton Goulburn",
+                    "Mandurah Estuary", "Maitland Hunter", "Bathurst Mount", "Ipswich Valley", "Orange Central",
+                    "Whyalla Spencer"
+                ],
+                FirstNames:
+                [
+                    "Jack", "Oliver", "William", "Noah", "Thomas", "Lucas", "Henry", "Lachlan",
+                    "James", "Ethan", "Cooper", "Mason", "Charlie", "Harrison", "Max", "Samuel",
+                    "Joshua", "Benjamin", "Archie", "Oscar"
+                ],
+                LastNames:
+                [
+                    "Smith", "Jones", "Williams", "Brown", "Wilson", "Taylor", "Johnson", "White",
+                    "Martin", "Anderson", "Thompson", "Nguyen", "Walker", "Ryan", "Robinson", "Kelly",
+                    "King", "Campbell", "Wright", "Mitchell"
+                ],
+                Cities:
+                [
+                    "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide",
+                    "Canberra", "Newcastle", "Gold Coast", "Wollongong", "Hobart"
                 ])
         };
 
