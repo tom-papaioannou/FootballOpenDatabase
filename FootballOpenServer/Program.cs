@@ -120,7 +120,10 @@ using (var scope = app.Services.CreateScope())
         ("England", "GB", "ENG"),
         ("Italy",   "IT", "ITA"),
         ("France",  "FR", "FRA"),
-        ("Germany", "DE", "DEU")
+        ("Germany", "DE", "DEU"),
+        ("Netherlands", "NL", "NLD"),
+        ("Spain",   "ES", "ESP"),
+        ("Portugal", "PT", "PRT")
     };
 
     var existingNationNames = await db.Nations
@@ -210,6 +213,108 @@ using (var scope = app.Services.CreateScope())
                 ISO2 = iso2,
                 ISO3 = iso3,
                 ContinentID = southAmerica.ContinentID
+            });
+        }
+    }
+
+    // Create Oceania
+    Continent? oceania = await db.Continents.FirstOrDefaultAsync(c => c.Name == "Oceania");
+    if (oceania == null)
+    {
+        oceania = new Continent { ContinentID = Guid.NewGuid(), Name = "Oceania", Code = "OCE" };
+        db.Continents.Add(oceania);
+        await db.SaveChangesAsync();
+    }
+
+    var nationSeedsOceania = new (string Name, string ISO2, string ISO3)[]
+    {
+        ("Australia", "AU", "AUS")
+    };
+
+    var existingNationNamesOceania = await db.Nations
+        .Where(n => nationSeedsOceania.Select(s => s.Name).Contains(n.Name))
+        .Select(n => n.Name)
+        .ToListAsync();
+
+    foreach (var (name, iso2, iso3) in nationSeedsOceania)
+    {
+        if (!existingNationNamesOceania.Contains(name))
+        {
+            db.Nations.Add(new Nation
+            {
+                NationID = Guid.NewGuid(),
+                Name = name,
+                ISO2 = iso2,
+                ISO3 = iso3,
+                ContinentID = oceania.ContinentID
+            });
+        }
+    }
+
+    // Create Asia
+    Continent? asia = await db.Continents.FirstOrDefaultAsync(c => c.Name == "Asia");
+    if (asia == null)
+    {
+        asia = new Continent { ContinentID = Guid.NewGuid(), Name = "Asia", Code = "ASI" };
+        db.Continents.Add(asia);
+        await db.SaveChangesAsync();
+    }
+
+    var nationSeedsAsia = new (string Name, string ISO2, string ISO3)[]
+    {
+        ("Japan", "JP", "JPN")
+    };
+
+    var existingNationNamesAsia = await db.Nations
+        .Where(n => nationSeedsAsia.Select(s => s.Name).Contains(n.Name))
+        .Select(n => n.Name)
+        .ToListAsync();
+
+    foreach (var (name, iso2, iso3) in nationSeedsAsia)
+    {
+        if (!existingNationNamesAsia.Contains(name))
+        {
+            db.Nations.Add(new Nation
+            {
+                NationID = Guid.NewGuid(),
+                Name = name,
+                ISO2 = iso2,
+                ISO3 = iso3,
+                ContinentID = asia.ContinentID
+            });
+        }
+    }
+
+    // Create Africa
+    Continent? africa = await db.Continents.FirstOrDefaultAsync(c => c.Name == "Africa");
+    if (africa == null)
+    {
+        africa = new Continent { ContinentID = Guid.NewGuid(), Name = "Africa", Code = "AFR" };
+        db.Continents.Add(africa);
+        await db.SaveChangesAsync();
+    }
+
+    var nationSeedsAfrica = new (string Name, string ISO2, string ISO3)[]
+    {
+        ("Morocco", "MA", "MAR")
+    };
+
+    var existingNationNamesAfrica = await db.Nations
+        .Where(n => nationSeedsAfrica.Select(s => s.Name).Contains(n.Name))
+        .Select(n => n.Name)
+        .ToListAsync();
+
+    foreach (var (name, iso2, iso3) in nationSeedsAfrica)
+    {
+        if (!existingNationNamesAfrica.Contains(name))
+        {
+            db.Nations.Add(new Nation
+            {
+                NationID = Guid.NewGuid(),
+                Name = name,
+                ISO2 = iso2,
+                ISO3 = iso3,
+                ContinentID = africa.ContinentID
             });
         }
     }
