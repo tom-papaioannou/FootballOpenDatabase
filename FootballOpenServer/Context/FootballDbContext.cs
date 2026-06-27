@@ -152,5 +152,37 @@ public class FootballDbContext : DbContext
             .WithOne(h => h.Person)
             .HasForeignKey<PersonHealthAndFitness>(h => h.PersonID)
             .IsRequired();
+
+        modelBuilder.Entity<CupRound>()
+            .HasKey(x => x.CupRoundID);
+
+        modelBuilder.Entity<CupRound>()
+            .HasOne(x => x.Competition)
+            .WithMany()
+            .HasForeignKey(x => x.CompetitionID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CupTie>()
+            .HasKey(x => x.CupTieID);
+
+        modelBuilder.Entity<CupTie>()
+            .HasOne(x => x.CupRound)
+            .WithMany(x => x.Ties)
+            .HasForeignKey(x => x.CupRoundID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CupTie>()
+            .HasOne<CupTie>()
+            .WithMany()
+            .HasForeignKey(x => x.NextCupTieID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CupRound>()
+            .HasIndex(x => new { x.CompetitionID, x.RoundNumber })
+            .IsUnique();
+
+        modelBuilder.Entity<CupTie>()
+            .HasIndex(x => new { x.CupRoundID, x.TieNumber })
+            .IsUnique();
     }
 }
