@@ -5,6 +5,7 @@ using FootballOpenServer.Models.Competitions;
 using FootballOpenServer.Models.Contracts;
 using FootballOpenServer.Models.People;
 using FootballOpenServer.Models.Servers;
+using FootballOpenServer.Models.Teams;
 using FootballOpenServer.Models.Users;
 using FootballOpenServer.Models.World;
 using FootballOpenServer.Services;
@@ -363,11 +364,13 @@ using (var scope = app.Services.CreateScope())
         await db.SaveChangesAsync();
     }
 
-    // Create default competition if none exist
-    var competitionExists = await db.Competitions.AnyAsync();
-    if (!competitionExists && mainServer != null)
+    // Ensure default competitions exist
+    if (mainServer != null)
     {
-        var nations = await db.Nations.ToListAsync();
+        await using var transaction = await db.Database.BeginTransactionAsync();
+        var nations = await db.Nations
+            .OrderBy(n => n.Name)
+            .ToListAsync();
         var generatedTeamIDs = new List<Guid>();
         var leagueSeeds = new (int Priority, string Suffix)[]
         {
@@ -377,49 +380,86 @@ using (var scope = app.Services.CreateScope())
 
         foreach (var nation in nations)
         {
+            var nationLeagueTeams = new List<Team>();
+
             foreach (var (priority, suffix) in leagueSeeds)
             {
-                var generatedTeams = await teamGenerationService.GenerateTeamsForCompetition(mainServer.ServerID, nation.NationID, 16, priority);
-                generatedTeamIDs.AddRange(generatedTeams.Select(t => t.TeamID));
+                var leagueName = $"{nation.Name} League {suffix}";
+                var league = await db.Competitions
+                    .Include(c => c.Teams)
+                    .FirstOrDefaultAsync(c =>
+                        c.NationID == nation.NationID &&
+                        c.CompetitionType == CompetitionType.League &&
+                        c.Priority == priority);
 
-                Guid competitionID = Guid.NewGuid();
-
-                db.Competitions.Add(new Competition
+                if (league == null)
                 {
-                    CompetitionID = competitionID,
-                    CompetitionName = $"{nation.Name} League {suffix}",
-                    NationID = nation.NationID,
-                    CompetitionTeamsType = CompetitionTeamsType.Club,
-                    Priority = priority,
-                    CompetitionType = CompetitionType.League,
-                    Teams = generatedTeams,
-                    ServerID = mainServer.ServerID
-                });
+                    var generatedTeams = await teamGenerationService.GenerateTeamsForCompetition(mainServer.ServerID, nation.NationID, 16, priority);
+                    generatedTeamIDs.AddRange(generatedTeams.Select(t => t.TeamID));
 
-                foreach (var team in generatedTeams)
-                {
-                    db.CompetitionTables.Add(new CompetitionTable
+                    Guid competitionID = Guid.NewGuid();
+
+                    league = new Competition
                     {
-                        CompetitionTableID = Guid.NewGuid(),
                         CompetitionID = competitionID,
-                        TeamID = team.TeamID,
-                        MatchesPlayed = 0,
-                        Wins = 0,
-                        Draws = 0,
-                        Losses = 0,
-                        GoalsFor = 0,
-                        GoalsAgainst = 0,
-                        YellowCards = 0,
-                        RedCards = 0,
-                        Points = 0
-                    });
+                        CompetitionName = leagueName,
+                        NationID = nation.NationID,
+                        CompetitionTeamsType = CompetitionTeamsType.Club,
+                        Priority = priority,
+                        CompetitionType = CompetitionType.League,
+                        Teams = generatedTeams,
+                        ServerID = mainServer.ServerID
+                    };
+
+                    db.Competitions.Add(league);
+
+                    foreach (var team in generatedTeams)
+                    {
+                        db.CompetitionTables.Add(new CompetitionTable
+                        {
+                            CompetitionTableID = Guid.NewGuid(),
+                            CompetitionID = competitionID,
+                            TeamID = team.TeamID,
+                            MatchesPlayed = 0,
+                            Wins = 0,
+                            Draws = 0,
+                            Losses = 0,
+                            GoalsFor = 0,
+                            GoalsAgainst = 0,
+                            YellowCards = 0,
+                            RedCards = 0,
+                            Points = 0
+                        });
+                    }
                 }
+
+                nationLeagueTeams.AddRange(league.Teams ?? Array.Empty<Team>());
+            }
+
+            var cupName = GetDefaultCupName(nation);
+            var cupExists = await db.Competitions
+                .AnyAsync(c =>
+                    c.NationID == nation.NationID &&
+                    c.CompetitionType == CompetitionType.Knockout &&
+                    c.CompetitionName == cupName);
+
+            if (!cupExists)
+            {
+                var participatingTeams = nationLeagueTeams
+                    .GroupBy(t => t.TeamID)
+                    .Select(g => g.First())
+                    .OrderBy(t => t.Name)
+                    .ThenBy(t => t.TeamID)
+                    .ToList();
+
+                CreateDefaultCup(db, mainServer.ServerID, nation, participatingTeams);
             }
         }
 
         await db.SaveChangesAsync();
         await teamGenerationService.AssignPlayersToGeneratedTeams(generatedTeamIDs);
         await db.SaveChangesAsync();
+        await transaction.CommitAsync();
     }
 
     // Create default regular user if none exist
@@ -481,3 +521,125 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+static string GetDefaultCupName(Nation nation)
+{
+    return $"{nation.Name} Cup";
+}
+
+static void CreateDefaultCup(FootballDbContext db, Guid serverID, Nation nation, List<Team> participatingTeams)
+{
+    ValidateCupTeamCount(nation, participatingTeams.Count);
+
+    Guid cupID = Guid.NewGuid();
+    var cup = new Competition
+    {
+        CompetitionID = cupID,
+        CompetitionName = GetDefaultCupName(nation),
+        NationID = nation.NationID,
+        CompetitionTeamsType = CompetitionTeamsType.Club,
+        Priority = 1,
+        CompetitionType = CompetitionType.Knockout,
+        Teams = participatingTeams,
+        ServerID = serverID
+    };
+
+    var rounds = new List<CupRound>();
+    var tiesByRound = new List<List<CupTie>>();
+
+    int teamCount = participatingTeams.Count;
+    int roundNumber = 1;
+
+    while (teamCount >= 2)
+    {
+        var round = new CupRound
+        {
+            CupRoundID = Guid.NewGuid(),
+            CompetitionID = cupID,
+            RoundNumber = roundNumber,
+            TeamCount = teamCount,
+            RoundType = GetCupRoundType(teamCount),
+            IsCompleted = false
+        };
+
+        var ties = new List<CupTie>();
+        int tieCount = teamCount / 2;
+
+        for (int tieNumber = 1; tieNumber <= tieCount; tieNumber++)
+        {
+            var tie = new CupTie
+            {
+                CupTieID = Guid.NewGuid(),
+                CupRoundID = round.CupRoundID,
+                TieNumber = tieNumber,
+                WinnerTeamID = null,
+                IsCompleted = false
+            };
+
+            if (roundNumber == 1)
+            {
+                int teamIndex = (tieNumber - 1) * 2;
+                tie.HomeTeamID = participatingTeams[teamIndex].TeamID;
+                tie.AwayTeamID = participatingTeams[teamIndex + 1].TeamID;
+            }
+
+            ties.Add(tie);
+            round.Ties.Add(tie);
+        }
+
+        rounds.Add(round);
+        tiesByRound.Add(ties);
+
+        teamCount /= 2;
+        roundNumber++;
+    }
+
+    for (int roundIndex = 0; roundIndex < tiesByRound.Count - 1; roundIndex++)
+    {
+        var currentRoundTies = tiesByRound[roundIndex];
+        var nextRoundTies = tiesByRound[roundIndex + 1];
+
+        for (int tieIndex = 0; tieIndex < currentRoundTies.Count; tieIndex++)
+        {
+            var currentTie = currentRoundTies[tieIndex];
+            currentTie.NextCupTieID = nextRoundTies[tieIndex / 2].CupTieID;
+            currentTie.AdvancesAsHomeTeam = tieIndex % 2 == 0;
+        }
+    }
+
+    db.Competitions.Add(cup);
+    db.CupRounds.AddRange(rounds);
+    db.CupTies.AddRange(tiesByRound.SelectMany(ties => ties));
+}
+
+static void ValidateCupTeamCount(Nation nation, int teamCount)
+{
+    if (teamCount < 2)
+    {
+        throw new InvalidOperationException($"Cannot create the default cup for {nation.Name}: at least 2 league teams are required, but {teamCount} were found.");
+    }
+
+    if (!IsPowerOfTwo(teamCount))
+    {
+        throw new InvalidOperationException($"Cannot create the default cup for {nation.Name}: the league team count must be a power of two, but {teamCount} teams were found.");
+    }
+}
+
+static bool IsPowerOfTwo(int value)
+{
+    return (value & (value - 1)) == 0;
+}
+
+static CupRoundType GetCupRoundType(int teamCount)
+{
+    return teamCount switch
+    {
+        64 => CupRoundType.RoundOf64,
+        32 => CupRoundType.RoundOf32,
+        16 => CupRoundType.RoundOf16,
+        8 => CupRoundType.QuarterFinal,
+        4 => CupRoundType.SemiFinal,
+        2 => CupRoundType.Final,
+        _ => throw new InvalidOperationException($"Cup round with {teamCount} teams is not supported. Add a CupRoundType value before seeding this bracket size.")
+    };
+}

@@ -87,6 +87,90 @@ namespace FootballOpenServer.Controllers
             return Ok(tableRows);
         }
 
+        [HttpGet("{competitionID}/cup-bracket")]
+        public async Task<ActionResult<CupBracketDTO>> GetCupBracket(Guid competitionID)
+        {
+            var competition = await _context.Competitions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.CompetitionID == competitionID);
+
+            if (competition == null)
+                return NotFound();
+
+            if (competition.CompetitionType != CompetitionType.Knockout)
+                return BadRequest("Cup bracket data is only available for knockout competitions.");
+
+            var rounds = await _context.CupRounds
+                .AsNoTracking()
+                .Where(r => r.CompetitionID == competitionID)
+                .OrderBy(r => r.RoundNumber)
+                .ToListAsync();
+
+            var roundIDs = rounds.Select(r => r.CupRoundID).ToList();
+            var ties = await _context.CupTies
+                .AsNoTracking()
+                .Where(t => roundIDs.Contains(t.CupRoundID))
+                .OrderBy(t => t.TieNumber)
+                .ToListAsync();
+
+            var teamIDs = ties
+                .SelectMany(t => new[] { t.HomeTeamID, t.AwayTeamID, t.WinnerTeamID })
+                .Where(teamID => teamID.HasValue)
+                .Select(teamID => teamID!.Value)
+                .Distinct()
+                .ToList();
+
+            var teamsByID = await _context.Teams
+                .AsNoTracking()
+                .Include(t => t.Kit)
+                .Where(t => teamIDs.Contains(t.TeamID))
+                .ToDictionaryAsync(
+                    t => t.TeamID,
+                    t => new CupBracketTeamDTO
+                    {
+                        TeamID = t.TeamID,
+                        Name = t.Name,
+                        BadgeColor = t.Kit.HomeShirtColor
+                    });
+
+            var tiesByRoundID = ties
+                .GroupBy(t => t.CupRoundID)
+                .ToDictionary(g => g.Key, g => g.OrderBy(t => t.TieNumber).ToList());
+
+            var bracket = new CupBracketDTO
+            {
+                CompetitionID = competitionID,
+                Rounds = rounds
+                    .Select(round => new CupBracketRoundDTO
+                    {
+                        CupRoundID = round.CupRoundID,
+                        RoundNumber = round.RoundNumber,
+                        TeamCount = round.TeamCount,
+                        RoundType = round.RoundType,
+                        Ties = tiesByRoundID.GetValueOrDefault(round.CupRoundID, new List<CupTie>())
+                            .Select(tie => new CupBracketTieDTO
+                            {
+                                CupTieID = tie.CupTieID,
+                                CupRoundID = tie.CupRoundID,
+                                TieNumber = tie.TieNumber,
+                                HomeTeamID = tie.HomeTeamID,
+                                AwayTeamID = tie.AwayTeamID,
+                                WinnerTeamID = tie.WinnerTeamID,
+                                NextCupTieID = tie.NextCupTieID,
+                                AdvancesAsHomeTeam = tie.AdvancesAsHomeTeam,
+                                IsCompleted = tie.IsCompleted,
+                                HomeTeam = GetCupBracketTeam(tie.HomeTeamID, teamsByID),
+                                AwayTeam = GetCupBracketTeam(tie.AwayTeamID, teamsByID),
+                                WinnerTeam = GetCupBracketTeam(tie.WinnerTeamID, teamsByID)
+                            })
+                            .ToList()
+                    })
+                    .ToList()
+            };
+
+            return Ok(bracket);
+        }
+
         [HttpGet("getAllCompetitions/{competitionParentID}")]
         public async Task<ActionResult<Competition>> GetAllCompetitions(Guid competitionParentID)
         {
@@ -227,6 +311,13 @@ namespace FootballOpenServer.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private static CupBracketTeamDTO? GetCupBracketTeam(Guid? teamID, IReadOnlyDictionary<Guid, CupBracketTeamDTO> teamsByID)
+        {
+            return teamID.HasValue && teamsByID.TryGetValue(teamID.Value, out var team)
+                ? team
+                : null;
         }
     }
 }
