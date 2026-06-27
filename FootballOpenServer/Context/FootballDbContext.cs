@@ -30,6 +30,8 @@ public class FootballDbContext : DbContext
     public DbSet<Kit> Kits { get; set; }
     public DbSet<CompetitionTable> CompetitionTables { get; set; }
     public DbSet<PersonHealthAndFitness> PersonHealthAndFitnesses { get; set; }
+    public DbSet<CupRound> CupRounds { get; set; }
+    public DbSet<CupTie> CupTies { get; set; }
     public FootballDbContext(DbContextOptions<FootballDbContext> options)
         : base(options) { }
 
