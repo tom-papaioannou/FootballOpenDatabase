@@ -1,6 +1,6 @@
-# FootballOpenServer ⚽
+# SoccerOpenServer ⚽
 
-FootballOpenServer is a **REST API backend** built with **ASP.NET Core** that provides the server-side infrastructure for **football tactic and team management**.  
+SoccerOpenServer is a **REST API backend** built with **ASP.NET Core** that provides the server-side infrastructure for **soccer tactic and team management**.
 It handles data storage, business logic, authentication, and serves API endpoints for managing teams, players, tactics, and competitions.
 
 This project was built using **.NET 8.0** with **Entity Framework Core** and **SQL Server**.
@@ -9,11 +9,11 @@ This project was built using **.NET 8.0** with **Entity Framework Core** and **S
 
 ## Project Overview
 
-FootballOpenServer represents the **backend part** of the Football Open project.  
-Its main goal is to provide a robust and secure API for managing football-related data and operations.
+SoccerOpenServer represents the **backend part** of the Soccer Open Simulator (SoccerOS) project.
+Its main goal is to provide a robust and secure API for managing soccer-related data and operations.
 
 The application provides:
-- RESTful API endpoints for football data management  
+- RESTful API endpoints for soccer data management
 - User authentication and authorization with JWT tokens  
 - Database management for teams, players, tactics, and competitions  
 - Business logic for team generation and tactical configurations  
@@ -46,17 +46,17 @@ The backend is built with modern .NET technologies:
 
 ## Frontend Integration
 
-This backend is designed to work with the **FootballOpenFrontend** Angular application:
+This backend is designed to work with the **SoccerOpenFrontend** Angular application:
 
-🔗 https://github.com/tom-papaioannou/FootballOpenFrontend
+🔗 https://github.com/tom-papaioannou/SoccerOpenFrontend
 
 The frontend is built with **Angular** and provides:
 - Interactive user interface for tactic management  
 - Visual formation setup tools  
 - Team configuration screens  
-- Modern web interface for all football management features  
+- Modern web interface for all soccer management features
 
-Running both projects together allows you to explore the **full scope of the Football Open project**, with a clear separation between frontend UI and backend logic.
+Running both projects together allows you to explore the **full scope of the Soccer Open Simulator project**, with a clear separation between frontend UI and backend logic.
 
 ---
 
@@ -72,8 +72,8 @@ Running both projects together allows you to explore the **full scope of the Foo
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/tom-papaioannou/FootballOpenServer.git
-   cd FootballOpenServer
+   git clone https://github.com/tom-papaioannou/SoccerOpenServer.git
+   cd SoccerOpenServer
    ```
 
 2. **Configure the database connection**
@@ -91,8 +91,8 @@ Running both projects together allows you to explore the **full scope of the Foo
    ```json
    "Jwt": {
      "Key": "your-base64-encoded-secret-key",
-     "Issuer": "FootballOpenServer",
-     "Audience": "FootballOpenFrontend"
+     "Issuer": "SoccerOpenServer",
+     "Audience": "SoccerOpenFrontend"
    }
    ```
 
@@ -103,7 +103,7 @@ Running both projects together allows you to explore the **full scope of the Foo
 
 5. **Run the development server**
    ```bash
-   dotnet run --project FootballOpenServer
+   dotnet run --project SoccerOpenServer
    ```
 
    The API will be available at:
@@ -126,7 +126,7 @@ This provides a complete overview of all available endpoints, request/response m
 ## Project Structure
 
 ```
-FootballOpenServer/
+SoccerOpenServer/
 ├── Controllers/          # API endpoint controllers
 │   ├── AuthController.cs
 │   ├── TeamsController.cs
