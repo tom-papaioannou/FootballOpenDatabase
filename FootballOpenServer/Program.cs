@@ -93,6 +93,7 @@ using (var scope = app.Services.CreateScope())
         var admin = new AppUser
         {
             Username = adminUsername,
+            Email = "admin@socceros.local",
             PasswordHash = hash,
             PasswordSalt = salt,
             Claims = new List<AppUserClaim>
@@ -343,6 +344,7 @@ using (var scope = app.Services.CreateScope())
         {
             Id = hostId,
             Username = "host",
+            Email = "host@socceros.local",
             PasswordHash = hostHash,
             PasswordSalt = hostSalt,
             Claims = new List<AppUserClaim>
@@ -483,6 +485,7 @@ using (var scope = app.Services.CreateScope())
         {
             Id = userId,
             Username = "user",
+            Email = "user@socceros.local",
             PasswordHash = userHash,
             PasswordSalt = userSalt,
             Claims = new List<AppUserClaim>

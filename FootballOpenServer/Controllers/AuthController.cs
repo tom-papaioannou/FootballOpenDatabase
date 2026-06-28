@@ -263,7 +263,7 @@ namespace FootballOpenServer.Controllers
 
             SetRefreshCookie(newRefresh, newExpires);
 
-            var accessToken = GenerateJwtToken(user.Username, user.Claims);
+            var accessToken = GenerateJwtToken(user.Id.ToString(), user.Claims);
             var role = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "User";
 
             return Ok(new { token = accessToken, role });

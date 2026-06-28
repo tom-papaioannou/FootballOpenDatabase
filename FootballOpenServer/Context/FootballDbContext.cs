@@ -49,6 +49,15 @@ public class FootballDbContext : DbContext
             .HasIndex(u => u.Username)
             .IsUnique();
 
+        modelBuilder.Entity<AppUser>()
+            .Property(u => u.Email)
+            .HasMaxLength(256);
+
+        modelBuilder.Entity<AppUser>()
+            .HasIndex(u => u.Email)
+            .IsUnique()
+            .HasFilter("[Email] IS NOT NULL");
+
         modelBuilder.Entity<AppUserClaim>()
             .Property(c => c.Type)
             .HasMaxLength(100)
