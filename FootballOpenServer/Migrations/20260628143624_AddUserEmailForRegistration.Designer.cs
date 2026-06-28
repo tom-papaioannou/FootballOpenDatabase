@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FootballOpenServer.Migrations
 {
     [DbContext(typeof(FootballDbContext))]
-    partial class FootballDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260628143624_AddUserEmailForRegistration")]
+    partial class AddUserEmailForRegistration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,7 +36,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasIndex("TeamsTeamID");
 
-                    b.ToTable("CompetitionTeam", (string)null);
+                    b.ToTable("CompetitionTeam");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Competitions.Competition", b =>
@@ -71,7 +74,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasIndex("ServerID");
 
-                    b.ToTable("Competitions", (string)null);
+                    b.ToTable("Competitions");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Competitions.CompetitionTable", b =>
@@ -115,7 +118,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasKey("CompetitionTableID");
 
-                    b.ToTable("CompetitionTables", (string)null);
+                    b.ToTable("CompetitionTables");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Competitions.CupRound", b =>
@@ -147,7 +150,7 @@ namespace FootballOpenServer.Migrations
                     b.HasIndex("CompetitionID", "RoundNumber")
                         .IsUnique();
 
-                    b.ToTable("CupRounds", (string)null);
+                    b.ToTable("CupRounds");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Competitions.CupTie", b =>
@@ -187,7 +190,7 @@ namespace FootballOpenServer.Migrations
                     b.HasIndex("CupRoundID", "TieNumber")
                         .IsUnique();
 
-                    b.ToTable("CupTies", (string)null);
+                    b.ToTable("CupTies");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Contracts.Contract", b =>
@@ -223,7 +226,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasIndex("TeamID");
 
-                    b.ToTable("Contracts", (string)null);
+                    b.ToTable("Contracts");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.People.Person", b =>
@@ -265,7 +268,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasIndex("ServerID");
 
-                    b.ToTable("People", (string)null);
+                    b.ToTable("People");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.People.PersonHealthAndFitness", b =>
@@ -291,7 +294,7 @@ namespace FootballOpenServer.Migrations
                     b.HasIndex("PersonID")
                         .IsUnique();
 
-                    b.ToTable("PersonHealthAndFitnesses", (string)null);
+                    b.ToTable("PersonHealthAndFitnesses");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.People.PlayerStats", b =>
@@ -359,7 +362,7 @@ namespace FootballOpenServer.Migrations
                     b.HasIndex("PersonID")
                         .IsUnique();
 
-                    b.ToTable("PlayerStats", (string)null);
+                    b.ToTable("PlayerStats");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.People.PlayerTrainedPosition", b =>
@@ -381,7 +384,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasIndex("PersonID");
 
-                    b.ToTable("PlayerTrainedPositions", (string)null);
+                    b.ToTable("PlayerTrainedPositions");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.People.PlayerTrainedRole", b =>
@@ -406,7 +409,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasIndex("PersonID");
 
-                    b.ToTable("PlayerTrainedRoles", (string)null);
+                    b.ToTable("PlayerTrainedRoles");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Servers.Server", b =>
@@ -424,7 +427,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasKey("ServerID");
 
-                    b.ToTable("Servers", (string)null);
+                    b.ToTable("Servers");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Teams.Kit", b =>
@@ -451,7 +454,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasKey("KitID");
 
-                    b.ToTable("Kits", (string)null);
+                    b.ToTable("Kits");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Teams.PlayerTactic", b =>
@@ -482,7 +485,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasIndex("PersonID");
 
-                    b.ToTable("PlayerTactics", (string)null);
+                    b.ToTable("PlayerTactics");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Teams.Stadium", b =>
@@ -513,7 +516,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasKey("StadiumID");
 
-                    b.ToTable("Stadium", (string)null);
+                    b.ToTable("Stadium");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Teams.Tactic", b =>
@@ -564,7 +567,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasIndex("TeamID");
 
-                    b.ToTable("Tactics", (string)null);
+                    b.ToTable("Tactics");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Teams.Team", b =>
@@ -601,7 +604,7 @@ namespace FootballOpenServer.Migrations
                     b.HasIndex("StadiumID")
                         .IsUnique();
 
-                    b.ToTable("Teams", (string)null);
+                    b.ToTable("Teams");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Users.AppUser", b =>
@@ -642,7 +645,7 @@ namespace FootballOpenServer.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("AppUsers", (string)null);
+                    b.ToTable("AppUsers");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Users.AppUserClaim", b =>
@@ -668,7 +671,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasIndex("AppUserID");
 
-                    b.ToTable("AppUserClaims", (string)null);
+                    b.ToTable("AppUserClaims");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.Users.RefreshToken", b =>
@@ -700,7 +703,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasIndex("AppUserID");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.World.Continent", b =>
@@ -721,7 +724,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasKey("ContinentID");
 
-                    b.ToTable("Continents", (string)null);
+                    b.ToTable("Continents");
                 });
 
             modelBuilder.Entity("FootballOpenServer.Models.World.Nation", b =>
@@ -751,7 +754,7 @@ namespace FootballOpenServer.Migrations
 
                     b.HasIndex("ContinentID");
 
-                    b.ToTable("Nations", (string)null);
+                    b.ToTable("Nations");
                 });
 
             modelBuilder.Entity("CompetitionTeam", b =>
