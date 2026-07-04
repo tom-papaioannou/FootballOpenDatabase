@@ -9,9 +9,11 @@ using SoccerOpenServer.Models.Teams;
 using SoccerOpenServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SoccerOpenServer.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class TeamsController : ControllerBase
