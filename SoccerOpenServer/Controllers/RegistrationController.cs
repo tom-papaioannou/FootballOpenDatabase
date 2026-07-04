@@ -31,12 +31,12 @@ namespace SoccerOpenServer.Controllers
         private const string UserRole = "User";
 
         private readonly IConfiguration _config;
-        private readonly FootballDbContext _db;
+        private readonly SoccerDbContext _db;
         private readonly IPasswordHasherService _passwordHasher;
 
         public RegistrationController(
             IConfiguration config,
-            FootballDbContext db,
+            SoccerDbContext db,
             IPasswordHasherService passwordHasher)
         {
             _config = config;

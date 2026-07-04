@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace SoccerOpenServer.Migrations
 {
-    [DbContext(typeof(FootballDbContext))]
+    [DbContext(typeof(SoccerDbContext))]
     [Migration("20260209165352_FixContractRelationships")]
     partial class FixContractRelationships
     {

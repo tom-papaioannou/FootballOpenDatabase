@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace SoccerOpenServer.Migrations
 {
-    [DbContext(typeof(FootballDbContext))]
+    [DbContext(typeof(SoccerDbContext))]
     [Migration("20260201141448_AddRefreshTokens")]
     partial class AddRefreshTokens
     {

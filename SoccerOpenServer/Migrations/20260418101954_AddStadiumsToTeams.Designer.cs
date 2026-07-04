@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace SoccerOpenServer.Migrations
 {
-    [DbContext(typeof(FootballDbContext))]
+    [DbContext(typeof(SoccerDbContext))]
     [Migration("20260418101954_AddStadiumsToTeams")]
     partial class AddStadiumsToTeams
     {

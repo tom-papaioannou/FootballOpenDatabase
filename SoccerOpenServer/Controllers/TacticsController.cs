@@ -17,11 +17,11 @@ namespace SoccerOpenServer.Controllers
     [Route("api/[controller]")]
     public class TacticsController : ControllerBase
     {
-        private FootballDbContext _db;
+        private SoccerDbContext _db;
         private readonly ITeamAccessService _teamAccessService;
         private readonly ITeamGenerationService _teamGenerationService;
 
-        public TacticsController(FootballDbContext db, ITeamAccessService teamAccessService, ITeamGenerationService teamGenerationService)
+        public TacticsController(SoccerDbContext db, ITeamAccessService teamAccessService, ITeamGenerationService teamGenerationService)
         {
             _db = db;
             _teamAccessService = teamAccessService;

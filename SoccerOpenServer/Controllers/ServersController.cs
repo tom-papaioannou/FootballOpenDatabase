@@ -15,9 +15,9 @@ namespace SoccerOpenServer.Controllers
     [Route("api/[controller]")]
     public class ServersController : ControllerBase
     {
-        private readonly FootballDbContext _db;
+        private readonly SoccerDbContext _db;
 
-        public ServersController(FootballDbContext db)
+        public ServersController(SoccerDbContext db)
         {
             _db = db;
         }

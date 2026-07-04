@@ -25,11 +25,11 @@ namespace SoccerOpenServer.Controllers
 
         private readonly IConfiguration _config;
         private readonly IPasswordHasherService _passwordHasher;
-        private readonly FootballDbContext _db;
+        private readonly SoccerDbContext _db;
         public AuthController(
             IConfiguration config,
             IPasswordHasherService passwordHasher,
-            FootballDbContext db
+            SoccerDbContext db
             )
         {
             _config = config;
