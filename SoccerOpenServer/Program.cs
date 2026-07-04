@@ -17,7 +17,7 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<FootballDbContext>(options =>
+builder.Services.AddDbContext<SoccerDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
@@ -71,7 +71,7 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<FootballDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<SoccerDbContext>();
     var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasherService>();
     var teamGenerationService = scope.ServiceProvider.GetRequiredService<ITeamGenerationService>();
     var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
@@ -530,7 +530,7 @@ static string GetDefaultCupName(Nation nation)
     return $"{nation.Name} Cup";
 }
 
-static void CreateDefaultCup(FootballDbContext db, Guid serverID, Nation nation, List<Team> participatingTeams)
+static void CreateDefaultCup(SoccerDbContext db, Guid serverID, Nation nation, List<Team> participatingTeams)
 {
     ValidateCupTeamCount(nation, participatingTeams.Count);
 

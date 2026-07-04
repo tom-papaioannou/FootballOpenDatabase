@@ -841,9 +841,9 @@ namespace SoccerOpenServer.Services
             { PlayerPosition.LeftStriker,                new[] { PlayerPosition.RightStriker,             PlayerPosition.CentralStriker } },
         };
 
-        private readonly FootballDbContext _context;
+        private readonly SoccerDbContext _context;
 
-        public TeamGenerationService(FootballDbContext context)
+        public TeamGenerationService(SoccerDbContext context)
         {
             _context = context;
         }

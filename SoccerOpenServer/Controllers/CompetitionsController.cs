@@ -16,12 +16,12 @@ namespace SoccerOpenServer.Controllers
     [Route("api/[controller]")]
     public class CompetitionsController : ControllerBase
     {
-        private readonly FootballDbContext _context;
+        private readonly SoccerDbContext _context;
         private readonly ITeamGenerationService _teamGenerationService;
         private readonly ITeamAccessService _teamAccessService;
 
         public CompetitionsController(
-            FootballDbContext context,
+            SoccerDbContext context,
             ITeamGenerationService teamGenerationService,
             ITeamAccessService teamAccessService)
         {

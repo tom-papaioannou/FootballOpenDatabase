@@ -19,9 +19,9 @@ namespace SoccerOpenServer.Services
 
     public class TeamAccessService : ITeamAccessService
     {
-        private readonly FootballDbContext _db;
+        private readonly SoccerDbContext _db;
 
-        public TeamAccessService(FootballDbContext db)
+        public TeamAccessService(SoccerDbContext db)
         {
             _db = db;
         }

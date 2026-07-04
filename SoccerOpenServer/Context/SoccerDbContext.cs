@@ -10,7 +10,7 @@ using SoccerOpenServer.Models.Users;
 using SoccerOpenServer.Models.World;
 using Microsoft.EntityFrameworkCore;
 
-public class FootballDbContext : DbContext
+public class SoccerDbContext : DbContext
 {
     public DbSet<Person> People { get; set; }
     public DbSet<Contract> Contracts { get; set; }
@@ -32,7 +32,7 @@ public class FootballDbContext : DbContext
     public DbSet<PersonHealthAndFitness> PersonHealthAndFitnesses { get; set; }
     public DbSet<CupRound> CupRounds { get; set; }
     public DbSet<CupTie> CupTies { get; set; }
-    public FootballDbContext(DbContextOptions<FootballDbContext> options)
+    public SoccerDbContext(DbContextOptions<SoccerDbContext> options)
         : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
