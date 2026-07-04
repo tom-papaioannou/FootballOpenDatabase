@@ -7,6 +7,7 @@ using SoccerOpenServer.Models.Servers;
 using SoccerOpenServer.Models.Teams;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SoccerOpenServer.Controllers
 {
@@ -22,6 +23,7 @@ namespace SoccerOpenServer.Controllers
         }
 
         [HttpGet("getUserServer/{userID}")]
+        [Authorize]
         public async Task<IActionResult> GetUserServer(Guid userID)
         {
             Guid serverID = await _db.AppUsers
@@ -33,6 +35,7 @@ namespace SoccerOpenServer.Controllers
         }
 
         [HttpGet("getAllServers")]
+        [Authorize]
         public async Task<IActionResult> GetAllServers()
         {
             return Ok(await _db.Servers.ToListAsync());
@@ -166,6 +169,7 @@ namespace SoccerOpenServer.Controllers
         }
 
         [HttpPost("createNewServer")]
+        [Authorize]
         public async Task<IActionResult> CreateNewServer([FromBody] Server server)
         {
             try
@@ -181,6 +185,7 @@ namespace SoccerOpenServer.Controllers
         }
 
         [HttpGet("getServerInformation/{serverID}")]
+        [Authorize]
         public async Task<IActionResult> GetServerInformation(Guid serverID)
         {
             Server server = await _db.Servers

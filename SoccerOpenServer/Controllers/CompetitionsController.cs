@@ -7,9 +7,11 @@ using SoccerOpenServer.Models.Competitions;
 using SoccerOpenServer.Models.Teams;
 using SoccerOpenServer.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SoccerOpenServer.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class CompetitionsController : ControllerBase
