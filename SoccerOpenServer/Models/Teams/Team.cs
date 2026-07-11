@@ -35,5 +35,7 @@ namespace SoccerOpenServer.Models.Teams
 
         [JsonIgnore]
         public virtual Kit Kit { get; set; } = null!;
+
+        public string? BadgePath { get; set; }
     }
 }
