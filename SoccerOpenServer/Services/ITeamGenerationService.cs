@@ -1,12 +1,13 @@
 // Copyright (c) 2026 Tom Papaioannou. All rights reserved.
 // Licensed under the MIT License
 
-using SoccerOpenServer.Models.Teams;
-using SoccerOpenServer.Models.People;
-using SoccerOpenServer.Models.Contracts;
-using SoccerOpenServer.Models.Competitions;
-using SoccerOpenServer.Models.World;
 using Microsoft.EntityFrameworkCore;
+using SoccerOpenServer.Models.Competitions;
+using SoccerOpenServer.Models.Contracts;
+using SoccerOpenServer.Models.People;
+using SoccerOpenServer.Models.Teams;
+using SoccerOpenServer.Models.World;
+using System;
 
 namespace SoccerOpenServer.Services
 {
@@ -985,30 +986,6 @@ namespace SoccerOpenServer.Services
                         Wage = randomWagePerWeek
                     };
 
-                    // Create PlayerStats with random values between 1 and 100
-                    var playerStats = new PlayerStats
-                    {
-                        PlayerStatsID = Guid.NewGuid(),
-                        PersonID = personID,
-                        Shooting = (byte)random.Next(1, 101),
-                        Passing = (byte)random.Next(1, 101),
-                        Crossing = (byte)random.Next(1, 101),
-                        Tackling = (byte)random.Next(1, 101),
-                        Dribbling = (byte)random.Next(1, 101),
-                        Control = (byte)random.Next(1, 101),
-                        Kicking = (byte)random.Next(1, 101),
-                        Goalkeeping = (byte)random.Next(1, 101),
-                        Teamwork = (byte)random.Next(1, 101),
-                        Creativity = (byte)random.Next(1, 101),
-                        Decisions = (byte)random.Next(1, 101),
-                        Positioning = (byte)random.Next(1, 101),
-                        Speed = (byte)random.Next(1, 101),
-                        Acceleration = (byte)random.Next(1, 101),
-                        Strength = (byte)random.Next(1, 101),
-                        Jumping = (byte)random.Next(1, 101),
-                        Stamina = (byte)random.Next(1, 101)
-                    };
-
                     // Generate PlayerTrainedPositions
                     var requiredPrimaryPosition = j < requiredPrimaryPositions.Count ? requiredPrimaryPositions[j] : (PlayerPosition?)null;
                     var trainedPositions = GeneratePlayerTrainedPositions(random, personID, requiredPrimaryPosition);
@@ -1036,6 +1013,8 @@ namespace SoccerOpenServer.Services
                     teamShirtNumbersAssigned.Add(shirtNumber);
                     contract.ShirtNumber = shirtNumber;
 
+                    PlayerStats playerStats = AssignPlayerStatsToNewPlayer(personID);
+
                     // Add entities to database context
                     _context.People.Add(person);
                     _context.PersonHealthAndFitnesses.Add(personHealthAndFitness);
@@ -1055,6 +1034,37 @@ namespace SoccerOpenServer.Services
             }
 
             return teams;
+        }
+
+        private PlayerStats AssignPlayerStatsToNewPlayer(Guid PlayerID)
+        {
+            var random = new Random();
+
+            // Create PlayerStats with random values between 1 and 100
+            var playerStats = new PlayerStats
+            {
+                PlayerStatsID = Guid.NewGuid(),
+                PersonID = PlayerID,
+                Shooting = (byte)random.Next(1, 101),
+                Passing = (byte)random.Next(1, 101),
+                Crossing = (byte)random.Next(1, 101),
+                Tackling = (byte)random.Next(1, 101),
+                Dribbling = (byte)random.Next(1, 101),
+                Control = (byte)random.Next(1, 101),
+                Kicking = (byte)random.Next(1, 101),
+                Goalkeeping = (byte)random.Next(1, 101),
+                Teamwork = (byte)random.Next(1, 101),
+                Creativity = (byte)random.Next(1, 101),
+                Decisions = (byte)random.Next(1, 101),
+                Positioning = (byte)random.Next(1, 101),
+                Speed = (byte)random.Next(1, 101),
+                Acceleration = (byte)random.Next(1, 101),
+                Strength = (byte)random.Next(1, 101),
+                Jumping = (byte)random.Next(1, 101),
+                Stamina = (byte)random.Next(1, 101)
+            };
+
+            return playerStats;
         }
 
         private static void AssignBestTacticSpecialists(Tactic tactic, IReadOnlyCollection<PlayerStats> teamPlayerStats)

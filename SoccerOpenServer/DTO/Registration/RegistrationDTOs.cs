@@ -62,6 +62,16 @@ namespace SoccerOpenServer.DTO.Registration
         public string? TeamName { get; set; }
     }
 
+    public class CurrentUserSummaryDTO
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public Guid? ServerID { get; set; }
+        public string? ServerName { get; set; }
+        public Guid? TeamID { get; set; }
+        public string? TeamName { get; set; }
+    }
+
     public class RegistrationConflictDTO
     {
         public string Code { get; set; } = string.Empty;

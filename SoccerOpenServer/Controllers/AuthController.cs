@@ -2,6 +2,7 @@
 // Licensed under the MIT License
 
 ﻿using SoccerOpenServer.Models.Contracts;
+using SoccerOpenServer.DTO.Registration;
 using SoccerOpenServer.Models.People;
 using SoccerOpenServer.Models.Users;
 using SoccerOpenServer.Services;
@@ -73,6 +74,57 @@ namespace SoccerOpenServer.Controllers
 
             var accessToken = GenerateJwtToken(user.Id.ToString(), user.Claims);
             return Ok(new { token = accessToken, role });
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<ActionResult<CurrentUserSummaryDTO>> Me()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var user = await _db.AppUsers
+                .AsNoTracking()
+                .Include(u => u.Claims)
+                .Include(u => u.Person)
+                .FirstOrDefaultAsync(u => u.Id == userId.Value);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var role = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? UserRole;
+            var serverID = user.Person?.ServerID;
+            string? serverName = null;
+
+            if (serverID != null)
+            {
+                serverName = await _db.Servers
+                    .AsNoTracking()
+                    .Where(s => s.ServerID == serverID.Value)
+                    .Select(s => s.Name)
+                    .FirstOrDefaultAsync();
+            }
+
+            var team = await _db.Teams
+                .AsNoTracking()
+                .Where(t => t.AppUserID == user.Id)
+                .Select(t => new { t.TeamID, t.Name })
+                .FirstOrDefaultAsync();
+
+            return Ok(new CurrentUserSummaryDTO
+            {
+                Username = user.Username,
+                Role = role,
+                ServerID = serverID,
+                ServerName = serverName,
+                TeamID = team?.TeamID,
+                TeamName = team?.Name
+            });
         }
 
         [HttpPost("registerByAdmin")]
@@ -250,6 +302,15 @@ namespace SoccerOpenServer.Controllers
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private Guid? GetCurrentUserId()
+        {
+            var rawUserId =
+                User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            return Guid.TryParse(rawUserId, out var userId) ? userId : null;
         }
 
         private void SetRefreshCookie(string refreshToken, DateTime expiresUtc)
