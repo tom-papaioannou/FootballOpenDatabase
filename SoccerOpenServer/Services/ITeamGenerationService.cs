@@ -1029,11 +1029,72 @@ namespace SoccerOpenServer.Services
                 }
 
                 AssignBestTacticSpecialists(primaryTactic, teamPlayerStats);
+                AddManagerToTeam(team, serverID, nationID, targetNation, teamGenerationData, nationsById, random);
 
                 teams.Add(team);
             }
 
             return teams;
+        }
+
+        private void AddManagerToTeam(
+            Team team,
+            Guid? serverID,
+            Guid? nationID,
+            Nation? targetNation,
+            NationGenerationData teamGenerationData,
+            IReadOnlyDictionary<Guid, Nation> nationsById,
+            Random random)
+        {
+            var personID = Guid.NewGuid();
+            var personGenerationData = teamGenerationData;
+
+            if (nationID.HasValue && nationsById.TryGetValue(nationID.Value, out var managerNation))
+            {
+                personGenerationData = GetGenerationData(managerNation);
+            }
+            else if (targetNation != null)
+            {
+                personGenerationData = GetGenerationData(targetNation);
+            }
+
+            var person = new Person
+            {
+                PersonID = personID,
+                Name = personGenerationData.FirstNames[random.Next(personGenerationData.FirstNames.Length)],
+                Surname = personGenerationData.LastNames[random.Next(personGenerationData.LastNames.Length)],
+                DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-random.Next(35, 66)).AddDays(-random.Next(0, 365))),
+                PlaceOfBirth = personGenerationData.Cities[random.Next(personGenerationData.Cities.Length)],
+                NationID = nationID,
+                ServerID = serverID,
+                StaffRole = StaffRole.Manager,
+                Weight = random.Next(70, 101),
+                Height = random.Next(165, 196)
+            };
+
+            var personHealthAndFitness = new PersonHealthAndFitness
+            {
+                PersonHealthAndFitnessID = Guid.NewGuid(),
+                PersonID = personID,
+                HealthStatus = HealthStatus.Healthy,
+                PhysicalCondition = random.Next(70, 101),
+                MentalCondition = random.Next(70, 101),
+            };
+
+            var contract = new Contract
+            {
+                ContractID = Guid.NewGuid(),
+                PersonID = personID,
+                TeamID = team.TeamID,
+                StartDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1),
+                EndDate = null,
+                Role = Role.Staff,
+                Wage = random.Next(10, 100) * 100
+            };
+
+            _context.People.Add(person);
+            _context.PersonHealthAndFitnesses.Add(personHealthAndFitness);
+            _context.Contracts.Add(contract);
         }
 
         private PlayerStats AssignPlayerStatsToNewPlayer(Guid PlayerID)

@@ -471,16 +471,6 @@ using (var scope = app.Services.CreateScope())
         hasher.CreateHash(userPassword, out var userHash, out var userSalt);
         Guid userId = Guid.NewGuid();
 
-        var person = new Person
-        {
-            Name = "John",
-            Surname = "Doe",
-            DateOfBirth = new DateOnly(1970, 1, 1),
-            PlaceOfBirth = "Athens",
-            ServerID = mainServer.ServerID,
-            StaffRole = StaffRole.Manager
-        };
-
         var regularUser = new AppUser
         {
             Id = userId,
@@ -492,28 +482,56 @@ using (var scope = app.Services.CreateScope())
             {
                 new AppUserClaim { Type = ClaimTypes.Role, Value = "User" },
                 new AppUserClaim { Type = ClaimTypes.NameIdentifier, Value = userId.ToString() }
-            },
-            Person = person
+            }
         };
 
         var now = DateTime.UtcNow;
+        var today = DateOnly.FromDateTime(now);
         var availableTeams = await db.Teams
-            .Where(t => !db.People.Any(p => p.StaffRole == StaffRole.Manager && p.Contracts.Any(c => c.TeamID == t.TeamID && (c.EndDate == null || c.EndDate > DateOnly.FromDateTime(now)))))
+            .Where(t => t.AppUserID == null)
             .ToListAsync();
 
         if (availableTeams.Any())
         {
             var randomTeam = availableTeams[Random.Shared.Next(availableTeams.Count)];
+            var existingManager = await db.People
+                .FirstOrDefaultAsync(p =>
+                    p.StaffRole == StaffRole.Manager &&
+                    p.Contracts.Any(c =>
+                        c.TeamID == randomTeam.TeamID &&
+                        c.Role == Role.Staff &&
+                        (c.EndDate == null || c.EndDate > today)));
 
-            var contract = new Contract
+            if (existingManager != null)
             {
-                Person = person,
-                Team = randomTeam,
-                StartDate = DateOnly.FromDateTime(now),
-                EndDate = DateOnly.FromDateTime(now.AddYears(1))
-            };
+                regularUser.Person = existingManager;
+            }
+            else
+            {
+                var person = new Person
+                {
+                    Name = "John",
+                    Surname = "Doe",
+                    DateOfBirth = new DateOnly(1970, 1, 1),
+                    PlaceOfBirth = "Athens",
+                    ServerID = mainServer.ServerID,
+                    StaffRole = StaffRole.Manager
+                };
 
-            db.Contracts.Add(contract);
+                regularUser.Person = person;
+
+                var contract = new Contract
+                {
+                    Person = person,
+                    Team = randomTeam,
+                    StartDate = today,
+                    EndDate = DateOnly.FromDateTime(now.AddYears(1)),
+                    Role = Role.Staff
+                };
+
+                db.Contracts.Add(contract);
+            }
+
             randomTeam.AppUserID = userId;
             db.Teams.Update(randomTeam);
         }

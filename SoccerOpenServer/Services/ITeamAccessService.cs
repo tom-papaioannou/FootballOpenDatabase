@@ -4,6 +4,8 @@
 using System.Security.Claims;
 using SoccerOpenServer.DTO.Teams;
 using SoccerOpenServer.Models.Competitions;
+using SoccerOpenServer.Models.Contracts;
+using SoccerOpenServer.Models.People;
 using SoccerOpenServer.Models.Teams;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,6 +47,8 @@ namespace SoccerOpenServer.Services
             if (userId == null)
                 return null;
 
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
             return await _db.Teams
                 .Where(t => t.AppUserID == userId.Value)
                 .AsNoTracking()
@@ -63,6 +67,22 @@ namespace SoccerOpenServer.Services
                         .Where(c => c.CompetitionType == CompetitionType.League)
                         .OrderBy(c => c.Priority)
                         .Select(c => c.CompetitionName)
+                        .FirstOrDefault(),
+                    ManagerName = _db.Contracts
+                        .Where(c =>
+                            c.TeamID == t.TeamID &&
+                            c.Role == Role.Staff &&
+                            (c.EndDate == null || c.EndDate > today) &&
+                            c.Person.StaffRole == StaffRole.Manager)
+                        .Select(c => ((c.Person.Name ?? "") + " " + (c.Person.Surname ?? "")).Trim())
+                        .FirstOrDefault(),
+                    ManagerID = _db.Contracts
+                        .Where(c =>
+                            c.TeamID == t.TeamID &&
+                            c.Role == Role.Staff &&
+                            (c.EndDate == null || c.EndDate > today) &&
+                            c.Person.StaffRole == StaffRole.Manager)
+                        .Select(c => (Guid?)c.PersonID)
                         .FirstOrDefault(),
                     Stadium = new StadiumDTO
                     {
