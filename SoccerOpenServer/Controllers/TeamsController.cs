@@ -57,6 +57,7 @@ namespace SoccerOpenServer.Controllers
         public async Task<ActionResult<TeamInformationDTO>> GetTeamInformation(Guid teamID)
         {
             var currentUserID = _teamAccessService.GetCurrentUserID(User);
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
             var team = await _db.Teams
                 .Where(t => t.TeamID == teamID)
@@ -76,6 +77,22 @@ namespace SoccerOpenServer.Controllers
                         .Where(c => c.CompetitionType == CompetitionType.League)
                         .OrderBy(c => c.Priority)
                         .Select(c => c.CompetitionName)
+                        .FirstOrDefault(),
+                    ManagerName = _db.Contracts
+                        .Where(c =>
+                            c.TeamID == t.TeamID &&
+                            c.Role == Role.Staff &&
+                            (c.EndDate == null || c.EndDate > today) &&
+                            c.Person.StaffRole == StaffRole.Manager)
+                        .Select(c => ((c.Person.Name ?? "") + " " + (c.Person.Surname ?? "")).Trim())
+                        .FirstOrDefault(),
+                    ManagerID = _db.Contracts
+                        .Where(c =>
+                            c.TeamID == t.TeamID &&
+                            c.Role == Role.Staff &&
+                            (c.EndDate == null || c.EndDate > today) &&
+                            c.Person.StaffRole == StaffRole.Manager)
+                        .Select(c => (Guid?)c.PersonID)
                         .FirstOrDefault(),
                     Stadium = t.Stadium == null ? null : new StadiumDTO
                     {
@@ -242,6 +259,102 @@ namespace SoccerOpenServer.Controllers
             return Ok(player);
         }
 
+        [HttpGet("getManagerDetails/{personID}")]
+        public async Task<IActionResult> GetManagerDetails(Guid personID)
+        {
+            var manager = await _db.People
+                .Where(p => p.PersonID == personID && p.StaffRole == StaffRole.Manager)
+                .Select(p => new {
+                    p.PersonID,
+                    p.Name,
+                    p.Surname,
+                    p.DateOfBirth,
+                    p.PlaceOfBirth,
+                    p.NationID,
+                    p.Weight,
+                    p.Height,
+                    p.StaffRole,
+                    Contracts = p.Contracts
+                        .Where(c => c.Role == Role.Staff)
+                        .OrderByDescending(c => c.EndDate)
+                        .Select(c => new {
+                            c.StartDate,
+                            c.EndDate,
+                            c.Wage,
+                            Team = new { c.Team.Name }
+                        })
+                })
+                .FirstOrDefaultAsync();
+
+            if (manager == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(manager);
+        }
+
+        [HttpGet("getManagerProfileSummary/{personID}")]
+        public async Task<IActionResult> GetManagerProfileSummary(Guid personID)
+        {
+            var managerExists = await _db.People
+                .AnyAsync(p => p.PersonID == personID && p.StaffRole == StaffRole.Manager);
+
+            if (!managerExists)
+            {
+                return NotFound();
+            }
+
+            var stats = await _db.ManagerGameStatsTable
+                .AsNoTracking()
+                .Where(s => s.PersonID == personID)
+                .Select(s => new
+                {
+                    s.Wins,
+                    s.Draws,
+                    s.Losses,
+                    s.GamesPlayed,
+                    s.LeaguesWon,
+                    s.CupsWon
+                })
+                .FirstOrDefaultAsync();
+
+            var favoriteFormation = await _db.ManagerFormationPickedTable
+                .AsNoTracking()
+                .Where(f => f.PersonID == personID)
+                .OrderByDescending(f => f.TimesPicked)
+                .ThenBy(f => f.Formation)
+                .Select(f => new
+                {
+                    f.Formation,
+                    f.TimesPicked
+                })
+                .FirstOrDefaultAsync();
+
+            var hasFavoriteFormation = favoriteFormation != null && favoriteFormation.TimesPicked > 0;
+
+            return Ok(new
+            {
+                GameStats = new
+                {
+                    Wins = stats?.Wins ?? 0,
+                    Draws = stats?.Draws ?? 0,
+                    Losses = stats?.Losses ?? 0,
+                    GamesPlayed = stats?.GamesPlayed ?? 0,
+                    LeaguesWon = stats?.LeaguesWon ?? 0,
+                    CupsWon = stats?.CupsWon ?? 0
+                },
+                FavoriteFormation = hasFavoriteFormation
+                    ? new
+                    {
+                        Formation = favoriteFormation!.Formation,
+                        FormationName = favoriteFormation.Formation.ToString(),
+                        favoriteFormation.TimesPicked
+                    }
+                    : null
+            });
+        }
+
         [HttpGet("getCurrentTeamDashboard")]
         public async Task<ActionResult<Team>> GetCurrentTeamDashboard()
         {
@@ -251,12 +364,13 @@ namespace SoccerOpenServer.Controllers
                 return NotFound();
             }
 
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
             Competition competition = await _db.Competitions
                 .Where(c => c.Teams.Any(t => t.TeamID == team.TeamID) && c.CompetitionType == CompetitionType.League)
                 .FirstOrDefaultAsync();
 
             Person[] players = await _db.People
-                .Where(p => _db.Contracts.Any(c => c.PersonID == p.PersonID && c.TeamID == team.TeamID && c.EndDate > DateOnly.FromDateTime(DateTime.UtcNow) && c.Role == Role.Player))
+                .Where(p => _db.Contracts.Any(c => c.PersonID == p.PersonID && c.TeamID == team.TeamID && c.EndDate > today && c.Role == Role.Player))
                 .Include(p => p.PlayerTrainedPositions)
                 .Take(10)
                 .ToArrayAsync();
@@ -271,6 +385,8 @@ namespace SoccerOpenServer.Controllers
                 TeamName = team.Name,
                 CompetitionID = competition?.CompetitionID,
                 CompetitionName = competition?.CompetitionName ?? "No active league",
+                ManagerID = team.ManagerID,
+                ManagerName = team.ManagerName,
                 Players = players,
                 Formation = formation,
                 Kit = team.Kit

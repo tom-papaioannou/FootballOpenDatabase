@@ -38,5 +38,11 @@ namespace SoccerOpenServer.Models.People
         public int Height { get; set; } = 180;
 
         public PersonHealthAndFitness? HealthAndFitness { get; set; }
+
+        [JsonIgnore]
+        public ManagerGameStats? ManagerGameStats { get; set; }
+
+        [JsonIgnore]
+        public ICollection<ManagerFormationPicked> ManagerFormationsPicked { get; set; } = new List<ManagerFormationPicked>();
     }
 }

@@ -236,25 +236,41 @@ namespace SoccerOpenServer.Controllers
 
             user.Person = person;
             var now = DateTime.UtcNow;
+            var today = DateOnly.FromDateTime(now);
 
             var availableTeams = await _db.Teams
-                .Where(t => !_db.People.Any(p => p.StaffRole == StaffRole.Manager && p.Contracts.Any(c => c.TeamID == t.TeamID && (c.EndDate == null || c.EndDate > DateOnly.FromDateTime(now)))))
+                .Where(t => t.AppUserID == null)
                 .ToListAsync();
 
             // If there's at least one available team, assign a random one
             if (availableTeams.Any())
             {
                 var randomTeam = availableTeams[Random.Shared.Next(availableTeams.Count)];
+                var existingManager = await _db.People
+                    .FirstOrDefaultAsync(p =>
+                        p.StaffRole == StaffRole.Manager &&
+                        p.Contracts.Any(c =>
+                            c.TeamID == randomTeam.TeamID &&
+                            c.Role == Role.Staff &&
+                            (c.EndDate == null || c.EndDate > today)));
 
-                var contract = new Contract
+                if (existingManager != null)
                 {
-                    Person = person,
-                    Team = randomTeam,
-                    StartDate = DateOnly.FromDateTime(DateTime.UtcNow),
-                    EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(1))
-                };
+                    user.Person = existingManager;
+                }
+                else
+                {
+                    var contract = new Contract
+                    {
+                        Person = person,
+                        Team = randomTeam,
+                        StartDate = today,
+                        EndDate = DateOnly.FromDateTime(now.AddYears(1)),
+                        Role = Role.Staff
+                    };
 
-                _db.Contracts.Add(contract);
+                    _db.Contracts.Add(contract);
+                }
 
                 randomTeam.AppUserID = user.Id;
                 _db.Teams.Update(randomTeam);

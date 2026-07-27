@@ -32,6 +32,8 @@ public class SoccerDbContext : DbContext
     public DbSet<PersonHealthAndFitness> PersonHealthAndFitnesses { get; set; }
     public DbSet<CupRound> CupRounds { get; set; }
     public DbSet<CupTie> CupTies { get; set; }
+    public DbSet<ManagerGameStats> ManagerGameStatsTable { get; set; }
+    public DbSet<ManagerFormationPicked> ManagerFormationPickedTable { get; set; }
     public SoccerDbContext(DbContextOptions<SoccerDbContext> options)
         : base(options) { }
 
@@ -193,5 +195,32 @@ public class SoccerDbContext : DbContext
         modelBuilder.Entity<CupTie>()
             .HasIndex(x => new { x.CupRoundID, x.TieNumber })
             .IsUnique();
+
+        modelBuilder.Entity<ManagerGameStats>(entity =>
+        {
+            entity.HasKey(x => x.PersonID);
+
+            entity.HasOne(x => x.Person)
+                .WithOne(x => x.ManagerGameStats)
+                .HasForeignKey<ManagerGameStats>(x => x.PersonID)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ManagerFormationPicked>(entity =>
+        {
+            entity.HasKey(x => x.ManagerFormationPickedID);
+
+            entity.HasOne(x => x.Person)
+                .WithMany(x => x.ManagerFormationsPicked)
+                .HasForeignKey(x => x.PersonID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(x => new
+            {
+                x.PersonID,
+                x.Formation
+            })
+            .IsUnique();
+        });
     }
 }
