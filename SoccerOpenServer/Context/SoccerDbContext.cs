@@ -34,6 +34,8 @@ public class SoccerDbContext : DbContext
     public DbSet<CupTie> CupTies { get; set; }
     public DbSet<ManagerGameStats> ManagerGameStatsTable { get; set; }
     public DbSet<ManagerFormationPicked> ManagerFormationPickedTable { get; set; }
+    public DbSet<PlayerUnavailability> PlayerUnavailabilities { get; set; }
+    public DbSet<PlayerCompetitionDiscipline> PlayerCompetitionDisciplines { get; set; }
     public SoccerDbContext(DbContextOptions<SoccerDbContext> options)
         : base(options) { }
 
@@ -222,5 +224,28 @@ public class SoccerDbContext : DbContext
             })
             .IsUnique();
         });
+
+        modelBuilder.Entity<PlayerCompetitionDiscipline>()
+            .HasKey(x => new
+            {
+                x.PersonID,
+                x.CompetitionID
+            });
+
+        modelBuilder.Entity<PlayerUnavailability>()
+            .ToTable(table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_PlayerUnavailability_MatchesRemaining",
+                    "[MatchesRemaining] > 0");
+            });
+
+        modelBuilder.Entity<PlayerCompetitionDiscipline>()
+            .ToTable(table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_PlayerCompetitionDiscipline_YellowCards",
+                    "[YellowCards] >= 0 AND [YellowCards] < 3");
+            });
     }
 }
