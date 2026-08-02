@@ -228,6 +228,204 @@ namespace SoccerOpenServer.Controllers
             return NoContent();
         }
 
+        [HttpGet("{teamID}/tactic-priorities")]
+        public async Task<ActionResult<List<TeamTacticPriorityDto>>> GetTeamTacticPriorities(Guid teamID)
+        {
+            if (!await _teamAccessService.OwnsTeamAsync(User, teamID))
+            {
+                return Forbid();
+            }
+
+            var priorities = await _db.TeamTacticPriorities
+                .AsNoTracking()
+                .Where(x => x.TeamID == teamID)
+                .OrderBy(x => x.Type)
+                .ThenBy(x => x.Priority)
+                .Select(x => new TeamTacticPriorityDto
+                {
+                    TeamTacticPriorityID = x.TeamTacticPriorityID,
+                    PersonID = x.PersonID,
+                    Type = x.Type,
+                    Priority = x.Priority
+                })
+                .ToListAsync();
+
+            return Ok(priorities);
+        }
+
+        [HttpPut("{teamID}/tactic-priorities")]
+        public async Task<IActionResult> UpdateTeamTacticPriorities(
+            Guid teamID,
+            [FromBody] UpdateTeamTacticPrioritiesRequest? request)
+        {
+            if (request == null)
+            {
+                return BadRequest("Priority update payload is required.");
+            }
+
+            if (!Enum.IsDefined(typeof(TeamTacticPriorityType), request.Type))
+            {
+                return BadRequest("Invalid tactic priority type.");
+            }
+
+            if (!await _teamAccessService.OwnsTeamAsync(User, teamID))
+            {
+                return Forbid();
+            }
+
+            var personIDs = request.PersonIDs;
+            if (personIDs.Count != personIDs.Distinct().Count())
+            {
+                return BadRequest("A player can only appear once in the same priority list.");
+            }
+
+            if (!await AllPlayersBelongToTeam(teamID, personIDs))
+            {
+                return BadRequest("One or more selected players do not belong to this team.");
+            }
+
+            using var transaction = await _db.Database.BeginTransactionAsync();
+
+            try
+            {
+                var existingEntries = await _db.TeamTacticPriorities
+                    .Where(x => x.TeamID == teamID && x.Type == request.Type)
+                    .OrderBy(x => x.Priority)
+                    .ToListAsync();
+
+                var requestedPeople = personIDs.ToHashSet();
+                var obsoleteEntries = existingEntries
+                    .Where(x => !requestedPeople.Contains(x.PersonID))
+                    .ToList();
+
+                _db.TeamTacticPriorities.RemoveRange(obsoleteEntries);
+
+                var retainedEntries = existingEntries
+                    .Where(x => requestedPeople.Contains(x.PersonID))
+                    .ToList();
+
+                MovePrioritiesOutOfTheWay(retainedEntries);
+                await _db.SaveChangesAsync();
+
+                foreach (var personID in personIDs)
+                {
+                    if (retainedEntries.All(x => x.PersonID != personID))
+                    {
+                        var entry = new TeamTacticPriority
+                        {
+                            TeamTacticPriorityID = Guid.NewGuid(),
+                            TeamID = teamID,
+                            Type = request.Type,
+                            PersonID = personID,
+                            Priority = personIDs.Count + retainedEntries.Count + 1
+                        };
+
+                        retainedEntries.Add(entry);
+                        _db.TeamTacticPriorities.Add(entry);
+                    }
+                }
+
+                for (int i = 0; i < personIDs.Count; i++)
+                {
+                    retainedEntries.First(x => x.PersonID == personIDs[i]).Priority = i + 1;
+                }
+
+                await _db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return NoContent();
+            }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+            }
+        }
+
+        [HttpPatch("{teamID}/tactic-priorities/{type}/primary")]
+        public async Task<IActionResult> UpdatePrimaryTeamTacticPriority(
+            Guid teamID,
+            TeamTacticPriorityType type,
+            [FromBody] UpdatePrimaryTeamTacticPriorityRequest? request)
+        {
+            if (request == null)
+            {
+                return BadRequest("Primary priority update payload is required.");
+            }
+
+            if (!Enum.IsDefined(typeof(TeamTacticPriorityType), type))
+            {
+                return BadRequest("Invalid tactic priority type.");
+            }
+
+            if (!await _teamAccessService.OwnsTeamAsync(User, teamID))
+            {
+                return Forbid();
+            }
+
+            if (!await AllPlayersBelongToTeam(teamID, [request.PersonID]))
+            {
+                return BadRequest("Selected player does not belong to this team.");
+            }
+
+            using var transaction = await _db.Database.BeginTransactionAsync();
+
+            try
+            {
+                var entries = await _db.TeamTacticPriorities
+                    .Where(x => x.TeamID == teamID && x.Type == type)
+                    .OrderBy(x => x.Priority)
+                    .ToListAsync();
+
+                var duplicatePersonEntries = entries
+                    .Where(x => x.Priority != 1 && x.PersonID == request.PersonID)
+                    .ToList();
+
+                _db.TeamTacticPriorities.RemoveRange(duplicatePersonEntries);
+                entries.RemoveAll(x => duplicatePersonEntries.Contains(x));
+
+                var primary = entries.FirstOrDefault(x => x.Priority == 1);
+                MovePrioritiesOutOfTheWay(entries);
+                await _db.SaveChangesAsync();
+
+                if (primary == null)
+                {
+                    primary = new TeamTacticPriority
+                    {
+                        TeamTacticPriorityID = Guid.NewGuid(),
+                        TeamID = teamID,
+                        Type = type,
+                        PersonID = request.PersonID,
+                        Priority = 1
+                    };
+
+                    entries.Insert(0, primary);
+                    _db.TeamTacticPriorities.Add(primary);
+                }
+                else
+                {
+                    primary.PersonID = request.PersonID;
+                    primary.Priority = 1;
+                }
+
+                var nextPriority = 2;
+                foreach (var entry in entries.Where(x => x.TeamTacticPriorityID != primary.TeamTacticPriorityID).OrderBy(x => x.Priority))
+                {
+                    entry.Priority = nextPriority++;
+                }
+
+                await _db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return NoContent();
+            }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+            }
+        }
+
         [HttpGet("getPlayerDetails/{personID}")]
         public async Task<IActionResult> GetPlayerDetails(Guid personID)
         {
@@ -393,6 +591,37 @@ namespace SoccerOpenServer.Controllers
             };
 
             return Ok(dashboardInformation);
+        }
+
+        private async Task<bool> AllPlayersBelongToTeam(Guid teamID, IReadOnlyCollection<Guid> personIDs)
+        {
+            if (personIDs.Count == 0)
+            {
+                return true;
+            }
+
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var validPlayersCount = await _db.Contracts
+                .Where(c =>
+                    c.TeamID == teamID &&
+                    personIDs.Contains(c.PersonID) &&
+                    (c.EndDate == null || c.EndDate > today) &&
+                    c.Role == Role.Player)
+                .Select(c => c.PersonID)
+                .Distinct()
+                .CountAsync();
+
+            return validPlayersCount == personIDs.Count;
+        }
+
+        private static void MovePrioritiesOutOfTheWay(IReadOnlyList<TeamTacticPriority> entries)
+        {
+            var offset = entries.Count + 1;
+
+            for (int i = 0; i < entries.Count; i++)
+            {
+                entries[i].Priority = offset + i + 1;
+            }
         }
     }
 }

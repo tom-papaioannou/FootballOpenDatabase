@@ -37,5 +37,7 @@ namespace SoccerOpenServer.Models.Teams
         public virtual Kit Kit { get; set; } = null!;
 
         public string? BadgePath { get; set; }
+
+        public ICollection<TeamTacticPriority> TacticPriorities { get; set; } = new List<TeamTacticPriority>();
     }
 }

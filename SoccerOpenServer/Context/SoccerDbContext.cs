@@ -36,6 +36,7 @@ public class SoccerDbContext : DbContext
     public DbSet<ManagerFormationPicked> ManagerFormationPickedTable { get; set; }
     public DbSet<PlayerUnavailability> PlayerUnavailabilities { get; set; }
     public DbSet<PlayerCompetitionDiscipline> PlayerCompetitionDisciplines { get; set; }
+    public DbSet<TeamTacticPriority> TeamTacticPriorities { get; set; }
     public SoccerDbContext(DbContextOptions<SoccerDbContext> options)
         : base(options) { }
 
@@ -246,6 +247,46 @@ public class SoccerDbContext : DbContext
                 table.HasCheckConstraint(
                     "CK_PlayerCompetitionDiscipline_YellowCards",
                     "[YellowCards] >= 0 AND [YellowCards] < 3");
+            });
+
+        modelBuilder.Entity<TeamTacticPriority>()
+            .HasKey(x => x.TeamTacticPriorityID);
+
+        modelBuilder.Entity<TeamTacticPriority>()
+            .HasOne(x => x.Team)
+            .WithMany(x => x.TacticPriorities)
+            .HasForeignKey(x => x.TeamID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TeamTacticPriority>()
+            .HasOne(x => x.Person)
+            .WithMany()
+            .HasForeignKey(x => x.PersonID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TeamTacticPriority>()
+            .HasIndex(x => new
+            {
+                x.TeamID,
+                x.Type,
+                x.PersonID
+            })
+            .IsUnique();
+
+        modelBuilder.Entity<TeamTacticPriority>()
+            .HasIndex(x => new
+            {
+                x.TeamID,
+                x.Type,
+                x.Priority
+            })
+            .IsUnique();
+
+        modelBuilder.Entity<TeamTacticPriority>().ToTable(t =>
+            {
+                t.HasCheckConstraint(
+                    "CK_TeamTacticPriority_Priority",
+                    "[Priority] >= 1");
             });
     }
 }
