@@ -92,39 +92,6 @@ namespace SoccerOpenServer.Controllers
                 return NotFound("Team not found or user does not have access to this team.");
             }
 
-            DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
-            var selectedPlayerIDs = new[]
-            {
-                newTactic.CaptainID,
-                newTactic.PenaltyTakerID,
-                newTactic.LeftCornerTakerID,
-                newTactic.RightCornerTakerID,
-                newTactic.LeftFreeKickTakerID,
-                newTactic.RightFreeKickTakerID
-            }
-                .Where(id => id.HasValue)
-                .Select(id => id!.Value)
-                .Distinct()
-                .ToList();
-
-            if (selectedPlayerIDs.Count > 0)
-            {
-                int validPlayersCount = await _db.Contracts
-                    .Where(c =>
-                        c.TeamID == team.TeamID &&
-                        selectedPlayerIDs.Contains(c.PersonID) &&
-                        (c.EndDate == null || c.EndDate > today) &&
-                        c.Role == Role.Player)
-                    .Select(c => c.PersonID)
-                    .Distinct()
-                    .CountAsync();
-
-                if (validPlayersCount != selectedPlayerIDs.Count)
-                {
-                    return BadRequest("One or more selected players do not belong to this team.");
-                }
-            }
-
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
@@ -253,39 +220,6 @@ namespace SoccerOpenServer.Controllers
                 return NotFound("Team not found or user does not have access to this tactic.");
             }
 
-            DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
-            var selectedPlayerIDs = new[]
-            {
-                updateTacticModel.CaptainID,
-                updateTacticModel.PenaltyTakerID,
-                updateTacticModel.LeftCornerTakerID,
-                updateTacticModel.RightCornerTakerID,
-                updateTacticModel.LeftFreeKickTakerID,
-                updateTacticModel.RightFreeKickTakerID
-            }
-                .Where(id => id.HasValue)
-                .Select(id => id!.Value)
-                .Distinct()
-                .ToList();
-
-            if (selectedPlayerIDs.Count > 0)
-            {
-                int validPlayersCount = await _db.Contracts
-                    .Where(c =>
-                        c.TeamID == team.TeamID &&
-                        selectedPlayerIDs.Contains(c.PersonID) &&
-                        (c.EndDate == null || c.EndDate > today) &&
-                        c.Role == Role.Player)
-                    .Select(c => c.PersonID)
-                    .Distinct()
-                    .CountAsync();
-
-                if (validPlayersCount != selectedPlayerIDs.Count)
-                {
-                    return BadRequest("One or more selected players do not belong to this team.");
-                }
-            }
-
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
@@ -295,12 +229,6 @@ namespace SoccerOpenServer.Controllers
                 tactic.Formation = updateTacticModel.Formation;
                 tactic.TacticMentality = updateTacticModel.TacticMentality;
                 tactic.PassingMentality = updateTacticModel.PassingMentality;
-                tactic.CaptainID = updateTacticModel.CaptainID;
-                tactic.PenaltyTakerID = updateTacticModel.PenaltyTakerID;
-                tactic.LeftCornerTakerID = updateTacticModel.LeftCornerTakerID;
-                tactic.RightCornerTakerID = updateTacticModel.RightCornerTakerID;
-                tactic.LeftFreeKickTakerID = updateTacticModel.LeftFreeKickTakerID;
-                tactic.RightFreeKickTakerID = updateTacticModel.RightFreeKickTakerID;
 
                 bool formationChanged = previousFormation != tactic.Formation;
 

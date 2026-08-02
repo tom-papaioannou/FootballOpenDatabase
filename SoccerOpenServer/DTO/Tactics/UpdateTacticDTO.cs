@@ -23,16 +23,5 @@ namespace SoccerOpenServer.DTO.Tactics
         [Required]
         public PassingMentality PassingMentality { get; set; } = PassingMentality.Balanced;
 
-        public Guid? CaptainID { get; set; }
-
-        public Guid? PenaltyTakerID { get; set; }
-
-        public Guid? LeftCornerTakerID { get; set; }
-
-        public Guid? RightCornerTakerID { get; set; }
-
-        public Guid? LeftFreeKickTakerID { get; set; }
-
-        public Guid? RightFreeKickTakerID { get; set; }
     }
 }

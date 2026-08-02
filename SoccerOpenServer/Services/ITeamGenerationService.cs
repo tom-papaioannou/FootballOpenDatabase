@@ -1028,7 +1028,7 @@ namespace SoccerOpenServer.Services
                     teamPlayerStats.Add(playerStats);
                 }
 
-                AssignBestTacticSpecialists(primaryTactic, teamPlayerStats);
+                AssignBestTeamTacticPriorities(team.TeamID, teamPlayerStats);
                 AddManagerToTeam(team, serverID, nationID, targetNation, teamGenerationData, nationsById, random);
 
                 teams.Add(team);
@@ -1128,18 +1128,35 @@ namespace SoccerOpenServer.Services
             return playerStats;
         }
 
-        private static void AssignBestTacticSpecialists(Tactic tactic, IReadOnlyCollection<PlayerStats> teamPlayerStats)
+        private void AssignBestTeamTacticPriorities(Guid teamID, IReadOnlyCollection<PlayerStats> teamPlayerStats)
         {
-            tactic.CaptainID = GetBestCaptainID(teamPlayerStats);
-            tactic.PenaltyTakerID = GetBestPenaltyTakerID(teamPlayerStats);
+            AddPrimaryTeamTacticPriority(teamID, TeamTacticPriorityType.Captain, GetBestCaptainID(teamPlayerStats));
+            AddPrimaryTeamTacticPriority(teamID, TeamTacticPriorityType.Penalty, GetBestPenaltyTakerID(teamPlayerStats));
 
             Guid? bestCornerTakerID = GetBestCornerTakerID(teamPlayerStats);
-            tactic.LeftCornerTakerID = bestCornerTakerID;
-            tactic.RightCornerTakerID = bestCornerTakerID;
+            AddPrimaryTeamTacticPriority(teamID, TeamTacticPriorityType.LeftCornerKick, bestCornerTakerID);
+            AddPrimaryTeamTacticPriority(teamID, TeamTacticPriorityType.RightCornerKick, bestCornerTakerID);
 
             Guid? bestFreeKickTakerID = GetBestFreeKickTakerID(teamPlayerStats);
-            tactic.LeftFreeKickTakerID = bestFreeKickTakerID;
-            tactic.RightFreeKickTakerID = bestFreeKickTakerID;
+            AddPrimaryTeamTacticPriority(teamID, TeamTacticPriorityType.LeftFreeKick, bestFreeKickTakerID);
+            AddPrimaryTeamTacticPriority(teamID, TeamTacticPriorityType.RightFreeKick, bestFreeKickTakerID);
+        }
+
+        private void AddPrimaryTeamTacticPriority(Guid teamID, TeamTacticPriorityType type, Guid? personID)
+        {
+            if (!personID.HasValue)
+            {
+                return;
+            }
+
+            _context.TeamTacticPriorities.Add(new TeamTacticPriority
+            {
+                TeamTacticPriorityID = Guid.NewGuid(),
+                TeamID = teamID,
+                Type = type,
+                PersonID = personID.Value,
+                Priority = 1
+            });
         }
 
         private static Guid? GetBestCaptainID(IReadOnlyCollection<PlayerStats> teamPlayerStats)
