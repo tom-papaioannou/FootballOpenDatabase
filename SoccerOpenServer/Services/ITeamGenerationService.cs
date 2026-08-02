@@ -574,9 +574,9 @@ namespace SoccerOpenServer.Services
                 new(PlayerPosition.RightCenterMidfielder, PlayerRole.CentralMidfielder),
                 new(PlayerPosition.CentralCenterMidfielder, PlayerRole.CentralMidfielder),
                 new(PlayerPosition.LeftCenterMidfielder, PlayerRole.CentralMidfielder),
-                new(PlayerPosition.RightWinger, PlayerRole.Winger),
+                new(PlayerPosition.RightStriker, PlayerRole.AdvancedForward),
                 new(PlayerPosition.CentralStriker, PlayerRole.AdvancedForward),
-                new(PlayerPosition.LeftWinger, PlayerRole.Winger)
+                new(PlayerPosition.LeftStriker, PlayerRole.AdvancedForward)
             ],
             [Formation.Three_Five_Two] =
             [
@@ -584,11 +584,11 @@ namespace SoccerOpenServer.Services
                 new(PlayerPosition.RightCenterBack, PlayerRole.CenterBack),
                 new(PlayerPosition.CentralCenterBack, PlayerRole.CenterBack),
                 new(PlayerPosition.LeftCenterBack, PlayerRole.CenterBack),
-                new(PlayerPosition.RightWingBack, PlayerRole.WingBack),
+                new(PlayerPosition.RightMidfielder, PlayerRole.WideMidfielder),
                 new(PlayerPosition.RightCenterMidfielder, PlayerRole.CentralMidfielder),
                 new(PlayerPosition.CentralCenterMidfielder, PlayerRole.CentralMidfielder),
                 new(PlayerPosition.LeftCenterMidfielder, PlayerRole.CentralMidfielder),
-                new(PlayerPosition.LeftWingBack, PlayerRole.WingBack),
+                new(PlayerPosition.LeftMidfielder, PlayerRole.WideMidfielder),
                 new(PlayerPosition.RightStriker, PlayerRole.AdvancedForward),
                 new(PlayerPosition.LeftStriker, PlayerRole.AdvancedForward)
             ],
@@ -690,6 +690,62 @@ namespace SoccerOpenServer.Services
                 new(PlayerPosition.RightStriker, PlayerRole.AdvancedForward),
                 new(PlayerPosition.LeftStriker, PlayerRole.AdvancedForward)
             ],
+            [Formation.Four_Four_Two_Diamond] =
+            [
+                new(PlayerPosition.Goalkeeper, PlayerRole.Goalkeeper),
+                new(PlayerPosition.LeftBack, PlayerRole.FullBack),
+                new(PlayerPosition.RightCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.LeftCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.RightBack, PlayerRole.FullBack),
+                new(PlayerPosition.CentralDefensiveMidfielder, PlayerRole.DefensiveMidfielder),
+                new(PlayerPosition.LeftMidfielder, PlayerRole.WideMidfielder),
+                new(PlayerPosition.RightMidfielder, PlayerRole.WideMidfielder),
+                new(PlayerPosition.CentralAttackingMidfielder, PlayerRole.AttackingMidfielder),
+                new(PlayerPosition.RightStriker, PlayerRole.AdvancedForward),
+                new(PlayerPosition.LeftStriker, PlayerRole.AdvancedForward)
+            ],
+            [Formation.Four_Three_One_Two] =
+            [
+                new(PlayerPosition.Goalkeeper, PlayerRole.Goalkeeper),
+                new(PlayerPosition.LeftBack, PlayerRole.FullBack),
+                new(PlayerPosition.RightCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.LeftCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.RightBack, PlayerRole.FullBack),
+                new(PlayerPosition.RightCenterMidfielder, PlayerRole.CentralMidfielder),
+                new(PlayerPosition.CentralCenterMidfielder, PlayerRole.CentralMidfielder),
+                new(PlayerPosition.LeftCenterMidfielder, PlayerRole.CentralMidfielder),
+                new(PlayerPosition.CentralAttackingMidfielder, PlayerRole.AttackingMidfielder),
+                new(PlayerPosition.RightStriker, PlayerRole.AdvancedForward),
+                new(PlayerPosition.LeftStriker, PlayerRole.AdvancedForward)
+            ],
+            [Formation.Four_One_Three_Two] =
+            [
+                new(PlayerPosition.Goalkeeper, PlayerRole.Goalkeeper),
+                new(PlayerPosition.LeftBack, PlayerRole.FullBack),
+                new(PlayerPosition.RightCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.LeftCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.RightBack, PlayerRole.FullBack),
+                new(PlayerPosition.CentralDefensiveMidfielder, PlayerRole.DefensiveMidfielder),
+                new(PlayerPosition.LeftMidfielder, PlayerRole.WideMidfielder),
+                new(PlayerPosition.CentralCenterMidfielder, PlayerRole.CentralMidfielder),
+                new(PlayerPosition.RightMidfielder, PlayerRole.WideMidfielder),
+                new(PlayerPosition.RightStriker, PlayerRole.AdvancedForward),
+                new(PlayerPosition.LeftStriker, PlayerRole.AdvancedForward)
+            ],
+            [Formation.Four_One_Two_One_Two] =
+            [
+                new(PlayerPosition.Goalkeeper, PlayerRole.Goalkeeper),
+                new(PlayerPosition.LeftBack, PlayerRole.FullBack),
+                new(PlayerPosition.RightCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.LeftCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.RightBack, PlayerRole.FullBack),
+                new(PlayerPosition.CentralDefensiveMidfielder, PlayerRole.DefensiveMidfielder),
+                new(PlayerPosition.RightCenterMidfielder, PlayerRole.CentralMidfielder),
+                new(PlayerPosition.LeftCenterMidfielder, PlayerRole.CentralMidfielder),
+                new(PlayerPosition.CentralAttackingMidfielder, PlayerRole.AttackingMidfielder),
+                new(PlayerPosition.RightStriker, PlayerRole.AdvancedForward),
+                new(PlayerPosition.LeftStriker, PlayerRole.AdvancedForward)
+            ],
             [Formation.Three_Four_Three] =
             [
                 new(PlayerPosition.Goalkeeper, PlayerRole.Goalkeeper),
@@ -746,14 +802,56 @@ namespace SoccerOpenServer.Services
                 new(PlayerPosition.LeftStriker, PlayerRole.AdvancedForward),
                 new(PlayerPosition.LeftWinger, PlayerRole.Winger)
             ],
-            [Formation.Five_Four_One] =
+            [Formation.Three_Six_One] =
             [
                 new(PlayerPosition.Goalkeeper, PlayerRole.Goalkeeper),
-                new(PlayerPosition.RightWingBack, PlayerRole.WingBack),
                 new(PlayerPosition.RightCenterBack, PlayerRole.CenterBack),
                 new(PlayerPosition.CentralCenterBack, PlayerRole.CenterBack),
                 new(PlayerPosition.LeftCenterBack, PlayerRole.CenterBack),
-                new(PlayerPosition.LeftWingBack, PlayerRole.WingBack),
+                new(PlayerPosition.RightMidfielder, PlayerRole.WideMidfielder),
+                new(PlayerPosition.RightCenterMidfielder, PlayerRole.CentralMidfielder),
+                new(PlayerPosition.CentralCenterMidfielder, PlayerRole.CentralMidfielder),
+                new(PlayerPosition.LeftCenterMidfielder, PlayerRole.CentralMidfielder),
+                new(PlayerPosition.LeftMidfielder, PlayerRole.WideMidfielder),
+                new(PlayerPosition.CentralAttackingMidfielder, PlayerRole.AttackingMidfielder),
+                new(PlayerPosition.CentralStriker, PlayerRole.AdvancedForward)
+            ],
+            [Formation.Three_Three_Two_Two] =
+            [
+                new(PlayerPosition.Goalkeeper, PlayerRole.Goalkeeper),
+                new(PlayerPosition.RightCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.CentralCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.LeftCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.RightDefensiveMidfielder, PlayerRole.DefensiveMidfielder),
+                new(PlayerPosition.CentralDefensiveMidfielder, PlayerRole.DefensiveMidfielder),
+                new(PlayerPosition.LeftDefensiveMidfielder, PlayerRole.DefensiveMidfielder),
+                new(PlayerPosition.RightAttackingMidfielder, PlayerRole.AttackingMidfielder),
+                new(PlayerPosition.LeftAttackingMidfielder, PlayerRole.AttackingMidfielder),
+                new(PlayerPosition.RightStriker, PlayerRole.AdvancedForward),
+                new(PlayerPosition.LeftStriker, PlayerRole.AdvancedForward)
+            ],
+            [Formation.Three_Two_Three_Two] =
+            [
+                new(PlayerPosition.Goalkeeper, PlayerRole.Goalkeeper),
+                new(PlayerPosition.RightCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.CentralCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.LeftCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.RightDefensiveMidfielder, PlayerRole.DefensiveMidfielder),
+                new(PlayerPosition.LeftDefensiveMidfielder, PlayerRole.DefensiveMidfielder),
+                new(PlayerPosition.RightAttackingMidfielder, PlayerRole.AttackingMidfielder),
+                new(PlayerPosition.CentralAttackingMidfielder, PlayerRole.AttackingMidfielder),
+                new(PlayerPosition.LeftAttackingMidfielder, PlayerRole.AttackingMidfielder),
+                new(PlayerPosition.RightStriker, PlayerRole.AdvancedForward),
+                new(PlayerPosition.LeftStriker, PlayerRole.AdvancedForward)
+            ],
+            [Formation.Five_Four_One] =
+            [
+                new(PlayerPosition.Goalkeeper, PlayerRole.Goalkeeper),
+                new(PlayerPosition.RightBack, PlayerRole.FullBack),
+                new(PlayerPosition.RightCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.CentralCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.LeftCenterBack, PlayerRole.CenterBack),
+                new(PlayerPosition.LeftBack, PlayerRole.FullBack),
                 new(PlayerPosition.RightMidfielder, PlayerRole.WideMidfielder),
                 new(PlayerPosition.RightCenterMidfielder, PlayerRole.CentralMidfielder),
                 new(PlayerPosition.LeftCenterMidfielder, PlayerRole.CentralMidfielder),
@@ -795,12 +893,12 @@ namespace SoccerOpenServer.Services
                 new(PlayerPosition.RightCenterBack, PlayerRole.CenterBack),
                 new(PlayerPosition.LeftCenterBack, PlayerRole.CenterBack),
                 new(PlayerPosition.RightBack, PlayerRole.FullBack),
-                new(PlayerPosition.RightMidfielder, PlayerRole.WideMidfielder),
-                new(PlayerPosition.RightCenterMidfielder, PlayerRole.CentralMidfielder),
-                new(PlayerPosition.CentralDefensiveMidfielder, PlayerRole.DefensiveMidfielder),
-                new(PlayerPosition.LeftCenterMidfielder, PlayerRole.CentralMidfielder),
-                new(PlayerPosition.LeftMidfielder, PlayerRole.WideMidfielder),
-                new(PlayerPosition.CentralAttackingMidfielder, PlayerRole.FalseTen)
+                new(PlayerPosition.RightDefensiveMidfielder, PlayerRole.DefensiveMidfielder),
+                new(PlayerPosition.LeftDefensiveMidfielder, PlayerRole.DefensiveMidfielder),
+                new(PlayerPosition.RightWinger, PlayerRole.Winger),
+                new(PlayerPosition.RightAttackingMidfielder, PlayerRole.AttackingMidfielder),
+                new(PlayerPosition.LeftAttackingMidfielder, PlayerRole.AttackingMidfielder),
+                new(PlayerPosition.LeftWinger, PlayerRole.Winger)
             ],
             [Formation.Two_Three_Five] =
             [

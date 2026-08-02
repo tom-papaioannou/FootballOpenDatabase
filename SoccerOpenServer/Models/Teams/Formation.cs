@@ -20,12 +20,19 @@
         Four_One_Four_One = 202,
         Four_Four_One_One = 203,
         Four_Two_Two_Two = 204,
+        Four_Four_Two_Diamond = 205,
+        Four_Three_One_Two = 206,
+        Four_One_Three_Two = 207,
+        Four_One_Two_One_Two = 208,
 
         // 3 at the back (300+)
         Three_Four_Three = 300,
         Three_Four_Two_One = 301,
         Three_Four_One_Two = 302,
         Three_Three_Four = 303,
+        Three_Six_One = 304,
+        Three_Three_Two_Two = 305,
+        Three_Two_Three_Two = 306,
 
         // 5 at the back / wingbacks (400+)
         Five_Four_One = 400,
