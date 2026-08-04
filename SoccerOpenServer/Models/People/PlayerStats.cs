@@ -46,5 +46,7 @@ namespace SoccerOpenServer.Models.People
         public byte Jumping { get; set; }
         [Range(1, 100)]
         public byte Stamina { get; set; }
+        [Range(1, 100)]
+        public byte Rating { get; set; } = 1;
     }
 }
