@@ -957,6 +957,7 @@ namespace SoccerOpenServer.Services
             var targetNation = nations.FirstOrDefault(n => n.NationID == nationID);
             var teamGenerationData = GetGenerationData(targetNation);
             var restNations = nations.Where(n => n.NationID != nationID).ToList();
+            var kitShapes = Enum.GetValues<KitShapeEnum>();
 
             // Create a shuffled copy of team names to avoid duplicates
             var availableNames = teamGenerationData.GetTeamNamesForPriority(priority).ToList();
@@ -988,7 +989,8 @@ namespace SoccerOpenServer.Services
                     HomeShirtColor = $"#{random.Next(0x1000000):X6}",
                     HomeShortsColor = $"#{random.Next(0x1000000):X6}",
                     AwayShirtColor = $"#{random.Next(0x1000000):X6}",
-                    AwayShortsColor = $"#{random.Next(0x1000000):X6}"
+                    AwayShortsColor = $"#{random.Next(0x1000000):X6}",
+                    KitShape = kitShapes[random.Next(kitShapes.Length)]
                 };
 
                 _context.Kits.Add(kit);
