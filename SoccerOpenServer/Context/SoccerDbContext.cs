@@ -24,6 +24,7 @@ public class SoccerDbContext : DbContext
     public DbSet<AppUserClaim> AppUserClaims { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
     public DbSet<PlayerStats> PlayerStats { get; set; }
+    public DbSet<CoachStats> CoachStats { get; set; }
     public DbSet<Nation> Nations { get; set; }
     public DbSet<Continent> Continents { get; set; }
     public DbSet<Server> Servers { get; set; }
@@ -103,6 +104,27 @@ public class SoccerDbContext : DbContext
         modelBuilder.Entity<PlayerStats>()
             .HasIndex(ps => ps.PersonID)
             .IsUnique();
+
+        modelBuilder.Entity<CoachStats>()
+            .HasOne(cs => cs.Person)
+            .WithOne(p => p.CoachStats)
+            .HasForeignKey<CoachStats>(cs => cs.PersonID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CoachStats>()
+            .HasIndex(cs => cs.PersonID)
+            .IsUnique();
+
+        modelBuilder.Entity<CoachStats>()
+            .ToTable(table =>
+            {
+                table.HasCheckConstraint("CK_CoachStats_Attack", "[Attack] >= 1 AND [Attack] <= 100");
+                table.HasCheckConstraint("CK_CoachStats_Defend", "[Defend] >= 1 AND [Defend] <= 100");
+                table.HasCheckConstraint("CK_CoachStats_Control", "[Control] >= 1 AND [Control] <= 100");
+                table.HasCheckConstraint("CK_CoachStats_Goalkeeper", "[Goalkeeper] >= 1 AND [Goalkeeper] <= 100");
+                table.HasCheckConstraint("CK_CoachStats_Tactic", "[Tactic] >= 1 AND [Tactic] <= 100");
+                table.HasCheckConstraint("CK_CoachStats_Fitness", "[Fitness] >= 1 AND [Fitness] <= 100");
+            });
 
         modelBuilder.Entity<Person>()
             .HasOne(p => p.Nation)
