@@ -9,7 +9,7 @@
         Manager = 1,
         AssistantManager = 2,
         Coach = 3,
-        Medical = 4,
+        Medic = 4,
         Scout = 5,
         Analyst = 6,
         Other = 7
