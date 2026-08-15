@@ -25,6 +25,7 @@ public class SoccerDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
     public DbSet<PlayerStats> PlayerStats { get; set; }
     public DbSet<CoachStats> CoachStats { get; set; }
+    public DbSet<MedicStats> MedicStats { get; set; }
     public DbSet<Nation> Nations { get; set; }
     public DbSet<Continent> Continents { get; set; }
     public DbSet<Server> Servers { get; set; }
@@ -124,6 +125,25 @@ public class SoccerDbContext : DbContext
                 table.HasCheckConstraint("CK_CoachStats_Goalkeeper", "[Goalkeeper] >= 1 AND [Goalkeeper] <= 100");
                 table.HasCheckConstraint("CK_CoachStats_Tactic", "[Tactic] >= 1 AND [Tactic] <= 100");
                 table.HasCheckConstraint("CK_CoachStats_Fitness", "[Fitness] >= 1 AND [Fitness] <= 100");
+            });
+
+        modelBuilder.Entity<MedicStats>()
+            .HasOne(ms => ms.Person)
+            .WithOne(p => p.MedicStats)
+            .HasForeignKey<MedicStats>(ms => ms.PersonID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MedicStats>()
+            .HasIndex(ms => ms.PersonID)
+            .IsUnique();
+
+        modelBuilder.Entity<MedicStats>()
+            .ToTable(table =>
+            {
+                table.HasCheckConstraint("CK_MedicStats_Diagnosis", "[Diagnosis] >= 1 AND [Diagnosis] <= 100");
+                table.HasCheckConstraint("CK_MedicStats_Treatment", "[Treatment] >= 1 AND [Treatment] <= 100");
+                table.HasCheckConstraint("CK_MedicStats_Rehabilitation", "[Rehabilitation] >= 1 AND [Rehabilitation] <= 100");
+                table.HasCheckConstraint("CK_MedicStats_Prevention", "[Prevention] >= 1 AND [Prevention] <= 100");
             });
 
         modelBuilder.Entity<Person>()
