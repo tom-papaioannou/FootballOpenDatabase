@@ -185,6 +185,42 @@ namespace SoccerOpenServer.Controllers
             return Ok(squad);
         }
 
+        [HttpGet("getTeamStaff/{teamID}")]
+        public async Task<IActionResult> GetTeamStaff(Guid teamID)
+        {
+            var teamExists = await _db.Teams.AnyAsync(t => t.TeamID == teamID);
+            if (!teamExists)
+            {
+                return NotFound();
+            }
+
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            var staff = await _db.Contracts
+                .AsNoTracking()
+                .Where(c =>
+                    c.TeamID == teamID &&
+                    c.Role == Role.Staff &&
+                    (c.EndDate == null || c.EndDate > today) &&
+                    (c.Person.StaffRole == StaffRole.Manager || c.Person.StaffRole == StaffRole.Coach))
+                .OrderBy(c => c.Person.StaffRole == StaffRole.Manager ? 0 : 1)
+                .ThenBy(c => c.Person.Surname)
+                .ThenBy(c => c.Person.Name)
+                .Select(c => new
+                {
+                    c.PersonID,
+                    c.Person.Name,
+                    c.Person.Surname,
+                    c.Person.NationID,
+                    Role = c.Person.StaffRole == StaffRole.Manager ? "Manager" : "Coach",
+                    c.Wage,
+                    c.EndDate
+                })
+                .ToListAsync();
+
+            return Ok(staff);
+        }
+
         [HttpPut("updatePlayerShirtNumber")]
         public async Task<IActionResult> UpdatePlayerShirtNumber([FromBody] UpdatePlayerShirtNumberDTO model)
         {
@@ -490,6 +526,52 @@ namespace SoccerOpenServer.Controllers
             }
 
             return Ok(manager);
+        }
+
+        [HttpGet("getCoachDetails/{personID}")]
+        public async Task<IActionResult> GetCoachDetails(Guid personID)
+        {
+            var coach = await _db.People
+                .AsNoTracking()
+                .Where(p => p.PersonID == personID && p.StaffRole == StaffRole.Coach)
+                .Select(p => new
+                {
+                    p.PersonID,
+                    p.Name,
+                    p.Surname,
+                    p.DateOfBirth,
+                    p.PlaceOfBirth,
+                    p.NationID,
+                    p.Weight,
+                    p.Height,
+                    CoachStats = p.CoachStats == null ? null : new
+                    {
+                        p.CoachStats.Attack,
+                        p.CoachStats.Defend,
+                        p.CoachStats.Control,
+                        p.CoachStats.Goalkeeper,
+                        p.CoachStats.Tactic,
+                        p.CoachStats.Fitness
+                    },
+                    Contracts = p.Contracts
+                        .Where(c => c.Role == Role.Staff)
+                        .OrderByDescending(c => c.EndDate)
+                        .Select(c => new
+                        {
+                            c.StartDate,
+                            c.EndDate,
+                            c.Wage,
+                            Team = new { c.Team.Name }
+                        })
+                })
+                .FirstOrDefaultAsync();
+
+            if (coach == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(coach);
         }
 
         [HttpGet("getManagerProfileSummary/{personID}")]
