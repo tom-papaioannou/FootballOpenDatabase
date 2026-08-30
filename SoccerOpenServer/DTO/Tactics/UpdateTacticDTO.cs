@@ -23,5 +23,11 @@ namespace SoccerOpenServer.DTO.Tactics
         [Required]
         public PassingMentality PassingMentality { get; set; } = PassingMentality.Balanced;
 
+        public bool AttackLeft { get; set; } = true;
+        public bool AttackMiddle { get; set; } = true;
+        public bool AttackRight { get; set; } = true;
+        public bool EarlyCrosses { get; set; }
+        public bool OffsideTrap { get; set; }
+
     }
 }

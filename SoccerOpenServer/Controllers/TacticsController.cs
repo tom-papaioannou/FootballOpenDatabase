@@ -208,6 +208,13 @@ namespace SoccerOpenServer.Controllers
                 return BadRequest("Invalid passing mentality.");
             }
 
+            if (!updateTacticModel.AttackLeft &&
+                !updateTacticModel.AttackMiddle &&
+                !updateTacticModel.AttackRight)
+            {
+                return BadRequest("At least one attack direction must be selected.");
+            }
+
             Tactic? tactic = await _db.Tactics.FirstOrDefaultAsync(t => t.TacticID == tacticID);
             if (tactic == null)
             {
@@ -229,6 +236,11 @@ namespace SoccerOpenServer.Controllers
                 tactic.Formation = updateTacticModel.Formation;
                 tactic.TacticMentality = updateTacticModel.TacticMentality;
                 tactic.PassingMentality = updateTacticModel.PassingMentality;
+                tactic.AttackLeft = updateTacticModel.AttackLeft;
+                tactic.AttackMiddle = updateTacticModel.AttackMiddle;
+                tactic.AttackRight = updateTacticModel.AttackRight;
+                tactic.EarlyCrosses = updateTacticModel.EarlyCrosses;
+                tactic.OffsideTrap = updateTacticModel.OffsideTrap;
 
                 bool formationChanged = previousFormation != tactic.Formation;
 

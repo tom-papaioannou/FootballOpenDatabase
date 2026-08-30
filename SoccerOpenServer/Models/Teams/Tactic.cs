@@ -24,5 +24,11 @@ namespace SoccerOpenServer.Models.Teams
 
         public TacticMentality TacticMentality { get; set; } = TacticMentality.Balanced;
         public PassingMentality PassingMentality { get; set; } = PassingMentality.Balanced;
+
+        public bool AttackLeft { get; set; } = true;
+        public bool AttackMiddle { get; set; } = true;
+        public bool AttackRight { get; set; } = true;
+        public bool EarlyCrosses { get; set; } = false;
+        public bool OffsideTrap { get; set; } = false;
     }
 }
