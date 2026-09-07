@@ -18,7 +18,7 @@ using System.Security.Claims;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<SoccerDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sql => sql.UseParameterizedCollectionMode(ParameterTranslationMode.Parameter)));
 
 
 builder.Services.AddCors(options =>

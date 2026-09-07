@@ -3,7 +3,7 @@
 SoccerOpenServer is a **REST API backend** built with **ASP.NET Core** that provides the server-side infrastructure for **soccer tactic and team management**.
 It handles data storage, business logic, authentication, and serves API endpoints for managing teams, players, tactics, and competitions.
 
-This project was built using **.NET 8.0** with **Entity Framework Core** and **SQL Server**.
+This project uses **.NET 10.0** with **Entity Framework Core** and **SQL Server**.
 
 ---
 
@@ -25,8 +25,8 @@ The application provides:
 
 The backend is built with modern .NET technologies:
 
-- **ASP.NET Core 8.0** - Web API framework  
-- **Entity Framework Core 9.0** - ORM for database operations  
+- **ASP.NET Core 10.0** - Web API framework
+- **Entity Framework Core 10.0** - ORM for database operations
 - **SQL Server** - Relational database (LocalDB for development)  
 - **JWT Authentication** - Secure token-based authentication  
 - **Swagger/OpenAPI** - API documentation and testing interface  
@@ -64,7 +64,7 @@ Running both projects together allows you to explore the **full scope of the Soc
 
 ### Prerequisites
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later  
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0), version 10.0.400 or a newer patch in the 10.0.4xx feature band (see `global.json`)
 - [SQL Server LocalDB](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb) (included with Visual Studio)  
 - A code editor (Visual Studio, VS Code, or Rider)  
 
@@ -98,7 +98,8 @@ Running both projects together allows you to explore the **full scope of the Soc
 
 4. **Apply database migrations**
    ```bash
-   dotnet ef database update
+   dotnet tool restore
+   dotnet ef database update --project SoccerOpenServer
    ```
 
 5. **Run the development server**
@@ -151,21 +152,34 @@ SoccerOpenServer/
 
 To create a new migration after model changes:
 ```bash
-dotnet ef migrations add MigrationName
-dotnet ef database update
+dotnet tool restore
+dotnet ef migrations add MigrationName --project SoccerOpenServer
+dotnet ef database update --project SoccerOpenServer
 ```
 
 ### Building the Project
 
 ```bash
-dotnet build
+dotnet restore SoccerOpenServer.sln
+dotnet build SoccerOpenServer.sln --configuration Release --no-restore
+dotnet publish SoccerOpenServer --configuration Release --no-restore
 ```
 
 ### Running Tests
 
 ```bash
-dotnet test
+dotnet test SoccerOpenServer.sln --configuration Release --no-build
 ```
+
+This checkout contains no .NET test project. The test command alone does not establish test coverage or a passing test suite.
+
+### .NET 10 deployment
+
+Framework-dependent deployments require the ASP.NET Core 10 runtime; IIS deployments require the .NET 10 Hosting Bundle. Use a Visual Studio release that supports SDK 10.0.400, or the .NET CLI. No Docker or CI/CD configuration is included in this repository.
+
+The framework upgrade does not introduce a database migration. Existing migrations remain unchanged. EF collection queries retain their previous OPENJSON translation. Before rollout, validate authentication, registration, team/tactic operations and database queries against a disposable copy of the database; application startup performs seed writes.
+
+See [the migration assessment and validation report](NET10-MIGRATION.md) for compatibility details and remaining validation limits.
 
 ---
 
